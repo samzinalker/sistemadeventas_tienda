@@ -107,7 +107,7 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
 
                             <!-- Modal para buscar producto -->
                             <div class="modal fade" id="modal-buscar_producto">
-                                <div class="modal-dialog modal-lg">
+                                  <div class="modal-dialog modal-xl" style="max-width: 95%;">
                                     <div class="modal-content">
                                         <div class="modal-header" style="background-color: #1d36b6;color: white">
                                             <h4 class="modal-title">Búsqueda de producto</h4>
@@ -117,23 +117,23 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
                                         </div>
                                         <div class="modal-body">
                                             <div class="table-responsive">
-                                                <table id="tabla_productos" class="table table-bordered table-striped table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Nro</th>
-                                                            <th>Seleccionar</th>
-                                                            <th>Código</th>
-                                                            <th>Categoría</th>
-                                                            <th>Imagen</th>
-                                                            <th>Nombre</th>
-                                                            <th>Descripción</th>
-                                                            <th>Stock</th>
-                                                            <th>Precio compra</th>
-                                                            <th>Precio venta</th>
-                                                            <th>Fecha ingreso</th>
-                                                            <th>Usuario</th>
-                                                        </tr>
-                                                    </thead>
+                                            <table id="tabla_productos" class="table table-bordered table-striped table-sm" style="width: 100%; font-size: 0.9em;">
+                                              <thead>
+                                                  <tr>
+                                                      <th style="width: 3%;">Nro</th>
+                                                      <th style="width: 8%;">Seleccionar</th>
+                                                       <th style="width: 7%;">Código</th>
+                                                       <th style="width: 8%;">Categoría</th>
+                                                      <th style="width: 6%;">Imagen</th>
+                                                      <th style="width: 12%;">Nombre</th>
+                                                         <th style="width: 16%;">Descripción</th>
+                                                      <th style="width: 5%;">Stock</th>
+                                                      <th style="width: 8%;">P. compra</th>
+                                                      <th style="width: 8%;">P. venta</th>
+                                                      <th style="width: 10%;">F. ingreso</th>
+                                                      <th style="width: 9%;">Usuario</th>
+                                                  </tr>
+                                              </thead>                                                
                                                     <tbody>
                                                         <?php
                                                         $contador = 0;
@@ -158,7 +158,7 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
                                                                 <td><?php echo $productos_dato['codigo'];?></td>
                                                                 <td><?php echo $productos_dato['categoria'];?></td>
                                                                 <td>
-                                                                    <img src="<?php echo $URL."/almacen/img_productos/".$productos_dato['imagen'];?>" width="50px" alt="img">
+                                                                <img src="<?php echo $URL."/almacen/img_productos/".$productos_dato['imagen'];?>" width="40px" height="40px" style="object-fit: cover;" alt="img">
                                                                 </td>
                                                                 <td><?php echo $productos_dato['nombre'];?></td>
                                                                 <td><?php echo $productos_dato['descripcion'];?></td>
