@@ -8,5 +8,6 @@ $query = $pdo->prepare($sql);
 $query->bindParam(':id_carrito', $id_carrito, PDO::PARAM_INT);
 $query->execute();
 
-header('Location: ../../ventas/create.php');
+// Redirección corregida usando la variable global $URL
+header('Location: ' . $URL . '/ventas/create.php');
 exit;
