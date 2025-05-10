@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-05-2025 a las 06:05:56
+-- Tiempo de generación: 10-05-2025 a las 18:54:24
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -50,8 +50,8 @@ CREATE TABLE `tb_almacen` (
 --
 
 INSERT INTO `tb_almacen` (`id_producto`, `codigo`, `nombre`, `descripcion`, `stock`, `stock_minimo`, `stock_maximo`, `precio_compra`, `precio_venta`, `fecha_ingreso`, `imagen`, `id_usuario`, `id_categoria`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(1, 'P-00001', 'pepsi', '1 litro', 109, 11, 120, 0.50, 1.00, '2025-04-19', '2025-04-22-02-46-39__pepsi.png', 1, 12, '2025-04-22 14:46:39', '2025-04-22 14:48:39'),
-(5, 'P-00002', 'logo', 'tiendita', -589, 5, 30, 0.75, 1.90, '2025-04-23', '2025-04-23-05-32-58__logo1.jpg', 1, 13, '2025-04-23 17:32:58', '0000-00-00 00:00:00');
+(1, 'P-00001', 'pepsi', '1 litro', 96, 11, 120, 0.50, 1.00, '2025-04-19', '2025-04-22-02-46-39__pepsi.png', 1, 12, '2025-04-22 14:46:39', '2025-04-22 14:48:39'),
+(5, 'P-00002', 'logo', 'tiendita', 57, 5, 30, 0.75, 1.90, '2025-04-23', '2025-04-23-05-32-58__logo1.jpg', 1, 13, '2025-04-23 17:32:58', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -74,21 +74,13 @@ CREATE TABLE `tb_carrito` (
 --
 
 INSERT INTO `tb_carrito` (`id_carrito`, `id_usuario`, `nro_venta`, `id_producto`, `cantidad`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(46, 1, 1746758424, 1, 25, '2025-05-08 21:39:53', '2025-05-08 21:40:24'),
-(47, 1, 1746758424, 5, 677, '2025-05-08 21:40:06', '2025-05-08 21:40:24'),
 (50, 1, 1746758974, 1, 1, '2025-05-08 21:49:28', '2025-05-08 21:49:34'),
-(53, 1, 1746759588, 1, 1, '2025-05-08 21:59:39', '2025-05-08 21:59:48'),
-(62, 1, 1746760554, 1, 11, '2025-05-08 22:15:47', '2025-05-08 22:15:54'),
-(66, 1, 1746761504, 1, 1, '2025-05-08 22:31:15', '2025-05-08 22:31:44'),
-(67, 1, 1746761504, 5, 2, '2025-05-08 22:31:32', '2025-05-08 22:31:44'),
-(73, 1, 1746762280, 5, 11, '0000-00-00 00:00:00', '2025-05-08 22:44:40'),
-(74, 1, 1746762280, 5, 11, '0000-00-00 00:00:00', '2025-05-08 22:44:40'),
-(75, 1, 0, 1, 11, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(78, 1, 0, 1, 2, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(80, 1, 0, 1, 22, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(82, 1, 0, 1, 11, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(83, 1, 0, 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(87, 1, 0, 5, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(90, 1, 1746770161, 5, 22, '0000-00-00 00:00:00', '2025-05-09 00:56:01'),
+(93, 1, 1746887598, 1, 22, '0000-00-00 00:00:00', '2025-05-10 09:33:18'),
+(94, 1, 1746887598, 1, 1, '0000-00-00 00:00:00', '2025-05-10 09:33:18'),
+(95, 1, 1746887598, 1, 1, '0000-00-00 00:00:00', '2025-05-10 09:33:18'),
+(96, 1, 1746887598, 1, 2, '0000-00-00 00:00:00', '2025-05-10 09:33:18'),
+(116, 1, 0, 1, 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -109,7 +101,9 @@ CREATE TABLE `tb_categorias` (
 
 INSERT INTO `tb_categorias` (`id_categoria`, `nombre_categoria`, `fyh_creacion`, `fyh_actualizacion`) VALUES
 (12, 'LIQUIDO', '2025-04-22 14:09:40', '0000-00-00 00:00:00'),
-(13, 'ELECTRODOMESTICOS', '2025-04-22 14:09:54', '0000-00-00 00:00:00');
+(13, 'ELECTRODOMESTICOS', '2025-04-22 14:09:54', '0000-00-00 00:00:00'),
+(14, '1', '2025-05-10 10:18:31', '0000-00-00 00:00:00'),
+(15, '2', '2025-05-10 10:21:16', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -184,7 +178,8 @@ CREATE TABLE `tb_proveedores` (
 --
 
 INSERT INTO `tb_proveedores` (`id_proveedor`, `nombre_proveedor`, `celular`, `telefono`, `empresa`, `email`, `direccion`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(12, 'Jonathan Ordoñez', '0954924922', '', 'EMPRESA X', 'ordoñez@gmail.com', 'Via quito Kilometro 3/2', '2025-04-22 14:12:18', '0000-00-00 00:00:00');
+(12, 'Jonathan Ordoñez', '0954924922', '', 'EMPRESA Xx', 'ordoñez@gmail.com', 'Via quito Kilometro 3/2', '2025-04-22 14:12:18', '2025-05-10 09:53:35'),
+(13, 'xd', '12121231', '121', '2112', 'mamani@gmail.com', 'fasfasfasfsa', '2025-05-10 10:26:35', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -256,12 +251,9 @@ CREATE TABLE `tb_ventas` (
 --
 
 INSERT INTO `tb_ventas` (`id_venta`, `nro_venta`, `id_cliente`, `id_usuario`, `total_pagado`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(42, 1746758424, 1, 1, 1311.30, '2025-05-08 21:40:24', '2025-05-08 21:40:24'),
 (43, 1746758974, 1, 1, 1.00, '2025-05-08 21:49:34', '2025-05-08 21:49:34'),
-(44, 1746759588, 1, 1, 1.00, '2025-05-08 21:59:48', '2025-05-08 21:59:48'),
-(48, 1746760554, 1, 1, 11.00, '2025-05-08 22:15:54', '2025-05-08 22:15:54'),
-(49, 1746761504, 1, 1, 4.80, '2025-05-08 22:31:44', '2025-05-08 22:31:44'),
-(50, 1746762280, 1, 1, 41.80, '2025-05-08 22:44:40', '2025-05-08 22:44:40');
+(52, 1746770161, 1, 1, 41.80, '2025-05-09 00:56:01', '2025-05-09 00:56:01'),
+(54, 1746887598, 1, 1, 26.00, '2025-05-10 09:33:18', '2025-05-10 09:33:18');
 
 --
 -- Índices para tablas volcadas
@@ -346,13 +338,13 @@ ALTER TABLE `tb_almacen`
 -- AUTO_INCREMENT de la tabla `tb_carrito`
 --
 ALTER TABLE `tb_carrito`
-  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id_carrito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_categorias`
 --
 ALTER TABLE `tb_categorias`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_clientes`
@@ -370,7 +362,7 @@ ALTER TABLE `tb_compras`
 -- AUTO_INCREMENT de la tabla `tb_proveedores`
 --
 ALTER TABLE `tb_proveedores`
-  MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_proveedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_roles`
@@ -388,7 +380,7 @@ ALTER TABLE `tb_usuarios`
 -- AUTO_INCREMENT de la tabla `tb_ventas`
 --
 ALTER TABLE `tb_ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- Restricciones para tablas volcadas
