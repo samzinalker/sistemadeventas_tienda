@@ -179,33 +179,34 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
                                             <button style="float: right;" id="btn_registrar_carrito" class="btn btn-primary">Agregar al carrito</button>
                                             <div id="respuesta_carrito"></div>
                                             <script>
-                                                $('#btn_registrar_carrito').click(function(){
-                                                    var id_producto= $('#id_producto').val();
-                                                    var cantidad= $('#cantidad').val();
-                                                    if(id_producto==""){
-                                                        alert("Debe seleccionar un producto.");
-                                                    }else if(cantidad=="" || cantidad <= 0){
-                                                        alert("Debe ingresar una cantidad válida.");
-                                                    }else{
-                                                        $.post("../app/controllers/ventas/agregar_al_carrito.php",
-                                                            {id_producto:id_producto, cantidad:cantidad},
-                                                            function (datos) {
-                                                              // Recarga la tabla y luego actualiza el monto
-                                                        $('#carrito_contenido').load('carrito_tabla.php?nocache=' + new Date().getTime(), function() {
-                                                            var nuevoTotal = $('#total_carrito').text();
-                                                            $('#monto_total').text(nuevoTotal);
-                                                        });
-                                                        // Limpiar los campos y cerrar modal
-                                                        $('#id_producto').val('');
-                                                        $('#producto').val('');
-                                                        $('#descripcion').val('');
-                                                        $('#precio_venta').val('');
-                                                        $('#cantidad').val('');
-                                                        $('#modal-buscar_producto').modal('hide');
-                                                            }
-                                                        );
-                                                    }
-                                                });
+                                               $('#btn_registrar_carrito').click(function(){
+    var id_producto= $('#id_producto').val();
+    var cantidad= $('#cantidad').val();
+    if(id_producto==""){
+        alert("Debe seleccionar un producto.");
+    }else if(cantidad=="" || cantidad <= 0){
+        alert("Debe ingresar una cantidad válida.");
+    }else{
+        $.post("../app/controllers/ventas/agregar_al_carrito.php",
+            {id_producto:id_producto, cantidad:cantidad},
+            function (datos) {
+              // Recarga la tabla del carrito
+              $('#carrito_contenido').load('carrito_tabla.php?nocache=' + new Date().getTime(), function() {
+                  // Actualiza el campo correcto con el valor del total del carrito
+                  var nuevoTotal = $('#total_carrito').text();
+                  $('#total_a_cancelar').val(nuevoTotal);
+              });
+              // Limpiar los campos y cerrar modal
+              $('#id_producto').val('');
+              $('#producto').val('');
+              $('#descripcion').val('');
+              $('#precio_venta').val('');
+              $('#cantidad').val('');
+              $('#modal-buscar_producto').modal('hide');
+            }
+        );
+    }
+});
                                             </script>
                                         </div>
                                     </div>
