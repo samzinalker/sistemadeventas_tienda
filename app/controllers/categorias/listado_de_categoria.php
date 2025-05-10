@@ -1,10 +1,15 @@
-<?php 
+<?php
+// Verificar sesión y permisos
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+if (!isset($_SESSION['id_usuario'])) {
+    header('Location: ' . $URL . '/login.php');
+    exit();
+}
 
-
-//pdo es el ob jeto de conexion a la base de da o s
-
-
+//pdo es el objeto de conexion a la base de datos
 $sql_categorias = "SELECT * FROM tb_categorias ";
 $query_categorias = $pdo->prepare($sql_categorias);
 $query_categorias->execute();
