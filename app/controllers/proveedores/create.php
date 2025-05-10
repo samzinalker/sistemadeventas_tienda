@@ -1,6 +1,7 @@
 <?php
 
 
+
 include ('../../config.php');
 
 $nombre_proveedor = $_GET['nombre_proveedor'];
