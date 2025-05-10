@@ -46,12 +46,35 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
     <div class="content">
         <div class="container-fluid">
 
-            <?php if ($success_msg): ?>
-                <div class="alert alert-success"><?php echo $success_msg; ?></div>
-            <?php endif; ?>
-            <?php if ($error_msg): ?>
-                <div class="alert alert-danger"><?php echo $error_msg; ?></div>
-            <?php endif; ?>
+        <?php if ($success_msg): ?>
+    <div id="success-alert" class="alert alert-success"><?php echo $success_msg; ?></div>
+    <script>
+        // Ocultar automáticamente el mensaje de éxito después de 3 segundos
+        setTimeout(function() {
+            $('#success-alert').fadeOut('slow', function() {
+                $(this).remove();
+                // Opcionalmente, eliminar el parámetro de la URL
+                var urlWithoutParams = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, urlWithoutParams);
+            });
+        }, 3000); // 3000 milisegundos = 3 segundos
+    </script>
+<?php endif; ?>
+
+<?php if ($error_msg): ?>
+    <div id="error-alert" class="alert alert-danger"><?php echo $error_msg; ?></div>
+    <script>
+        // Ocultar automáticamente el mensaje de error después de 3 segundos
+        setTimeout(function() {
+            $('#error-alert').fadeOut('slow', function() {
+                $(this).remove();
+                // Opcionalmente, eliminar el parámetro de la URL
+                var urlWithoutParams = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, urlWithoutParams);
+            });
+        }, 2300); // 2300 milisegundos
+    </script>
+<?php endif; ?>
 
            <div class="row">
                <div class="col-md-12">

@@ -73,7 +73,7 @@ try {
     }
 
     $pdo->commit();
-    header('Location: ../../ventas/create.php?success=1');
+    header("Location: ".$URL."/ventas/create.php?success=1");
     exit();
 
 } catch (Exception $e) {
