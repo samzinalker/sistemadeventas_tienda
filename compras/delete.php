@@ -7,7 +7,8 @@ include ('../layout/parte1.php');
 include ('../app/controllers/almacen/listado_de_productos.php');
 include ('../app/controllers/proveedores/listado_de_proveedores.php');
 include ('../app/controllers/compras/cargar_compra.php');
-
+// Verificar si el usuario puede acceder a esta compra específica
+include ('../app/controllers/compras/verificacion_usuario.php');
 ?>
 
 <!-- Content Wrapper. Contains page content -->

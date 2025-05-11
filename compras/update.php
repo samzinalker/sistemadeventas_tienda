@@ -8,6 +8,9 @@ include ('../app/controllers/almacen/listado_de_productos.php');
 include ('../app/controllers/proveedores/listado_de_proveedores.php');
 include ('../app/controllers/compras/cargar_compra.php');
 
+// Verificar si el usuario puede acceder a esta compra específica
+include ('../app/controllers/compras/verificacion_usuario.php');
+
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -511,50 +514,120 @@ include ('../app/controllers/compras/cargar_compra.php');
                                     <hr>
 
                                     <div class="col-md-12">
-                                        <div class="form-group">
-                                            <button class="btn btn-success btn-block" id="btn_actualizar_compra">Actualizar compra</button>
-                                        </div>
-                                    </div>
-                                    <script>
-                                        $('#btn_actualizar_compra').click(function () {
+    <div class="form-group">
+        <button class="btn btn-success btn-block" id="btn_actualizar_compra">Actualizar compra</button>
+    </div>
+</div>
 
-                                            var id_compra = '<?php echo $id_compra; ?>';
-                                            var id_producto = $('#id_producto').val();
-                                            var nro_compra = $('#nro_compra').val();
-                                            var fecha_compra = $('#fecha_compra').val();
-                                            var id_proveedor = $('#id_proveedor').val();
-                                            var comprobante = $('#comprobante').val();
-                                            var id_usuario = '<?php echo $id_usuario_sesion;?>';
-                                            var precio_compra = $('#precio_compra_controlador').val();
-                                            var cantidad_compra = $('#cantidad_compra').val();
+<script>
+    $('#btn_actualizar_compra').click(function () {
+        // Obtener los datos del formulario
+        var id_compra = '<?php echo $id_compra; ?>';
+        var id_producto = $('#id_producto').val();
+        var nro_compra = $('#nro_compra').val();
+        var fecha_compra = $('#fecha_compra').val();
+        var id_proveedor = $('#id_proveedor').val();
+        var comprobante = $('#comprobante').val();
+        var precio_compra = $('#precio_compra_controlador').val();
+        var cantidad_compra = $('#cantidad_compra').val();
+        var stock_total = $('#stock_total').val();
 
-                                            var stock_total = $('#stock_total').val();
+        // Validación de campos
+        if(id_producto == ""){
+            $('#id_producto').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe seleccionar un producto',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
+        if(fecha_compra == ""){
+            $('#fecha_compra').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe seleccionar una fecha',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
+        if(id_proveedor == ""){
+            $('#id_proveedor').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe seleccionar un proveedor',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
+        if(comprobante == ""){
+            $('#comprobante').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe ingresar un número de comprobante',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
+        if(precio_compra == ""){
+            $('#precio_compra_controlador').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe ingresar un precio de compra',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
+        if(cantidad_compra == ""){
+            $('#cantidad_compra').focus();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe ingresar una cantidad',
+                confirmButtonText: 'Aceptar'
+            });
+            return false;
+        }
 
-                                            if(id_producto == ""){
-                                                $('#id_producto').focus();
-                                                alert("Debe llenar todos los campos productos");
-                                            }else if(fecha_compra == ""){
-                                                $('#fecha_compra').focus();
-                                                alert("Debe llenar todos los campos fecha compra");
-                                            }else if(comprobante == ""){
-                                                $('#comprobante').focus();
-                                                alert("Debe llenar todos los campos comprobante");
-                                            }else if (precio_compra == ""){
-                                                $('#precio_compra_controlador').focus();
-                                                alert("Debe llenar todos los campos precio compra");
-                                            }else if( cantidad_compra == ""){
-                                                $('#cantidad_compra').focus();
-                                                alert("Debe llenar todos los campos cantidades");
-                                            }
-                                            else{
-                                                var url = "../app/controllers/compras/update.php";
-                                                $.get(url,{id_compra:id_compra,id_producto:id_producto,nro_compra:nro_compra,fecha_compra:fecha_compra,id_proveedor:id_proveedor,comprobante:comprobante,id_usuario:id_usuario,precio_compra:precio_compra,cantidad_compra:cantidad_compra,stock_total:stock_total},function (datos) {
-                                                    $('#respuesta_update').html(datos);
-                                                });
-                                            }
+        // Si pasó todas las validaciones, enviar la petición AJAX
+        // Nota: Ya no enviamos el id_usuario desde aquí
+        var url = "../app/controllers/compras/update.php";
+        
+        // Mostrar indicador de carga
+        Swal.fire({
+            title: 'Procesando',
+            html: 'Actualizando la compra, por favor espere...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        $.get(url, {
+            id_compra: id_compra,
+            id_producto: id_producto,
+            nro_compra: nro_compra,
+            fecha_compra: fecha_compra,
+            id_proveedor: id_proveedor,
+            comprobante: comprobante,
+            precio_compra: precio_compra,
+            cantidad_compra: cantidad_compra,
+            stock_total: stock_total
+        }, function (response) {
+            // Cerrar indicador de carga
+            Swal.close();
+            $('#respuesta_update').html(response);
+        }).fail(function() {
+            // Manejar error en la petición
+            Swal.fire({
+                icon: 'error',
+                title: 'Error en la conexión',
+                text: 'No se pudo procesar la solicitud. Intente nuevamente.'
+            });
+        });
+    });
+</script>
 
-                                        });
-                                    </script>
+<div id="respuesta_update"></div>
                                 </div>
 
                             </div>
