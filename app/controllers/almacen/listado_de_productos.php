@@ -12,12 +12,14 @@ if (!isset($_SESSION['id_usuario'])) {
 
 $id_usuario = $_SESSION['id_usuario'];
 
-// 3. Consulta SOLO los productos del usuario autenticado
+// 3. Consulta SOLO los productos del usuario autenticado - SIN EXCEPCIONES
+// Incluso administradores solo ven sus propios productos
 $sql_productos = "SELECT a.*, cat.nombre_categoria as categoria, u.email as email
                   FROM tb_almacen as a
                   INNER JOIN tb_categorias as cat ON a.id_categoria = cat.id_categoria
                   INNER JOIN tb_usuarios as u ON u.id_usuario = a.id_usuario
-                  WHERE a.id_usuario = :id_usuario";
+                  WHERE a.id_usuario = :id_usuario
+                  ORDER BY a.id_producto DESC";
 $query_productos = $pdo->prepare($sql_productos);
 $query_productos->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
 $query_productos->execute();
