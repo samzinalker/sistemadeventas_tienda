@@ -10,8 +10,8 @@ if (!isset($_SESSION['id_usuario'])) {
     exit();
 }
 
-// 3. Obtener el ID del usuario actual
-$id_usuario = $_SESSION['id_usuario'];
+// En app/controllers/compras/listado_de_compras.php
+$id_usuario = $_SESSION['id_usuario']; // Obtener ID del usuario actual
 
 $sql_compras = "SELECT *,
                 pro.codigo as codigo, pro.nombre as nombre_producto, pro.descripcion as descripcion, pro.stock as stock, 
@@ -27,6 +27,7 @@ $sql_compras = "SELECT *,
                 INNER JOIN tb_proveedores as prov ON co.id_proveedor = prov.id_proveedor
                 WHERE co.id_usuario = :id_usuario
                 ORDER BY co.id_compra DESC";
+
 
 $query_compras = $pdo->prepare($sql_compras);
 $query_compras->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);

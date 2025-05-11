@@ -1,11 +1,11 @@
 <?php
 include ('../app/config.php');
 include ('../layout/sesion.php');
-
 include ('../layout/parte1.php');
-
-
 include ('../app/controllers/compras/listado_de_compras.php');
+
+// Incluir verificación de usuario si creaste verificacion_usuario.php
+
 
 
 ?>
@@ -17,28 +17,30 @@ include ('../app/controllers/compras/listado_de_compras.php');
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0">Listado de compras actualizado</h1>
+                    <h1 class="m-0">
+                        Listado de compras
+                        <a href="create.php" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Registrar nueva compra
+                        </a>
+                    </h1>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
 
-
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-md-12">
                     <div class="card card-outline card-primary">
                         <div class="card-header">
-                            <h3 class="card-title">Compras registrados</h3>
+                            <h3 class="card-title">Compras registradas</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
                                 </button>
                             </div>
-
                         </div>
 
                         <div class="card-body" style="display: block;">
@@ -52,9 +54,9 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                         <th><center>Fecha de compra</center></th>
                                         <th><center>Proveedor</center></th>
                                         <th><center>Comprobante</center></th>
-                                        <th><center>Usuario</center></th>
                                         <th><center>Precio compra</center></th>
                                         <th><center>Cantidad</center></th>
+                                        <th><center>Total</center></th>
                                         <th><center>Acciones</center></th>
                                     </tr>
                                     </thead>
@@ -62,7 +64,11 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                     <?php
                                     $contador = 0;
                                     foreach ($compras_datos as $compras_dato){
-                                        $id_compra = $compras_dato['id_compra']; ?>
+                                        $id_compra = $compras_dato['id_compra']; 
+                                        $precio_compra = $compras_dato['precio_compra'];
+                                        $cantidad = $compras_dato['cantidad'];
+                                        $total = $precio_compra * $cantidad;
+                                        ?>
                                         <tr>
                                             <td><?php echo $contador = $contador + 1;?></td>
                                             <td><?php echo $compras_dato['nro_compra'];?></td>
@@ -95,7 +101,7 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                                                             <div class="col-md-4">
                                                                                 <div class="form-group">
                                                                                     <label for="">Nombre del producto</label>
-                                                                                    <input type="text" value="<?php echo $compras_dato['nombre'];?>" class="form-control" disabled>
+                                                                                    <input type="text" value="<?php echo $compras_dato['nombre_producto'];?>" class="form-control" disabled>
                                                                                 </div>
                                                                             </div>
                                                                             <div class="col-md-6">
@@ -134,28 +140,22 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                                                         </div>
 
                                                                         <div class="row">
-                                                                            <div class="col-md-3">
+                                                                            <div class="col-md-4">
                                                                                 <div class="form-group">
                                                                                     <label for="">Precio Compra</label>
                                                                                     <input type="text" value="<?php echo $compras_dato['precio_compra_producto'];?>" class="form-control" disabled>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="col-md-3">
+                                                                            <div class="col-md-4">
                                                                                 <div class="form-group">
                                                                                     <label for="">Precio Venta</label>
                                                                                     <input type="text" value="<?php echo $compras_dato['precio_venta_producto'];?>" class="form-control" disabled>
                                                                                 </div>
                                                                             </div>
-                                                                            <div class="col-md-3">
+                                                                            <div class="col-md-4">
                                                                                 <div class="form-group">
                                                                                     <label for="">Categoría</label>
                                                                                     <input type="text" value="<?php echo $compras_dato['nombre_categoria'];?>" class="form-control" disabled>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-md-3">
-                                                                                <div class="form-group">
-                                                                                    <label for="">Usuario</label>
-                                                                                    <input type="text" value="<?php echo $compras_dato['nombre_usuarios_producto'];?>" class="form-control" disabled>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -167,11 +167,6 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                                                         </div>
                                                                     </div>
                                                                 </div>
-
-
-
-
-
                                                             </div>
                                                         </div>
                                                         <!-- /.modal-content -->
@@ -253,9 +248,9 @@ include ('../app/controllers/compras/listado_de_compras.php');
 
                                             </td>
                                             <td><?php echo $compras_dato['comprobante'];?></td>
-                                            <td><?php echo $compras_dato['nombres_usuario'];?></td>
-                                            <td><?php echo $compras_dato['precio_compra'];?></td>
-                                            <td><?php echo $compras_dato['cantidad'];?></td>
+                                            <td><?php echo $precio_compra;?></td>
+                                            <td><?php echo $cantidad;?></td>
+                                            <td><?php echo $total;?></td>
                                             <td>
                                                 <center>
                                                     <div class="btn-group">
@@ -270,15 +265,26 @@ include ('../app/controllers/compras/listado_de_compras.php');
                                     }
                                     ?>
                                     </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th><center>Nro</center></th>
+                                        <th><center>Nro de la compra</center></th>
+                                        <th><center>Producto</center></th>
+                                        <th><center>Fecha de compra</center></th>
+                                        <th><center>Proveedor</center></th>
+                                        <th><center>Comprobante</center></th>
+                                        <th><center>Precio compra</center></th>
+                                        <th><center>Cantidad</center></th>
+                                        <th><center>Total</center></th>
+                                        <th><center>Acciones</center></th>
+                                    </tr>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-
             <!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
@@ -286,15 +292,13 @@ include ('../app/controllers/compras/listado_de_compras.php');
 </div>
 <!-- /.content-wrapper -->
 
-
 <?php include ('../layout/mensajes.php'); ?>
 <?php include ('../layout/parte2.php'); ?>
-
 
 <script>
     $(function () {
         $("#example1").DataTable({
-            "pageLength": 5,
+            "pageLength": 10,
             "language": {
                 "emptyTable": "No hay información",
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ Compras",
@@ -323,19 +327,7 @@ include ('../app/controllers/compras/listado_de_compras.php');
                         text: 'Copiar',
                         extend: 'copy',
                         exportOptions: {
-                            columns: ':not(:last-child)',
-                            format: {
-                                body: function (data, row, column, node) {
-                                    if(column === 2 || column === 4) {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = data;
-                                        var btn = div.querySelector("button");
-                                        if(btn) return btn.textContent.trim();
-                                        return div.textContent.trim();
-                                    }
-                                    return data;
-                                }
-                            }
+                            columns: ':not(:last-child)'
                         }
                     },
                     {
@@ -344,19 +336,7 @@ include ('../app/controllers/compras/listado_de_compras.php');
                         orientation: 'landscape',
                         pageSize: 'A4',
                         exportOptions: {
-                            columns: ':not(:last-child)',
-                            format: {
-                                body: function (data, row, column, node) {
-                                    if(column === 2 || column === 4) {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = data;
-                                        var btn = div.querySelector("button");
-                                        if(btn) return btn.textContent.trim();
-                                        return div.textContent.trim();
-                                    }
-                                    return data;
-                                }
-                            }
+                            columns: ':not(:last-child)'
                         },
                         customize: function (doc) {
                             doc.pageMargins = [10, 10, 10, 10];
@@ -378,56 +358,20 @@ include ('../app/controllers/compras/listado_de_compras.php');
                     {
                         extend: 'csv',
                         exportOptions: {
-                            columns: ':not(:last-child)',
-                            format: {
-                                body: function (data, row, column, node) {
-                                    if(column === 2 || column === 4) {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = data;
-                                        var btn = div.querySelector("button");
-                                        if(btn) return btn.textContent.trim();
-                                        return div.textContent.trim();
-                                    }
-                                    return data;
-                                }
-                            }
+                            columns: ':not(:last-child)'
                         }
                     },
                     {
                         extend: 'excel',
                         exportOptions: {
-                            columns: ':not(:last-child)',
-                            format: {
-                                body: function (data, row, column, node) {
-                                    if(column === 2 || column === 4) {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = data;
-                                        var btn = div.querySelector("button");
-                                        if(btn) return btn.textContent.trim();
-                                        return div.textContent.trim();
-                                    }
-                                    return data;
-                                }
-                            }
+                            columns: ':not(:last-child)'
                         }
                     },
                     {
                         text: 'Imprimir',
                         extend: 'print',
                         exportOptions: {
-                            columns: ':not(:last-child)',
-                            format: {
-                                body: function (data, row, column, node) {
-                                    if(column === 2 || column === 4) {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = data;
-                                        var btn = div.querySelector("button");
-                                        if(btn) return btn.textContent.trim();
-                                        return div.textContent.trim();
-                                    }
-                                    return data;
-                                }
-                            }
+                            columns: ':not(:last-child)'
                         }
                     }
                 ]

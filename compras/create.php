@@ -424,75 +424,109 @@ include ('../app/controllers/compras/listado_de_compras.php');
                <div class="col-md-3">
 
                    <div class="row">
-                       <div class="col-md-12">
-                           <div class="card card-outline card-primary">
-                               <div class="card-header">
-                                   <h3 class="card-title">Detalle de la compra</h3>
-                                   <div class="card-tools">
-                                       <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                           <i class="fas fa-minus"></i>
-                                       </button>
-                                   </div>
+                   <div class="col-md-12">
+    <div class="card card-outline card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Detalle de la compra</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
 
-                               </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <?php
+                        $contador_de_compras = 1;
+                        foreach ($compras_datos as $compras_dato) {
+                            $contador_de_compras = $contador_de_compras + 1;
+                        }
+                        ?>
+                        <label for="">Número de la compra</label>
+                        <input type="text" value="<?php echo $contador_de_compras; ?>" style="text-align: center" class="form-control" disabled>
+                        <input type="text" value="<?php echo $contador_de_compras; ?>" id="nro_compra" hidden>
+                    </div>
+                </div>
 
-                               <div class="card-body">
-                                   <div class="row">
-                                       <div class="col-md-12">
-                                           <div class="form-group">
-                                               <?php
-                                               $contador_de_compras = 1;
-                                               foreach ($compras_datos as $compras_dato) {
-                                                   $contador_de_compras = $contador_de_compras + 1;
-                                               }
-                                               ?>
-                                               <label for="">Número de la compra</label>
-                                               <input type="text" value="<?php echo $contador_de_compras; ?>" style="text-align: center" class="form-control" disabled>
-                                               <input type="text" value="<?php echo $contador_de_compras; ?>" id="nro_compra" hidden>
-                                           </div>
-                                       </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="">Fecha de la compra</label>
+                        <input type="date" class="form-control" id="fecha_compra">
+                    </div>
+                </div>
 
-                                       <div class="col-md-12">
-                                           <div class="form-group">
-                                               <label for="">Fecha de la compra</label>
-                                               <input type="date" class="form-control" id="fecha_compra">
-                                           </div>
-                                       </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="">Comprobante de la compra</label>
+                        <input type="text" class="form-control" id="comprobante">
+                    </div>
+                </div>
 
-                                       <div class="col-md-12">
-                                           <div class="form-group">
-                                               <label for="">Comprobante de la compra</label>
-                                               <input type="text" class="form-control" id="comprobante">
-                                           </div>
-                                       </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="">Precio de la compra</label>
+                        <input type="text" class="form-control" id="precio_compra_controlador">
+                    </div>
+                </div>
 
-                                       <div class="col-md-12">
-                                           <div class="form-group">
-                                               <label for="">Precio de la compra</label>
-                                               <input type="text" class="form-control" id="precio_compra_controlador">
-                                           </div>
-                                       </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Stock actual</label>
+                        <input type="text" style="background-color: #fff819;text-align: center" id="stock_actual" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Stock Total</label>
+                        <input type="text" style="text-align: center" id="stock_total" class="form-control" disabled>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="">Cantidad de la compra</label>
+                        <input type="number" id="cantidad_compra" style="text-align: center" class="form-control">
+                    </div>
+                    <script>
+                        $('#cantidad_compra').keyup(function () {
+                            var stock_actual = $('#stock_actual').val() || 0;
+                            var stock_compra = $('#cantidad_compra').val() || 0;
+                            
+                            // Asegurar que los valores son numéricos
+                            stock_actual = parseInt(stock_actual);
+                            stock_compra = parseInt(stock_compra);
+                            
+                            var total = stock_actual + stock_compra;
+                            $('#stock_total').val(total);
+                        });
+                        
+                        // También ejecutar el cálculo cuando se cambie el valor con los botones de incremento/decremento
+                        $('#cantidad_compra').change(function() {
+                            $(this).keyup();
+                        });
+                    </script>
+                </div>
 
-                                       <div class="col-md-6">
-                                           <div class="form-group">
-                                               <label for="">Stock actual</label>
-                                               <input type="text" style="background-color: #fff819;text-align: center" id="stock_actual" class="form-control" disabled>
-                                           </div>
-                                       </div>
-                                       <div class="col-md-6">
-                                           <div class="form-group">
-                                               <label for="">Stock Total</label>
-                                               <input type="text" style="text-align: center" id="stock_total" class="form-control" disabled>
-                                           </div>
-                                       </div>
-                                       <!-- Modificar la sección del detalle de la compra en la columna derecha -->
-<div class="col-md-12">
-    <div class="form-group">
-        <button class="btn btn-primary btn-block" id="btn_guardar_compra">Guardar compra</button>
-    </div>
-</div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="">Usuario</label>
+                        <input type="text" class="form-control" value="<?php echo $nombres_sesion; ?>" disabled>
+                    </div>
+                </div>
+            </div>
+            <hr>
 
-<script>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" id="btn_guardar_compra">
+                        <i class="fas fa-save"></i> Guardar compra
+                    </button>
+                </div>
+            </div>
+
+            <script>
     $('#btn_guardar_compra').click(function () {
         // Obtener los datos del formulario
         var id_producto = $('#id_producto').val();
@@ -506,7 +540,6 @@ include ('../app/controllers/compras/listado_de_compras.php');
 
         // Validación de campos
         if(id_producto == ""){
-            $('#id_producto').focus();
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe seleccionar un producto',
@@ -515,7 +548,6 @@ include ('../app/controllers/compras/listado_de_compras.php');
             return false;
         }
         if(fecha_compra == ""){
-            $('#fecha_compra').focus();
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe seleccionar una fecha',
@@ -523,8 +555,7 @@ include ('../app/controllers/compras/listado_de_compras.php');
             });
             return false;
         }
-        if(id_proveedor == ""){
-            $('#id_proveedor').focus();
+        if(id_proveedor == "" || id_proveedor == undefined){
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe seleccionar un proveedor',
@@ -533,16 +564,14 @@ include ('../app/controllers/compras/listado_de_compras.php');
             return false;
         }
         if(comprobante == ""){
-            $('#comprobante').focus();
             Swal.fire({
                 icon: 'warning',
-                title: 'Debe ingresar un número de comprobante',
+                title: 'Debe ingresar un comprobante',
                 confirmButtonText: 'Aceptar'
             });
             return false;
         }
         if(precio_compra == ""){
-            $('#precio_compra_controlador').focus();
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe ingresar un precio de compra',
@@ -551,7 +580,6 @@ include ('../app/controllers/compras/listado_de_compras.php');
             return false;
         }
         if(cantidad_compra == ""){
-            $('#cantidad_compra').focus();
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe ingresar una cantidad',
@@ -560,11 +588,7 @@ include ('../app/controllers/compras/listado_de_compras.php');
             return false;
         }
 
-        // Si pasó todas las validaciones, enviar la petición AJAX
-        // Nota: Ya no enviamos el id_usuario desde aquí
-        var url = "../app/controllers/compras/create.php";
-        
-        // Mostrar indicador de carga
+        // Si pasa todas las validaciones, enviar la petición AJAX
         Swal.fire({
             title: 'Procesando',
             html: 'Guardando la compra, por favor espere...',
@@ -573,7 +597,8 @@ include ('../app/controllers/compras/listado_de_compras.php');
                 Swal.showLoading();
             }
         });
-        
+
+        var url = "../app/controllers/compras/create.php";
         $.get(url, {
             id_producto: id_producto,
             nro_compra: nro_compra,
@@ -584,11 +609,10 @@ include ('../app/controllers/compras/listado_de_compras.php');
             cantidad_compra: cantidad_compra,
             stock_total: stock_total
         }, function (response) {
-            // Cerrar indicador de carga y mostrar respuesta
+            // Cerrar indicador de carga
             Swal.close();
             $('#respuesta_create').html(response);
         }).fail(function() {
-            // Manejar error en la petición
             Swal.fire({
                 icon: 'error',
                 title: 'Error en la conexión',
