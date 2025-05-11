@@ -66,14 +66,25 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar user panel (optional) -->
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                </div>
-                <div class="info">
-                    <a href="#" class="d-block"><?php echo $nombres_sesion;?></a>
-                </div>
-            </div>
+<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+    <div class="image">
+        <?php 
+        // Obtener imagen de perfil
+        $sql_img = "SELECT imagen_perfil FROM tb_usuarios WHERE id_usuario = :id_usuario";
+        $query_img = $pdo->prepare($sql_img);
+        $query_img->bindParam(':id_usuario', $_SESSION['id_usuario']);
+        $query_img->execute();
+        $result_img = $query_img->fetch(PDO::FETCH_ASSOC);
+        
+        $img_perfil = isset($result_img['imagen_perfil']) ? $result_img['imagen_perfil'] : 'user_default.png';
+        $ruta_img = $URL.'/public/images/perfiles/'.$img_perfil;
+        ?>
+        <img src="<?php echo $ruta_img; ?>" class="img-circle elevation-2" alt="User Image">
+    </div>
+    <div class="info">
+        <a href="<?php echo $URL;?>/perfil" class="d-block"><?php echo $nombres_sesion;?></a>
+    </div>
+</div>
 
 
             <nav class="mt-2">
@@ -105,6 +116,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </li>
         </ul>
     </li>
+
+    
 
 
 
@@ -261,9 +274,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             </li>
                         </ul>
                     </li>
+                   
 
-
-
+<!-- Agregar antes del item de Cerrar Sesión -->
+<li class="nav-item">
+    <a href="<?php echo $URL;?>/perfil" class="nav-link">
+        <i class="nav-icon fas fa-user-circle"></i>
+        <p>
+            Mi Perfil
+        </p>
+    </a>
+</li>
 
 
                     <li class="nav-item">
