@@ -480,36 +480,38 @@ if (isset($_GET['error'])) $error_msg = urldecode($_GET['error']);
                                 </button>
                             </form>
                             <script>
-                                $('#form_finalizar_venta').submit(function(e) {
-                                    // Verificar si hay productos en el carrito
-                                    var filas_carrito = $('#carrito_tabla tbody tr').length;
-                                    if (filas_carrito <= 1) {
-                                        e.preventDefault();
-                                        Swal.fire({
-                                            icon: 'warning',
-                                            title: 'Carrito vacío',
-                                            text: 'Debe agregar al menos un producto al carrito'
-                                        });
-                                        return false;
-                                    }
-                                    
-                                    // Verificar si se ha seleccionado un cliente
-                                    if (!$('#id_cliente').val()) {
-                                        e.preventDefault();
-                                        Swal.fire({
-                                            icon: 'warning',
-                                            title: 'Cliente no seleccionado',
-                                            text: 'Debe seleccionar un cliente antes de finalizar la venta'
-                                        });
-                                        return false;
-                                    }
-                                    
-                                    // Transferir ID del cliente y deshabilitar botón
-                                    $('#id_cliente_hidden').val($('#id_cliente').val());
-                                    $('#btn_finalizar_venta').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> PROCESANDO...');
-                                    
-                                    return true;
-                                });
+                               $('#form_finalizar_venta').submit(function(e) {
+    // Obtener el valor del span que muestra el total del carrito
+    var total_carrito = parseFloat($('#total_carrito').text().replace(/[^\d.-]/g, ''));
+    
+    // Verificar si hay productos en el carrito
+    if (total_carrito <= 0) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Carrito vacío',
+            text: 'Debe agregar al menos un producto al carrito'
+        });
+        return false;
+    }
+    
+    // Verificar si se ha seleccionado un cliente
+    if (!$('#id_cliente').val()) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cliente no seleccionado',
+            text: 'Debe seleccionar un cliente antes de finalizar la venta'
+        });
+        return false;
+    }
+    
+    // Transferir ID del cliente y deshabilitar botón
+    $('#id_cliente_hidden').val($('#id_cliente').val());
+    $('#btn_finalizar_venta').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> PROCESANDO...');
+    
+    return true;
+});
                             </script>
                         </div>
                     </div>
