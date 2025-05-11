@@ -24,7 +24,7 @@ $consulta->bindParam(':id_categoria', $id_categoria, PDO::PARAM_INT);
 $consulta->execute();
 $categoria = $consulta->fetch(PDO::FETCH_ASSOC);
 
-// Si no es su categoría, denegar acceso (incluso si es administrador)
+// Si no es su categoría, denegar acceso
 if ($categoria['id_usuario'] != $id_usuario_actual) {
     $_SESSION['mensaje'] = "No tiene permiso para modificar esta categoría";
     $_SESSION['icono'] = "error";
@@ -32,7 +32,25 @@ if ($categoria['id_usuario'] != $id_usuario_actual) {
     exit();
 }
 
-// Si es su categoría, proceder con la actualización
+// Verificar si otra categoría del mismo usuario ya tiene ese nombre
+$consulta_duplicado = $pdo->prepare("SELECT COUNT(*) AS total FROM tb_categorias 
+                                   WHERE nombre_categoria = :nombre_categoria 
+                                   AND id_usuario = :id_usuario 
+                                   AND id_categoria != :id_categoria");
+$consulta_duplicado->bindParam(':nombre_categoria', $nombre_categoria);
+$consulta_duplicado->bindParam(':id_usuario', $id_usuario_actual);
+$consulta_duplicado->bindParam(':id_categoria', $id_categoria);
+$consulta_duplicado->execute();
+$resultado = $consulta_duplicado->fetch(PDO::FETCH_ASSOC);
+
+if ($resultado['total'] > 0) {
+    $_SESSION['mensaje'] = "Ya existe otra categoría con este nombre";
+    $_SESSION['icono'] = "warning";
+    echo "<script>location.href = '$URL/categorias';</script>";
+    exit();
+}
+
+// Si pasa todas las validaciones, proceder con la actualización
 $sentencia = $pdo->prepare("UPDATE tb_categorias
     SET nombre_categoria = :nombre_categoria,
         fyh_actualizacion = :fyh_actualizacion 
