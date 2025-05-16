@@ -11,12 +11,25 @@ if (!isset($_SESSION['id_usuario'])) {
 $id_usuario_actual = $_SESSION['id_usuario'];
 $id_producto = $_POST['id_producto'] ?? 0;
 $cantidad = intval($_POST['cantidad'] ?? 0);
+$porcentaje_iva = floatval($_POST['porcentaje_iva'] ?? 0);
 
 // Validar parámetros
 if (!$id_producto || $cantidad <= 0) {
     echo "ERROR: Datos inválidos. Producto y cantidad son obligatorios";
     exit();
 }
+
+// Validar IVA (ahora permitimos 0 o mayor)
+if ($porcentaje_iva < 0) {
+    echo "ERROR: El porcentaje de IVA no puede ser negativo";
+    exit();
+}
+
+// Guardar el IVA para este producto específico
+if (!isset($_SESSION['ultimo_iva_por_producto'])) {
+    $_SESSION['ultimo_iva_por_producto'] = [];
+}
+$_SESSION['ultimo_iva_por_producto'][$id_producto] = $porcentaje_iva;
 
 // Verificar que el producto pertenezca al usuario actual
 $sql_producto = "SELECT stock, precio_venta, nombre FROM tb_almacen 
@@ -57,6 +70,7 @@ try {
         // Ya existe, actualizar cantidad
         $carrito = $query_carrito->fetch(PDO::FETCH_ASSOC);
         $cantidad_nueva = $carrito['cantidad'] + $cantidad;
+        $id_carrito = $carrito['id_carrito'];
         
         // Verificar nuevamente el stock con la cantidad actualizada
         if ($stock_actual < $cantidad_nueva) {
@@ -67,7 +81,7 @@ try {
                 WHERE id_carrito = :id_carrito AND id_usuario = :id_usuario";
         $query = $pdo->prepare($sql);
         $query->bindParam(':cantidad', $cantidad_nueva, PDO::PARAM_INT);
-        $query->bindParam(':id_carrito', $carrito['id_carrito'], PDO::PARAM_INT);
+        $query->bindParam(':id_carrito', $id_carrito, PDO::PARAM_INT);
         $query->bindParam(':id_usuario', $id_usuario_actual, PDO::PARAM_INT);
     } else {
         // No existe, insertar nuevo
@@ -80,6 +94,17 @@ try {
     }
     
     if ($query->execute()) {
+        // Si es un producto nuevo, obtener su id_carrito para guardar el IVA
+        if ($query_carrito->rowCount() == 0) {
+            $id_carrito = $pdo->lastInsertId();
+        }
+        
+        // Guardar el IVA en la sesión
+        if (!isset($_SESSION['iva_productos'])) {
+            $_SESSION['iva_productos'] = [];
+        }
+        $_SESSION['iva_productos'][$id_carrito] = $porcentaje_iva;
+        
         $pdo->commit();
         echo "OK";
     } else {

@@ -527,99 +527,101 @@ include ('../app/controllers/compras/listado_de_compras.php');
             </div>
 
             <script>
-    $('#btn_guardar_compra').click(function () {
-        // Obtener los datos del formulario
-        var id_producto = $('#id_producto').val();
-        var nro_compra = $('#nro_compra').val();
-        var fecha_compra = $('#fecha_compra').val();
-        var id_proveedor = $('#id_proveedor').val();
-        var comprobante = $('#comprobante').val();
-        var precio_compra = $('#precio_compra_controlador').val();
-        var cantidad_compra = $('#cantidad_compra').val();
-        var stock_total = $('#stock_total').val();
+  $('#btn_guardar_compra').click(function() {
+    // Obtener los datos del formulario
+    var id_producto = $('#id_producto').val();
+    var nro_compra = $('#nro_compra').val();
+    var fecha_compra = $('#fecha_compra').val();
+    var id_proveedor = $('#id_proveedor').val();
+    var comprobante = $('#comprobante').val();
+    var precio_compra = $('#precio_compra_controlador').val();
+    var cantidad_compra = $('#cantidad_compra').val();
+    var stock_total = $('#stock_total').val();
 
-        // Validación de campos
-        if(id_producto == ""){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe seleccionar un producto',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-        if(fecha_compra == ""){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe seleccionar una fecha',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-        if(id_proveedor == "" || id_proveedor == undefined){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe seleccionar un proveedor',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-        if(comprobante == ""){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe ingresar un comprobante',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-        if(precio_compra == ""){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe ingresar un precio de compra',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-        if(cantidad_compra == ""){
-            Swal.fire({
-                icon: 'warning',
-                title: 'Debe ingresar una cantidad',
-                confirmButtonText: 'Aceptar'
-            });
-            return false;
-        }
-
-        // Si pasa todas las validaciones, enviar la petición AJAX
+    // Validaciones
+    if(id_producto == "") {
         Swal.fire({
-            title: 'Procesando',
-            html: 'Guardando la compra, por favor espere...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            icon: 'warning',
+            title: 'Debe seleccionar un producto',
+            confirmButtonText: 'Aceptar'
         });
+        return false;
+    }
+    if(fecha_compra == "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Debe seleccionar una fecha',
+            confirmButtonText: 'Aceptar'
+        });
+        return false;
+    }
+    if(id_proveedor == "" || id_proveedor == undefined) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Debe seleccionar un proveedor',
+            confirmButtonText: 'Aceptar'
+        });
+        return false;
+    }
+    if(comprobante == "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Debe ingresar un comprobante',
+            confirmButtonText: 'Aceptar'
+        });
+        return false;
+    }
+    if(precio_compra == "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Debe ingresar un precio de compra',
+            confirmButtonText: 'Aceptar'
+        });
+        return false;
+    }
+    if(cantidad_compra == "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Debe ingresar una cantidad',
+            confirmButtonText: 'Aceptar'
+        });
+        return false;
+    }
 
-        var url = "../app/controllers/compras/create.php";
-        $.get(url, {
-            id_producto: id_producto,
-            nro_compra: nro_compra,
-            fecha_compra: fecha_compra,
-            id_proveedor: id_proveedor,
-            comprobante: comprobante,
-            precio_compra: precio_compra,
-            cantidad_compra: cantidad_compra,
-            stock_total: stock_total
-        }, function (response) {
-            // Cerrar indicador de carga
-            Swal.close();
-            $('#respuesta_create').html(response);
-        }).fail(function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error en la conexión',
-                text: 'No se pudo procesar la solicitud. Intente nuevamente.'
-            });
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Procesando',
+        html: 'Guardando la compra, por favor espere...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    // Realizar la petición AJAX
+    var url = "../app/controllers/compras/create.php";
+    $.get(url, {
+        id_producto: id_producto,
+        nro_compra: nro_compra,
+        fecha_compra: fecha_compra,
+        id_proveedor: id_proveedor,
+        comprobante: comprobante,
+        precio_compra: precio_compra,
+        cantidad_compra: cantidad_compra,
+        stock_total: stock_total
+    })
+    .done(function(response) {
+        $('#respuesta_create').html(response);
+    })
+    .fail(function(xhr, status, error) {
+        console.error("Error en la petición AJAX:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en la conexión',
+            text: 'No se pudo procesar la solicitud. Intente nuevamente. Detalles: ' + error
         });
     });
+});
 </script>
 
 <div id="respuesta_create"></div>

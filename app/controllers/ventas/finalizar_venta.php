@@ -34,26 +34,13 @@ try {
     }
 
     // Verificar que todos los productos en el carrito pertenecen al usuario
-    $sql_productos_carrito = "SELECT c.id_producto, c.cantidad, p.stock, p.nombre, p.id_usuario 
+    $sql_productos_carrito = "SELECT c.id_carrito, c.id_producto, c.cantidad, p.stock, p.nombre, p.precio_venta, p.id_usuario 
                              FROM tb_carrito c
                              JOIN tb_almacen p ON c.id_producto = p.id_producto
                              WHERE c.id_usuario = :id_usuario AND c.nro_venta = 0";
     $stmt_productos = $pdo->prepare($sql_productos_carrito);
     $stmt_productos->execute([':id_usuario' => $id_usuario]);
     $productos = $stmt_productos->fetchAll(PDO::FETCH_ASSOC);
-
-    // Verificar propiedad y stock de cada producto
-    foreach ($productos as $producto) {
-        // Verificar propiedad del producto
-        if ($producto['id_usuario'] != $id_usuario) {
-            throw new Exception("El producto '{$producto['nombre']}' no te pertenece y no puede ser vendido.");
-        }
-        
-        // Verificar stock suficiente
-        if ($producto['cantidad'] > $producto['stock']) {
-            throw new Exception("Stock insuficiente para '{$producto['nombre']}'. Disponible: {$producto['stock']}, Solicitado: {$producto['cantidad']}");
-        }
-    }
 
     // Generar número de venta único
     $nro_venta = time();
@@ -69,17 +56,19 @@ try {
         ':id_usuario' => $id_usuario
     ]);
 
-    // Calcular total de la venta
-    $sql_total = "SELECT SUM(c.cantidad * p.precio_venta) as total
-                  FROM tb_carrito c
-                  INNER JOIN tb_almacen p ON c.id_producto = p.id_producto
-                  WHERE c.id_usuario = :id_usuario AND c.nro_venta = :nro_venta";
-    $stmt_total = $pdo->prepare($sql_total);
-    $stmt_total->execute([
-        ':id_usuario' => $id_usuario,
-        ':nro_venta' => $nro_venta
-    ]);
-    $total = $stmt_total->fetchColumn() ?: 0;
+    // Calcular total de la venta incluyendo IVA por producto
+    $total = 0;
+    foreach ($productos as $producto) {
+        $subtotal = $producto['cantidad'] * $producto['precio_venta'];
+        $id_carrito = $producto['id_carrito'];
+        
+        // Obtener IVA específico de este producto (si está configurado)
+        $porcentaje_iva = isset($_SESSION['iva_productos'][$id_carrito]) ? $_SESSION['iva_productos'][$id_carrito] : 0;
+        
+        // Calcular monto con IVA
+        $monto_iva = $subtotal * ($porcentaje_iva / 100);
+        $total += $subtotal + $monto_iva;
+    }
 
     // Registrar la venta principal
     $sql_venta = "INSERT INTO tb_ventas (nro_venta, id_cliente, id_usuario, total_pagado, fyh_creacion, fyh_actualizacion)
@@ -113,6 +102,9 @@ try {
             ':id_usuario' => $id_usuario
         ]);
     }
+
+    // Limpiar datos de IVA de la sesión
+    $_SESSION['iva_productos'] = [];
 
     $pdo->commit();
     
