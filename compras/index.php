@@ -278,9 +278,18 @@ $id_usuario_actual = $_SESSION['id_usuario'];
             <i class="fa fa-pencil-alt"></i>
         </a>
         <!-- Reemplaza el botón de borrar existente por este -->
-        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar(<?php echo $id_compra; ?>, <?php echo $compras_dato['id_producto']; ?>, <?php echo $cantidad; ?>, <?php echo $compras_dato['stock']; ?>)">
-            <i class="fa fa-trash"></i>
-        </button>
+        <!-- Botón Borrar - Con implementación directa del evento onClick -->
+<button type="button" class="btn btn-danger btn-sm" 
+        id="btn_borrar_<?php echo $id_compra; ?>" title="Eliminar compra">
+    <i class="fa fa-trash"></i> Borrar
+</button>
+
+<script>
+    // Asociar el evento al botón específico de esta compra
+    document.getElementById("btn_borrar_<?php echo $id_compra; ?>").addEventListener("click", function() {
+        eliminarCompra(<?php echo $id_compra; ?>, <?php echo $nro_compra; ?>);
+    });
+</script>
     </div>
 </center>
                                             </td>
@@ -308,63 +317,79 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 <script>
   <!-- Añade esto dentro de las etiquetas <script> existentes al final del archivo -->
 // Función para confirmar y eliminar compras
-function confirmarEliminar(id_compra, id_producto, cantidad_compra, stock_actual) {
+// Función para eliminar compra directamente desde compras/index.php mediante AJAX
+function eliminarCompra(idCompra, nroCompra) {
+    console.log("Iniciando proceso de eliminación para compra #" + nroCompra);
+    
+    // Usar SweetAlert2 para confirmación
     Swal.fire({
-        title: '¿Eliminar compra?',
-        text: "Esta acción no se puede deshacer",
+        title: '¿Está seguro?',
+        text: "¿Realmente desea eliminar la compra #" + nroCompra + "? Esta acción no se puede deshacer.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Mostrar indicador de carga
-            Swal.fire({
-                title: 'Procesando...',
-                html: 'Por favor espere mientras se elimina la compra',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            console.log("Confirmación recibida, procediendo a eliminar");
             
-            // Enviar solicitud AJAX
-            $.ajax({
-                url: "../app/controllers/compras/delete.php",
-                type: "GET",
-                data: {
-                    id_compra: id_compra,
-                    id_producto: id_producto,
-                    cantidad_compra: cantidad_compra,
-                    stock_actual: stock_actual
-                },
-                success: function(response) {
-                    if (response.includes("eliminado_correctamente")) {
-                        Swal.fire({
-                            title: '¡Eliminado!',
-                            text: 'La compra ha sido eliminada correctamente',
-                            icon: 'success',
-                            timer: 1500
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire(
-                            'Error',
-                            'No se pudo eliminar la compra',
-                            'error'
-                        );
-                    }
-                },
-                error: function() {
-                    Swal.fire(
-                        'Error',
-                        'Problema de conexión con el servidor',
-                        'error'
-                    );
+            // Mostrar el spinner de carga
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            // Crear un objeto FormData para enviar los datos
+            var formData = new FormData();
+            formData.append('id_compra', idCompra);
+            formData.append('nro_compra', nroCompra);
+            
+            // Crear y configurar la solicitud fetch
+            fetch('../app/controllers/compras/borrar_compra_ajax.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Respuesta de red no fue ok');
                 }
+                return response.json();
+            })
+            .then(data => {
+                // Ocultar el spinner de carga
+                document.getElementById('loading-overlay').style.display = 'none';
+                
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Compra eliminada',
+                        text: data.message || 'Compra eliminada correctamente',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Recargar la página para actualizar la lista de compras
+                        window.location.reload();
+                    });
+                } else {
+                    // Mostrar mensaje de error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'No se pudo eliminar la compra'
+                    });
+                }
+            })
+            .catch(error => {
+                // Ocultar el spinner de carga
+                document.getElementById('loading-overlay').style.display = 'none';
+                
+                console.error('Error:', error);
+                // Mostrar mensaje de error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo procesar su solicitud. Por favor, inténtelo de nuevo.'
+                });
             });
         }
     });
