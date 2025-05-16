@@ -269,20 +269,20 @@ $id_usuario_actual = $_SESSION['id_usuario'];
                                             <td><center><?php echo $cantidad;?></center></td>
                                             <td><center><strong>$<?php echo number_format($total, 2);?></strong></center></td>
                                             <td>
-                                                <center>
-                                                    <div class="btn-group">
-                                                        <a href="show.php?id=<?php echo $id_compra; ?>" class="btn btn-info btn-sm">
-                                                            <i class="fa fa-eye"></i>
-                                                        </a>
-                                                        <a href="update.php?id=<?php echo $id_compra; ?>" class="btn btn-success btn-sm">
-                                                            <i class="fa fa-pencil-alt"></i>
-                                                        </a>
-                                                        <a href="delete.php?id=<?php echo $id_compra; ?>" class="btn btn-danger btn-sm" 
-                                                           onclick="return confirm('¿Está seguro que desea eliminar esta compra?')">
-                                                            <i class="fa fa-trash"></i>
-                                                        </a>
-                                                    </div>
-                                                </center>
+                                            <center>
+    <div class="btn-group">
+        <a href="show.php?id=<?php echo $id_compra; ?>" class="btn btn-info btn-sm">
+            <i class="fa fa-eye"></i>
+        </a>
+        <a href="update.php?id=<?php echo $id_compra; ?>" class="btn btn-success btn-sm">
+            <i class="fa fa-pencil-alt"></i>
+        </a>
+        <!-- Reemplaza el botón de borrar existente por este -->
+        <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminar(<?php echo $id_compra; ?>, <?php echo $compras_dato['id_producto']; ?>, <?php echo $cantidad; ?>, <?php echo $compras_dato['stock']; ?>)">
+            <i class="fa fa-trash"></i>
+        </button>
+    </div>
+</center>
                                             </td>
                                         </tr>
                                         <?php
@@ -306,90 +306,66 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 <?php include ('../layout/parte2.php'); ?>
 
 <script>
-    $(function () {
-        $("#example1").DataTable({
-            "pageLength": 10,
-            "language": {
-                "emptyTable": "No hay compras registradas",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Compras",
-                "infoEmpty": "Mostrando 0 a 0 de 0 Compras",
-                "infoFiltered": "(Filtrado de _MAX_ total Compras)",
-                "lengthMenu": "Mostrar _MENU_ Compras",
-                "search": "Buscar:",
-                "zeroRecords": "Sin resultados encontrados",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
+  <!-- Añade esto dentro de las etiquetas <script> existentes al final del archivo -->
+// Función para confirmar y eliminar compras
+function confirmarEliminar(id_compra, id_producto, cantidad_compra, stock_actual) {
+    Swal.fire({
+        title: '¿Eliminar compra?',
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar indicador de carga
+            Swal.fire({
+                title: 'Procesando...',
+                html: 'Por favor espere mientras se elimina la compra',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-            },
-            "responsive": true,
-            "ordering": true,
-            "order": [[0, "desc"]],
-            buttons: [{
-                extend: 'collection',
-                text: 'Reportes',
-                orientation: 'landscape',
-                buttons: [
-                    {
-                        text: 'Copiar',
-                        extend: 'copy',
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
-                    },
-                    {
-                        extend: 'pdf',
-                        text: 'Exportar PDF',
-                        orientation: 'landscape',
-                        pageSize: 'A4',
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        },
-                        customize: function (doc) {
-                            doc.pageMargins = [10, 10, 10, 10];
-                            doc.defaultStyle.fontSize = 7;
-                            if (doc.content[0].text) {
-                                doc.content[0].alignment = 'center';
-                            }
-                            doc.styles.tableHeader.alignment = 'center';
-                            doc.styles.tableHeader.fontSize = 8;
-                            var body = doc.content[1].table.body;
-                            for (var i = 1; i < body.length; i++) {
-                                for (var j = 0; j < body[i].length; j++) {
-                                    body[i][j].alignment = 'center';
-                                }
-                            }
-                            doc.content[1].table.widths = Array(body[0].length + 1).join('*').split('');
-                        }
-                    },
-                    {
-                        extend: 'csv',
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
-                    },
-                    {
-                        extend: 'excel',
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
-                    },
-                    {
-                        text: 'Imprimir',
-                        extend: 'print',
-                        exportOptions: {
-                            columns: ':not(:last-child)'
-                        }
+            });
+            
+            // Enviar solicitud AJAX
+            $.ajax({
+                url: "../app/controllers/compras/delete.php",
+                type: "GET",
+                data: {
+                    id_compra: id_compra,
+                    id_producto: id_producto,
+                    cantidad_compra: cantidad_compra,
+                    stock_actual: stock_actual
+                },
+                success: function(response) {
+                    if (response.includes("eliminado_correctamente")) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: 'La compra ha sido eliminada correctamente',
+                            icon: 'success',
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'No se pudo eliminar la compra',
+                            'error'
+                        );
                     }
-                ]
-            },
-            {
-                extend: 'colvis',
-                text: 'Visor de columnas',
-                collectionLayout: 'fixed three-column'
-            }],
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                },
+                error: function() {
+                    Swal.fire(
+                        'Error',
+                        'Problema de conexión con el servidor',
+                        'error'
+                    );
+                }
+            });
+        }
     });
-</script>
+}
