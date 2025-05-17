@@ -66,6 +66,7 @@ $id_usuario_actual = $_SESSION['id_usuario'];
                                     $contador = 0;
                                     foreach ($compras_datos as $compras_dato){
                                         $id_compra = $compras_dato['id_compra']; 
+                                        $nro_compra = $compras_dato['nro_compra'];
                                         $precio_compra = $compras_dato['precio_compra'];
                                         
                                         $cantidad = $compras_dato['cantidad'];
@@ -282,10 +283,10 @@ $id_usuario_actual = $_SESSION['id_usuario'];
         <!-- Botón Borrar - Con implementación directa del evento onClick -->
         <!-- Verifica que cada botón Borrar tenga estos atributos correctos -->
         <button type="button" class="btn btn-danger btn-sm boton-eliminar" 
-            data-id="<?php echo $id_compra; ?>" 
-            data-nro="<?php echo $nro_compra; ?>">
-        <i class="fa fa-trash"></i> Borrar
-    </button>
+                        data-id="<?php echo $id_compra; ?>" 
+                        data-nro="<?php echo $nro_compra; ?>">
+                    <i class="fa fa-trash"></i>
+                </button>
 
 <script>
     // Asociar el evento al botón específico de esta compra
@@ -326,15 +327,37 @@ $id_usuario_actual = $_SESSION['id_usuario'];
     </div>
 </div>
 
-<!-- Spinner para indicar carga -->
-<div class="loading-overlay" id="loading-overlay" style="display: none;">
-    <div class="spinner-container">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Cargando...</span>
-        </div>
-        <p class="mt-2 text-white">Procesando, por favor espere...</p>
-    </div>
-</div>
+<style>
+/* Estilos para el spinner de carga */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-container {
+    text-align: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Mejorar apariencia de botones */
+.boton-eliminar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+</style>
 
 <script>
 // Esta función se ejecutará cuando el documento esté listo
@@ -346,7 +369,7 @@ $(document).ready(function() {
         
         console.log("Botón borrar presionado - ID: " + idCompra + ", NRO: " + nroCompra);
         
-        // Confirmar antes de eliminar - CORREGIDO para usar la variable del botón
+        // Confirmar antes de eliminar
         Swal.fire({
             title: '¿Está seguro?',
             text: "¿Realmente desea eliminar la compra #" + nroCompra + "? Esta acción no se puede deshacer.",

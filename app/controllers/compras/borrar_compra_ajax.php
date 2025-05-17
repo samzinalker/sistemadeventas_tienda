@@ -22,9 +22,6 @@ $id_usuario = $_SESSION['id_usuario'];
 $id_compra = isset($_POST['id_compra']) ? intval($_POST['id_compra']) : 0;
 $nro_compra = isset($_POST['nro_compra']) ? intval($_POST['nro_compra']) : 0;
 
-// Para depuración
-error_log("Iniciando eliminación de compra - ID: $id_compra, NRO: $nro_compra, USUARIO: $id_usuario");
-
 if (!$id_compra) {
     echo json_encode(['success' => false, 'message' => 'ID de compra no válido']);
     exit();
@@ -83,8 +80,6 @@ try {
     // Todo salió bien, confirmar cambios
     $pdo->commit();
     
-    error_log("Compra eliminada correctamente - ID: $id_compra");
-    
     echo json_encode([
         'success' => true, 
         'message' => 'Compra #' . $nro_compra . ' eliminada correctamente'
@@ -95,8 +90,6 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    
-    error_log("Error al eliminar compra: " . $e->getMessage());
     
     echo json_encode([
         'success' => false, 
