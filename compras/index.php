@@ -311,6 +311,45 @@ $id_usuario_actual = $_SESSION['id_usuario'];
 </div>
 <!-- /.content-wrapper -->
 
+
+
+<!-- Spinner para indicar carga -->
+<div class="loading-overlay" id="loading-overlay" style="display: none;">
+    <div class="spinner-container">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Cargando...</span>
+        </div>
+        <p class="mt-2 text-white">Procesando, por favor espere...</p>
+    </div>
+</div>
+
+<style>
+/* Estilos para el spinner de carga */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-container {
+    text-align: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+</style>
+
+
+
 <?php include ('../layout/mensajes.php'); ?>
 <?php include ('../layout/parte2.php'); ?>
 
