@@ -542,7 +542,15 @@ $(document).ready(function() {
                 processing: true, serverSide: true,
                 ajax: {
                     url: `${URL_BASE}/app/controllers/clientes/controller_listado_clientes_dt.php`,
-                    type: 'POST',
+    type: 'POST',
+    error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Error AJAX de DataTables:");
+        console.error("Status: ", textStatus);
+        console.error("Error Thrown: ", errorThrown);
+        console.error("Respuesta del servidor (jqXHR.responseText):");
+        console.error(jqXHR.responseText); // Esto mostrará la respuesta cruda
+        alert("Error al cargar datos de clientes. Revise la consola (F12) para más detalles. Respuesta del servidor: " + jqXHR.responseText.substring(0, 500) + "...");
+    }
                 },
                 columns: [
                     { data: 'id_cliente', visible: false },
