@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-05-2025 a las 15:06:07
+-- Tiempo de generación: 24-05-2025 a las 16:45:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -113,14 +113,14 @@ INSERT INTO `tb_categorias` (`id_categoria`, `nombre_categoria`, `id_usuario`, `
 
 CREATE TABLE `tb_clientes` (
   `id_cliente` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL COMMENT 'FK to tb_usuarios.id_usuario, owner of this client record',
   `nombre_cliente` varchar(255) NOT NULL,
-  `nit_ci_cliente` varchar(255) NOT NULL,
-  `tipo_documento` enum('cedula','ruc','pasaporte','extranjero') DEFAULT 'cedula',
-  `celular_cliente` varchar(50) NOT NULL,
+  `tipo_documento` enum('cedula','ruc','pasaporte','consumidor_final','otro','extranjero') DEFAULT 'consumidor_final',
+  `nit_ci_cliente` varchar(25) DEFAULT NULL COMMENT 'Cédula (10), RUC (13), Pasaporte (variable), o nulo/genérico para Consumidor Final',
+  `celular_cliente` varchar(20) DEFAULT NULL,
   `telefono_fijo` varchar(20) DEFAULT NULL,
-  `email_cliente` varchar(255) NOT NULL,
-  `id_usuario` int(11) NOT NULL,
-  `direccion` varchar(500) DEFAULT NULL,
+  `email_cliente` varchar(255) DEFAULT NULL,
+  `direccion` text DEFAULT NULL,
   `ciudad` varchar(100) DEFAULT NULL,
   `provincia` varchar(100) DEFAULT NULL,
   `fecha_nacimiento` date DEFAULT NULL,
@@ -314,7 +314,7 @@ CREATE TABLE `tb_usuarios` (
 --
 
 INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `imagen_perfil`, `password_user`, `token`, `id_rol`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(1, 'marcelo mamani', 'marcelo@gmail.com', '2025-05-11-14-59-30_682101a228f7c.PNG', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-05-23 11:43:34'),
+(1, 'marcelo mamani', 'marcelo@gmail.com', '2025-05-11-14-59-30_682101a228f7c.PNG', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-05-24 08:12:56'),
 (10, 'administrador', 'admin@gmail.com', 'user_default.png', '$2y$10$LOP8dOv1tmWBnuZOrxmnw.TK6358ZDbFSgo6FwjuOtm.JVYxd8YGG', '', 1, '2025-05-03 06:55:54', '0000-00-00 00:00:00'),
 (12, 'venderw', 'vender@gmail.com', 'user_default.png', '$2y$10$EBfd4aY2yFbbWpkPSAC1XO4PKFeWTK9r9WKa/WB5iRTD5fRGlRNJi', '', 7, '2025-05-04 06:19:20', '2025-05-11 14:41:07'),
 (13, 'xd 22', '1@gmail.com', 'user_default.png', '$2y$10$uzWGvuEd0xTk3.jnYza22.FMIzgIxgsPYuGzl7oHngZDxtE6mrr4S', '', 1, '2025-05-08 21:57:46', '2025-05-11 15:04:05'),
@@ -368,9 +368,10 @@ ALTER TABLE `tb_categorias`
 --
 ALTER TABLE `tb_clientes`
   ADD PRIMARY KEY (`id_cliente`),
-  ADD KEY `idx_cliente_usuario` (`id_usuario`),
-  ADD KEY `idx_cliente_estado` (`estado`),
-  ADD KEY `idx_cliente_tipo_doc` (`tipo_documento`);
+  ADD UNIQUE KEY `uq_usuario_documento` (`id_usuario`,`tipo_documento`,`nit_ci_cliente`),
+  ADD KEY `idx_id_usuario` (`id_usuario`),
+  ADD KEY `idx_tipo_documento` (`tipo_documento`),
+  ADD KEY `idx_estado` (`estado`);
 
 --
 -- Indices de la tabla `tb_compras`
@@ -448,7 +449,7 @@ ALTER TABLE `tb_categorias`
 -- AUTO_INCREMENT de la tabla `tb_clientes`
 --
 ALTER TABLE `tb_clientes`
-  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_compras`
