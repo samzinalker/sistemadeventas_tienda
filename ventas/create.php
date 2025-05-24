@@ -6,16 +6,15 @@ include '../layout/parte1.php'; // Cabecera HTML, CSS, jQuery, y menú lateral
 // Necesitaremos las categorías para el modal de creación rápida de productos
 require_once __DIR__ . '/../app/models/CategoriaModel.php';
 $categoriaModel = new CategoriaModel($pdo);
-$categorias_select_datos = $categoriaModel->getCategoriasByUsuarioId($id_usuario_sesion);
-
-// También las provincias para el modal de creación rápida de clientes
-$sql_provincias_v = "SELECT nombre_provincia FROM tb_provincias_ecuador ORDER BY nombre_provincia ASC";
-$query_provincias_v = $pdo->prepare($sql_provincias_v);
-$query_provincias_v->execute();
-$provincias_ecuador_v = $query_provincias_v->fetchAll(PDO::FETCH_ASSOC);
+$categorias_select_datos = [];
+if (isset($id_usuario_sesion)) { // Asegurarse que $id_usuario_sesion esté disponible
+    $categorias_select_datos = $categoriaModel->getCategoriasByUsuarioId($id_usuario_sesion);
+}
 
 
 // Para mostrar mensajes flash (SweetAlert)
+// (Se podría mover a una variable y mostrarla antes de parte2.php para evitar output prematuro si hay errores)
+// No obstante, si mensajes.php solo genera script JS cuando hay mensaje, está bien aquí.
 include '../layout/mensajes.php';
 ?>
 
@@ -84,25 +83,23 @@ include '../layout/mensajes.php';
                                 <hr>
                                 <h5 class="mt-2 mb-2"><i class="fas fa-user-tag"></i> Datos del Cliente</h5>
                                 <div class="row">
-                                    <div class="col-md-7">
+                                     <div class="col-md-8">
                                         <div class="form-group">
-                                            <label for="id_cliente_venta">Cliente <span class="text-danger">*</span></label>
+                                            <label>Cliente <span class="text-danger">*</span></label>
                                             <div class="input-group">
-                                                <select class="form-control select2-clientes" id="id_cliente_venta" name="id_cliente_venta" required style="width: 85%;">
-                                                    <!-- Opciones se cargarán con Select2 AJAX -->
-                                                </select>
+                                                <input type="text" class="form-control" id="display_nombre_cliente_venta" placeholder="Ningún cliente seleccionado" readonly>
+                                                <input type="hidden" id="id_cliente_venta" name="id_cliente_venta">
                                                 <div class="input-group-append">
-                                                    <button class="btn btn-outline-primary" type="button" id="btn-modal-crear-cliente-venta" title="Crear Nuevo Cliente">
-                                                        <i class="fas fa-user-plus"></i>
+                                                    <button class="btn btn-primary" type="button" id="btn-gestionar-cliente-venta" title="Buscar o Crear Cliente">
+                                                        <i class="fas fa-users"></i> Buscar / Crear
                                                     </button>
                                                 </div>
                                             </div>
-                                            <input type="hidden" id="nombre_cliente_seleccionado_venta" name="nombre_cliente_seleccionado_venta">
                                         </div>
                                     </div>
-                                    <div class="col-md-5">
-                                        <div id="info_cliente_seleccionado_venta" class="mt-4 pt-2">
-                                            <small><i>Seleccione un cliente para ver detalles...</i></small>
+                                    <div class="col-md-4">
+                                        <div id="info_extra_cliente_venta" class="pt-4">
+                                            <small id="display_documento_cliente_venta" class="form-text text-muted"><i>Seleccione un cliente...</i></small>
                                         </div>
                                     </div>
                                 </div>
@@ -201,17 +198,57 @@ include '../layout/mensajes.php';
 </div>
 
 <!-- Modales -->
-<!-- Modal para Crear Cliente Rápido (Adaptado de clientes/modal_forms.php) -->
+<!-- Modal para Gestionar (Buscar o Crear) Cliente -->
+<div class="modal fade" id="modal-gestionar-cliente-venta" tabindex="-1" aria-labelledby="modalGestionarClienteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalGestionarClienteLabel"><i class="fas fa-users"></i> Gestionar Cliente para la Venta</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <h5><i class="fas fa-search"></i> Buscar Cliente Existente</h5>
+                <div class="table-responsive mb-4">
+                    <table id="tabla_buscar_clientes_gestion_dt" class="table table-bordered table-striped table-hover table-sm" style="width:100%;">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="display:none;">ID</th>
+                                <th>Nombre / Razón Social</th>
+                                <th>Tipo Doc.</th>
+                                <th>Nro. Documento</th>
+                                <th>Celular</th>
+                                <th>Email</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <p>¿No encuentra al cliente?</p>
+                    <button type="button" class="btn btn-success" id="btn-abrir-modal-creacion-rapida-cliente-desde-gestion">
+                        <i class="fas fa-user-plus"></i> Crear Nuevo Cliente Rápidamente
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Crear Cliente Rápido (el que ya tenías) -->
 <div class="modal fade" id="modal-crear-cliente-directo-venta" tabindex="-1" aria-labelledby="modalCrearClienteDirectoVentaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modalCrearClienteDirectoVentaLabel"><i class="fas fa-user-plus"></i> Registrar Nuevo Cliente (Venta)</h5>
+                <h5 class="modal-title" id="modalCrearClienteDirectoVentaLabel"><i class="fas fa-user-plus"></i> Registrar Nuevo Cliente</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <form id="form-crear-cliente-directo-venta" method="POST">
                 <div class="modal-body">
-                    <!-- Campos del formulario de cliente (similar a clientes/modal_forms.php) -->
                     <div class="row">
                         <div class="col-md-7">
                             <div class="form-group">
@@ -257,7 +294,7 @@ include '../layout/mensajes.php';
                             </div>
                         </div>
                     </div>
-                    <div class="form-group"> <!-- Email solo, para simplificar -->
+                    <div class="form-group">
                         <label for="dv_email_cliente">Correo Electrónico</label>
                         <input type="email" class="form-control" id="dv_email_cliente" name="email_cliente">
                     </div>
@@ -273,7 +310,7 @@ include '../layout/mensajes.php';
 </div>
 
 
-<!-- Modal para Buscar Productos (Similar al de Compras) -->
+<!-- Modal para Buscar Productos -->
 <div class="modal fade" id="modal-buscar-producto-venta" tabindex="-1" aria-labelledby="modalBuscarProductoVentaLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
@@ -307,7 +344,7 @@ include '../layout/mensajes.php';
     </div>
 </div>
 
-<!-- Modal para Crear Producto Rápido (Similar al de Compras) -->
+<!-- Modal para Crear Producto Rápido -->
 <div class="modal fade" id="modal-crear-producto-rapido-venta" tabindex="-1" aria-labelledby="modalCrearProductoRapidoVentaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -341,9 +378,11 @@ include '../layout/mensajes.php';
                                 <label for="vr_producto_id_categoria">Categoría <span class="text-danger">*</span></label>
                                 <select class="form-control" id="vr_producto_id_categoria" name="producto_id_categoria" required>
                                     <option value="">Seleccione...</option>
-                                    <?php foreach ($categorias_select_datos as $categoria): ?>
-                                        <option value="<?php echo $categoria['id_categoria']; ?>"><?php echo htmlspecialchars($categoria['nombre_categoria']); ?></option>
-                                    <?php endforeach; ?>
+                                    <?php if (!empty($categorias_select_datos)): ?>
+                                        <?php foreach ($categorias_select_datos as $categoria): ?>
+                                            <option value="<?php echo $categoria['id_categoria']; ?>"><?php echo htmlspecialchars($categoria['nombre_categoria']); ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
@@ -402,10 +441,10 @@ include '../layout/mensajes.php';
 
 
 <?php include '../layout/parte2.php'; ?>
-<!-- Select2 CSS y JS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script>
+<!-- Select2 ya no es necesario para el cliente principal, pero podría usarse en otros lugares. Lo dejo por si acaso, pero podría eliminarse si no se usa. -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> -->
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css"> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script> -->
 
 <script>
 // Variable global para la tabla de items de venta
@@ -413,18 +452,72 @@ var itemsVenta = {}; // Almacenará los productos añadidos
 
 $(document).ready(function() {
     const URL_BASE = '<?php echo $URL; ?>';
-    const ID_USUARIO_LOGUEADO = <?php echo $id_usuario_sesion; ?>;
+    // Asegurarse que $id_usuario_sesion esté disponible y sea un número
+    const ID_USUARIO_LOGUEADO = <?php echo isset($id_usuario_sesion) ? intval($id_usuario_sesion) : 'null'; ?>;
+    if (ID_USUARIO_LOGUEADO === null) {
+        Swal.fire('Error de Sesión', 'No se pudo identificar al usuario. Por favor, recargue la página o inicie sesión de nuevo.', 'error');
+        // Podrías deshabilitar el formulario aquí o redirigir
+    }
+
     let tablaBuscarProductosVentaDT;
+    let tablaBuscarClientesGestionDT;
+
+    function configurarCampoDocumento(idSelectTipoDoc, idInputDocumento, idHelpText, idLabelDocumento) {
+        const selectTipoDoc = $('#' + idSelectTipoDoc);
+        const inputDocumento = $('#' + idInputDocumento);
+        const helpText = $('#' + idHelpText);
+        const labelDocumento = $('#' + idLabelDocumento);
+
+        function actualizarCampos() {
+            const tipoSeleccionado = selectTipoDoc.val();
+            inputDocumento.val('');
+            switch (tipoSeleccionado) {
+                case 'consumidor_final':
+                    inputDocumento.prop('disabled', true).prop('required', false).attr('placeholder', 'N/A para Consumidor Final');
+                    labelDocumento.text('Nro. Documento');
+                    helpText.text('No se requiere número para Consumidor Final.');
+                    break;
+                case 'cedula':
+                    inputDocumento.prop('disabled', false).prop('required', true).attr('placeholder', 'Ej: 0102030405 (10 dígitos)');
+                    inputDocumento.attr('maxlength', 10).attr('pattern', '\\d{10}');
+                    labelDocumento.text('Nro. Cédula *');
+                    helpText.text('Ingrese los 10 dígitos de la cédula.');
+                    break;
+                case 'ruc':
+                    inputDocumento.prop('disabled', false).prop('required', true).attr('placeholder', 'Ej: 0102030405001 (13 dígitos)');
+                    inputDocumento.attr('maxlength', 13).attr('pattern', '\\d{13}');
+                    labelDocumento.text('Nro. RUC *');
+                    helpText.text('Ingrese los 13 dígitos del RUC.');
+                    break;
+                case 'pasaporte':
+                    inputDocumento.prop('disabled', false).prop('required', true).attr('placeholder', 'Ej: A12345678');
+                    inputDocumento.removeAttr('pattern').attr('maxlength', 20);
+                    labelDocumento.text('Nro. Pasaporte *');
+                    helpText.text('Ingrese el número de pasaporte.');
+                    break;
+                default: // extranjero, otro
+                    inputDocumento.prop('disabled', false).prop('required', false).attr('placeholder', 'Ingrese identificación');
+                    inputDocumento.removeAttr('pattern').attr('maxlength', 30);
+                    labelDocumento.text('Nro. Documento');
+                    helpText.text('Ingrese el documento de identificación correspondiente.');
+            }
+        }
+        selectTipoDoc.on('change', actualizarCampos);
+        actualizarCampos();
+    }
 
     // --- INICIALIZACIONES ---
     generarNumeroVenta();
-    configurarSelect2Clientes();
-    //$('#fecha_venta').datepicker({ format: 'yyyy-mm-dd', autoclose: true, todayHighlight: true });  No usar
+    renderizarTablaItemsVenta(); // Para mostrar el mensaje de "sin productos" al inicio
+    // La siguiente llamada a configurarCampoDocumento es para el modal de creación rápida de cliente.
+    // Se llama cuando el modal se abre y también aquí para asegurar que esté lista si el modal se muestra por error o directamente.
+    configurarCampoDocumento('dv_tipo_documento', 'dv_nit_ci_cliente', 'dv_documento_help', 'label_dv_documento');
+
 
     // --- NÚMERO DE VENTA ---
     function generarNumeroVenta() {
         $.ajax({
-            url: `${URL_BASE}/app/controllers/ventas/controller_generar_codigo_venta.php`, // Este controlador es NUEVO
+            url: `${URL_BASE}/app/controllers/ventas/controller_generar_codigo_venta.php`,
             type: 'POST',
             dataType: 'json',
             success: function(response) {
@@ -439,87 +532,60 @@ $(document).ready(function() {
         });
     }
 
-    // --- CLIENTES ---
-    function configurarSelect2Clientes() {
-        $('#id_cliente_venta').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Buscar y seleccionar cliente...',
-            allowClear: true,
-            ajax: {
-                url: `${URL_BASE}/app/controllers/clientes/controller_buscar_clientes_autocomplete.php`, // Este controlador es NUEVO
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        term: params.term, // término de búsqueda
-                        page: params.page || 1
-                    };
+    // --- GESTIÓN DE CLIENTES (NUEVA LÓGICA) ---
+    $('#btn-gestionar-cliente-venta').click(function() {
+        $('#modal-gestionar-cliente-venta').modal('show');
+        if ($.fn.DataTable.isDataTable('#tabla_buscar_clientes_gestion_dt')) {
+            tablaBuscarClientesGestionDT.ajax.reload();
+        } else {
+            tablaBuscarClientesGestionDT = $('#tabla_buscar_clientes_gestion_dt').DataTable({
+                processing: true, serverSide: true,
+                ajax: {
+                    url: `${URL_BASE}/app/controllers/clientes/controller_listado_clientes_dt.php`,
+                    type: 'POST',
                 },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.items,
-                        pagination: {
-                            more: (params.page * 10) < data.total_count
+                columns: [
+                    { data: 'id_cliente', visible: false },
+                    { data: 'nombre_cliente' },
+                    { data: 'tipo_documento', render: function(data){ return data ? data.replace(/_/g, ' ').toUpperCase() : 'N/A';} },
+                    { data: 'nit_ci_cliente' },
+                    { data: 'celular_cliente' },
+                    { data: 'email_cliente' },
+                    { data: null, orderable: false, searchable: false, className: 'text-center',
+                        render: function(data, type, row) {
+                            return `<button type="button" class="btn btn-xs btn-primary btn-seleccionar-cliente-gestion" title="Seleccionar este Cliente"><i class="fas fa-check-circle"></i> Seleccionar</button>`;
                         }
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 1,
-            templateResult: formatCliente,
-            templateSelection: formatClienteSelection
-        }).on('select2:select', function (e) {
-            var data = e.params.data;
-            if (data) {
-                $('#nombre_cliente_seleccionado_venta').val(data.text || data.nombre_cliente);
-                mostrarInfoCliente(data);
-            }
-        }).on('select2:unselect', function() {
-            $('#nombre_cliente_seleccionado_venta').val('');
-            $('#info_cliente_seleccionado_venta').html('<small><i>Seleccione un cliente...</i></small>');
-        });
-    }
-
-    function formatCliente (cliente) {
-        if (cliente.loading) return cliente.text;
-        var markup = "<div class='select2-result-cliente clearfix'>" +
-                     "<div class='select2-result-cliente__title'>" + cliente.nombre_cliente + "</div>";
-        if (cliente.nit_ci_cliente) {
-            markup += "<div class='select2-result-cliente__meta'>" +
-                      "<div class='select2-result-cliente__documento'>" + (cliente.tipo_documento || '') + ": " + cliente.nit_ci_cliente + "</div>";
+                    }
+                ],
+                language: { url: `${URL_BASE}/public/templeates/AdminLTE-3.2.0/plugins/datatables-plugins/i18n/es_es.json`},
+                responsive: true, pageLength: 5, lengthChange: false,
+            });
         }
-        if (cliente.celular_cliente) {
-            markup += "<div class='select2-result-cliente__celular'><i class='fas fa-mobile-alt'></i> " + cliente.celular_cliente + "</div>";
-        }
-        markup += "</div></div>";
-        return markup;
-    }
+    });
 
-    function formatClienteSelection (cliente) {
-        return cliente.nombre_cliente || cliente.text;
-    }
-    
-    function mostrarInfoCliente(clienteData) {
-         let infoHtml = `<ul class="list-unstyled">`;
+    $('#tabla_buscar_clientes_gestion_dt tbody').on('click', '.btn-seleccionar-cliente-gestion', function() {
+        var data = tablaBuscarClientesGestionDT.row($(this).parents('tr')).data();
+        if (data) {
+            seleccionarClienteParaVenta(data);
+            $('#modal-gestionar-cliente-venta').modal('hide');
+        }
+    });
+
+    function seleccionarClienteParaVenta(clienteData) {
+        $('#id_cliente_venta').val(clienteData.id_cliente);
+        $('#display_nombre_cliente_venta').val(clienteData.nombre_cliente || 'Cliente no especificado');
+        let docInfo = '<i>Cliente seleccionado.</i>';
         if (clienteData.nit_ci_cliente && clienteData.tipo_documento) {
-            infoHtml += `<li><small><strong>Doc:</strong> ${clienteData.tipo_documento.toUpperCase()}: ${clienteData.nit_ci_cliente}</small></li>`;
+            docInfo = `<b>Doc:</b> ${clienteData.tipo_documento.replace(/_/g, ' ').toUpperCase()}: ${clienteData.nit_ci_cliente}`;
         }
-        if (clienteData.celular_cliente) {
-            infoHtml += `<li><small><strong>Cel:</strong> ${clienteData.celular_cliente}</small></li>`;
-        }
-        if (clienteData.email_cliente) {
-            infoHtml += `<li><small><strong>Email:</strong> ${clienteData.email_cliente}</small></li>`;
-        }
-        infoHtml += `</ul>`;
-        $('#info_cliente_seleccionado_venta').html(infoHtml);
+        $('#display_documento_cliente_venta').html(docInfo); // Usar .html() para el <b>
     }
 
-    // Modal Crear Cliente Directo
-    $('#btn-modal-crear-cliente-venta').click(function() {
+    $('#btn-abrir-modal-creacion-rapida-cliente-desde-gestion').click(function() {
+        $('#modal-gestionar-cliente-venta').modal('hide');
         $('#form-crear-cliente-directo-venta')[0].reset();
         $('#dv_validation_errors').hide().html('');
-        configurarCampoDocumento('dv_tipo_documento', 'dv_nit_ci_cliente', 'dv_documento_help', 'label_dv_documento'); // Reconfigurar para el modal
+        configurarCampoDocumento('dv_tipo_documento', 'dv_nit_ci_cliente', 'dv_documento_help', 'label_dv_documento');
         $('#modal-crear-cliente-directo-venta').modal('show');
     });
 
@@ -527,24 +593,15 @@ $(document).ready(function() {
         e.preventDefault();
         $('#dv_validation_errors').hide().html('');
         const formData = $(this).serialize();
-        // Aquí podrías añadir validaciones JS rápidas si quieres
         $.ajax({
-            url: `${URL_BASE}/app/controllers/clientes/create_cliente.php`, // Reutilizamos el controlador principal
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
+            url: `${URL_BASE}/app/controllers/clientes/create_cliente.php`,
+            type: 'POST', data: formData, dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
                     $('#modal-crear-cliente-directo-venta').modal('hide');
                     Swal.fire('¡Éxito!', response.message, 'success');
-                    // Añadir el nuevo cliente al select2 y seleccionarlo
-                    if (response.cliente_id && response.data_cliente) { // Asumimos que el controlador devuelve data_cliente
-                        var option = new Option(response.data_cliente.nombre_cliente, response.data_cliente.id_cliente, true, true);
-                        $('#id_cliente_venta').append(option).trigger('change');
-                        $('#id_cliente_venta').trigger({
-                            type: 'select2:select',
-                            params: { data: response.data_cliente }
-                        });
+                    if (response.cliente_id && response.data_cliente) {
+                        seleccionarClienteParaVenta(response.data_cliente);
                     }
                 } else {
                     $('#dv_validation_errors').html(response.message || 'Error desconocido.').show();
@@ -553,8 +610,6 @@ $(document).ready(function() {
             error: function() { $('#dv_validation_errors').html('Error de conexión.').show(); }
         });
     });
-    configurarCampoDocumento('dv_tipo_documento', 'dv_nit_ci_cliente', 'dv_documento_help', 'label_dv_documento');
-
 
     // --- PRODUCTOS ---
     $('#btn-modal-buscar-producto-venta').click(function() {
@@ -566,12 +621,10 @@ $(document).ready(function() {
                 ajax: {
                     url: `${URL_BASE}/app/controllers/almacen/controller_buscar_productos_dt.php`,
                     type: 'POST',
-                    data: { id_usuario: ID_USUARIO_LOGUEADO } // Enviar el ID del usuario para filtrar productos
+                    data: { id_usuario: ID_USUARIO_LOGUEADO }
                 },
                 columns: [
-                    { data: 'id_producto', visible: false },
-                    { data: 'codigo' },
-                    { data: 'nombre' },
+                    { data: 'id_producto', visible: false }, { data: 'codigo' }, { data: 'nombre' },
                     { data: 'stock', className: 'text-center' },
                     { data: 'precio_venta', className: 'text-right', render: $.fn.dataTable.render.number(',', '.', 2, '$ ') },
                     { data: 'iva_porcentaje_producto', className: 'text-center', render: function(data){ return (data ? parseFloat(data).toFixed(2) : '0.00') + '%';} },
@@ -591,61 +644,43 @@ $(document).ready(function() {
 
     $('#tabla_buscar_productos_venta_dt tbody').on('click', '.btn-seleccionar-producto-venta', function() {
         var data = tablaBuscarProductosVentaDT.row($(this).parents('tr')).data();
-        if (data) {
-            anadirProductoAVenta(data);
-            // $('#modal-buscar-producto-venta').modal('hide'); // Opcional: cerrar modal al seleccionar
-        }
+        if (data) { anadirProductoAVenta(data); }
     });
 
     function anadirProductoAVenta(producto) {
         if (itemsVenta[producto.id_producto]) {
-            Swal.fire('Aviso', 'El producto ya está en la lista. Puede modificar la cantidad.', 'info');
-            return;
+            Swal.fire('Aviso', 'El producto ya está en la lista. Puede modificar la cantidad.', 'info'); return;
         }
         if (parseFloat(producto.stock) <= 0) {
-            Swal.fire('Stock Agotado', 'Este producto no tiene stock disponible.', 'warning');
-            return;
+            Swal.fire('Stock Agotado', 'Este producto no tiene stock disponible.', 'warning'); return;
         }
-
-        let porcentajeIvaItem = parseFloat(producto.iva_porcentaje_producto || 0); // Usar el IVA predeterminado del producto
-
         itemsVenta[producto.id_producto] = {
-            id: producto.id_producto,
-            codigo: producto.codigo,
-            nombre: producto.nombre,
-            stock_disponible: parseFloat(producto.stock),
-            cantidad: 1,
+            id: producto.id_producto, codigo: producto.codigo, nombre: producto.nombre,
+            stock_disponible: parseFloat(producto.stock), cantidad: 1,
             precio_venta_unitario: parseFloat(producto.precio_venta || 0),
-            porcentaje_iva: porcentajeIvaItem 
+            porcentaje_iva: parseFloat(producto.iva_porcentaje_producto || 0)
         };
-        renderizarTablaItemsVenta();
-        calcularTotalesVenta();
+        renderizarTablaItemsVenta(); calcularTotalesVenta();
     }
 
     function renderizarTablaItemsVenta() {
         const tbody = $('#tabla_items_venta tbody');
         tbody.empty();
         if (Object.keys(itemsVenta).length === 0) {
-            tbody.html('<tr><td colspan="8" class="text-center py-3"><small>Aún no ha añadido productos a la venta.</small></td></tr>');
-            return;
+            tbody.html('<tr><td colspan="8" class="text-center py-3"><small>Aún no ha añadido productos a la venta.</small></td></tr>'); return;
         }
-
         for (const id in itemsVenta) {
             const item = itemsVenta[id];
             const subtotalItem = item.cantidad * item.precio_venta_unitario;
-            
             let fila = `
                 <tr data-id-producto="${item.id}">
                     <td><button type="button" class="btn btn-xs btn-danger btn-remover-item-venta"><i class="fas fa-times"></i></button></td>
-                    <td>${item.codigo}</td>
-                    <td>${item.nombre}</td>
-                    <td class="text-center">${item.stock_disponible}</td>
+                    <td>${item.codigo}</td><td>${item.nombre}</td><td class="text-center">${item.stock_disponible}</td>
                     <td><input type="number" class="form-control form-control-sm item-cantidad-venta" value="${item.cantidad}" min="1" max="${item.stock_disponible}" step="1" style="width: 70px;"></td>
                     <td><input type="number" class="form-control form-control-sm item-precio-venta" value="${item.precio_venta_unitario.toFixed(2)}" min="0" step="0.01" style="width: 90px;"></td>
                     <td><input type="number" class="form-control form-control-sm item-porcentaje-iva-venta" value="${item.porcentaje_iva.toFixed(2)}" min="0" step="0.01" style="width: 70px;"></td>
                     <td class="text-right item-subtotal-display-venta">${subtotalItem.toFixed(2)}</td>
-                </tr>
-            `;
+                </tr>`;
             tbody.append(fila);
         }
     }
@@ -654,22 +689,18 @@ $(document).ready(function() {
         const fila = $(this).closest('tr');
         const idProducto = fila.data('id-producto');
         if (!itemsVenta[idProducto]) return;
-
         let cantidad = parseFloat(fila.find('.item-cantidad-venta').val());
         const precioVenta = parseFloat(fila.find('.item-precio-venta').val());
         const porcentajeIva = parseFloat(fila.find('.item-porcentaje-iva-venta').val());
-
         if (isNaN(cantidad) || cantidad < 1) cantidad = 1;
         if (cantidad > itemsVenta[idProducto].stock_disponible) {
             cantidad = itemsVenta[idProducto].stock_disponible;
             Swal.fire('Límite de Stock', `La cantidad no puede exceder el stock disponible (${itemsVenta[idProducto].stock_disponible}).`, 'warning');
             fila.find('.item-cantidad-venta').val(cantidad);
         }
-        
         itemsVenta[idProducto].cantidad = cantidad;
         itemsVenta[idProducto].precio_venta_unitario = isNaN(precioVenta) ? 0 : precioVenta;
         itemsVenta[idProducto].porcentaje_iva = isNaN(porcentajeIva) ? 0 : porcentajeIva;
-
         const subtotalItem = itemsVenta[idProducto].cantidad * itemsVenta[idProducto].precio_venta_unitario;
         fila.find('.item-subtotal-display-venta').text(subtotalItem.toFixed(2));
         calcularTotalesVenta();
@@ -678,49 +709,36 @@ $(document).ready(function() {
     $('#tabla_items_venta tbody').on('click', '.btn-remover-item-venta', function() {
         const idProducto = $(this).closest('tr').data('id-producto');
         delete itemsVenta[idProducto];
-        renderizarTablaItemsVenta();
-        calcularTotalesVenta();
+        renderizarTablaItemsVenta(); calcularTotalesVenta();
     });
 
-    // Modal Crear Producto Rápido (Venta)
     $('#btn-modal-crear-producto-rapido-venta').click(function() {
         $('#form-crear-producto-rapido-venta')[0].reset();
         $('#vr_validation_errors').hide().html('');
-        // Generar código para el nuevo producto
         $.ajax({
-            url: `${URL_BASE}/app/controllers/almacen/controller_generar_siguiente_codigo.php`,
-            type: 'POST',
-            data: { id_usuario: ID_USUARIO_LOGUEADO },
-            dataType: 'json',
+            url: `${URL_BASE}/app/controllers/almacen/controller_generar_siguiente_codigo.php`, type: 'POST',
+            data: { id_usuario: ID_USUARIO_LOGUEADO }, dataType: 'json',
             success: function(response) {
-                if (response.status === 'success') {
-                    $('#vr_producto_codigo').val(response.nuevo_codigo);
-                } else {
-                    Swal.fire('Error', 'No se pudo generar código para el producto.', 'error');
-                }
+                if (response.status === 'success') $('#vr_producto_codigo').val(response.nuevo_codigo);
+                else Swal.fire('Error', 'No se pudo generar código para el producto.', 'error');
             }
         });
-        $('#vr_producto_fecha_ingreso').val(new Date().toISOString().slice(0,10)); // Fecha actual
+        $('#vr_producto_fecha_ingreso').val(new Date().toISOString().slice(0,10));
         $('#modal-crear-producto-rapido-venta').modal('show');
     });
 
     $('#form-crear-producto-rapido-venta').submit(function(e) {
-        e.preventDefault();
-        $('#vr_validation_errors').hide().html('');
+        e.preventDefault(); $('#vr_validation_errors').hide().html('');
         var formData = $(this).serializeArray();
         formData.push({name: "accion", value: "crear_producto_almacen_rapido"});
         formData.push({name: "id_usuario_creador", value: ID_USUARIO_LOGUEADO});
-
         $.ajax({
-            url: `${URL_BASE}/almacen/acciones_almacen.php`, // Reutilizamos el de compras
-            type: 'POST',
-            data: $.param(formData),
-            dataType: 'json',
+            url: `${URL_BASE}/almacen/acciones_almacen.php`, type: 'POST', data: $.param(formData), dataType: 'json',
             success: function(response) {
                 if (response.status === 'success' && response.producto) {
                     $('#modal-crear-producto-rapido-venta').modal('hide');
                     Swal.fire('¡Éxito!', response.message, 'success');
-                    anadirProductoAVenta(response.producto); // Añadir el producto recién creado
+                    anadirProductoAVenta(response.producto);
                 } else {
                      $('#vr_validation_errors').html(response.message || 'Error desconocido.').show();
                 }
@@ -729,65 +747,45 @@ $(document).ready(function() {
         });
     });
     
-    // --- CÁLCULO DE TOTALES ---
-    $('#descuento_general_venta').on('change keyup', function() {
-        calcularTotalesVenta();
-    });
+    $('#descuento_general_venta').on('change keyup', calcularTotalesVenta);
 
     function calcularTotalesVenta() {
-        let subtotalGeneral = 0;
-        let ivaGeneral = 0;
-
+        let subtotalGeneral = 0, ivaGeneral = 0;
         for (const id in itemsVenta) {
             const item = itemsVenta[id];
             const subtotalItem = item.cantidad * item.precio_venta_unitario;
             const ivaItem = subtotalItem * (item.porcentaje_iva / 100);
-            subtotalGeneral += subtotalItem;
-            ivaGeneral += ivaItem;
+            subtotalGeneral += subtotalItem; ivaGeneral += ivaItem;
         }
-        
-        const descuentoGeneral = parseFloat($('#descuento_general_venta').val()) || 0;
-        if (descuentoGeneral < 0) {
-             $('#descuento_general_venta').val(0);
-             // descuentoGeneral = 0; // No es necesario si el input min="0" funciona
+        let descuentoGeneral = parseFloat($('#descuento_general_venta').val()) || 0;
+        if (descuentoGeneral < 0) descuentoGeneral = 0;
+        let totalAntesDescuento = subtotalGeneral + ivaGeneral;
+        if (descuentoGeneral > totalAntesDescuento) {
+            descuentoGeneral = totalAntesDescuento;
+            Swal.fire('Aviso', 'El descuento no puede ser mayor al total.', 'warning');
+            $('#descuento_general_venta').val(descuentoGeneral.toFixed(2));
         }
-        if (descuentoGeneral > subtotalGeneral + ivaGeneral) {
-            Swal.fire('Aviso', 'El descuento no puede ser mayor al total antes de descuento.', 'warning');
-            $('#descuento_general_venta').val((subtotalGeneral + ivaGeneral).toFixed(2));
-            // descuentoGeneral = subtotalGeneral + ivaGeneral; // Actualizar el valor
-        }
-
-
-        const totalGeneral = subtotalGeneral + ivaGeneral - descuentoGeneral;
-
+        const totalGeneral = totalAntesDescuento - descuentoGeneral;
         $('#subtotal_general_venta_display').val(subtotalGeneral.toFixed(2));
         $('#monto_iva_general_venta_display').val(ivaGeneral.toFixed(2));
         $('#total_general_venta_display').val(totalGeneral.toFixed(2));
-
         $('#subtotal_general_venta_calculado').val(subtotalGeneral.toFixed(2));
         $('#monto_iva_general_venta_calculado').val(ivaGeneral.toFixed(2));
         $('#total_general_venta_calculado').val(totalGeneral.toFixed(2));
     }
 
-    // --- GUARDAR VENTA ---
     $('#form-registrar-venta').submit(function(e) {
         e.preventDefault();
         $('#btn-guardar-venta').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
-
         if (Object.keys(itemsVenta).length === 0) {
             Swal.fire('Error', 'Debe añadir al menos un producto a la venta.', 'error');
-            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');
-            return;
+            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta'); return;
         }
         if (!$('#id_cliente_venta').val()) {
              Swal.fire('Error', 'Debe seleccionar un cliente.', 'error');
-            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');
-            return;
+            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta'); return;
         }
-
-        var formData = $(this).serializeArray(); // Datos de cabecera
-        
-        // Añadir ítems al formData
+        var formData = $(this).serializeArray();
         let itemIndex = 0;
         for (const idProducto in itemsVenta) {
             const item = itemsVenta[idProducto];
@@ -795,36 +793,21 @@ $(document).ready(function() {
             formData.push({name: `items[${itemIndex}][cantidad]`, value: item.cantidad});
             formData.push({name: `items[${itemIndex}][precio_venta_unitario]`, value: item.precio_venta_unitario});
             formData.push({name: `items[${itemIndex}][porcentaje_iva_item]`, value: item.porcentaje_iva});
-            // Los subtotales por ítem se pueden recalcular en el backend para seguridad
             itemIndex++;
         }
-        
         $.ajax({
-            url: `${URL_BASE}/app/controllers/ventas/controller_create_venta.php`, // Este controlador es NUEVO
-            type: 'POST',
-            data: $.param(formData),
-            dataType: 'json',
+            url: `${URL_BASE}/app/controllers/ventas/controller_create_venta.php`,
+            type: 'POST', data: $.param(formData), dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    Swal.fire({
-                        title: '¡Venta Registrada!',
-                        text: response.message,
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar'
-                    }).then((result) => {
-                        window.location.href = `${URL_BASE}/ventas/show.php?id=${response.id_venta}`; // Redirigir a ver la venta
-                    });
+                    Swal.fire({title: '¡Venta Registrada!', text: response.message, icon: 'success', confirmButtonText: 'Aceptar'})
+                    .then(() => { window.location.href = `${URL_BASE}/ventas/show.php?id=${response.id_venta}`; });
                 } else {
                     Swal.fire('Error', response.message || 'No se pudo registrar la venta.', 'error');
                 }
             },
-            error: function(xhr) { 
-                Swal.fire('Error de Servidor', 'No se pudo contactar al servidor. Revise la consola.', 'error');
-                console.error("Error AJAX al guardar venta:", xhr.responseText);
-            },
-            complete: function() {
-                 $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');
-            }
+            error: function(xhr) { Swal.fire('Error de Servidor', 'No se pudo contactar al servidor.', 'error'); console.error(xhr.responseText);},
+            complete: function() { $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');}
         });
     });
 });
