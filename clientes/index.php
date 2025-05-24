@@ -1,8 +1,6 @@
 <?php
 include '../app/config.php'; // Para $URL, $pdo
-// include '../app/utils/funciones_globales.php'; // Incluido en parte1.php o controladores
 include '../layout/sesion.php'; // Verifica sesión
-// include '../app/models/ClienteModel.php'; // No se usa directamente aquí, sino en controladores
 include '../layout/parte1.php'; // Cabecera HTML, CSS, jQuery, y menú lateral
 
 $modulo_abierto = 'clientes'; // Para el menú lateral, si aplica
@@ -14,7 +12,13 @@ $query_provincias = $pdo->prepare($sql_provincias);
 $query_provincias->execute();
 $provincias_ecuador = $query_provincias->fetchAll(PDO::FETCH_ASSOC);
 
-include '../layout/mensajes.php'; // Para mostrar mensajes flash
+// Para mostrar mensajes flash (SweetAlert)
+// Este include debe estar después de que jQuery y SweetAlert estén cargados,
+// así que es mejor si está al final del body o después de incluir parte2.php
+// Pero si mensajes.php solo contiene lógica PHP para setear variables JS, está bien aquí.
+// Por seguridad, lo moveremos al final, antes del cierre del body en parte2.php o aquí.
+// Por ahora, asumimos que layout/mensajes.php es seguro aquí.
+include '../layout/mensajes.php';
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -47,7 +51,7 @@ include '../layout/mensajes.php'; // Para mostrar mensajes flash
                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                         <h5><i class="icon fas fa-info"></i> Recordatorio Ventas Informales (Ecuador)</h5>
                         <ul>
-                            <li>Para ventas a <strong>Consumidor Final</strong> (sin datos específicos del comprador), el SRI permite no identificar al cliente si el monto es menor a un límite establecido (consultar normativa vigente, usualmente alrededor de $50-$200 USD).</li>
+                            <li>Para ventas a <strong>Consumidor Final</strong> (sin datos específicos del comprador), el SRI permite no identificar al cliente si el monto es menor a un límite establecido (consultar normativa vigente).</li>
                             <li>Puede usar el tipo de documento "Consumidor Final" y un RUC/CI genérico como "9999999999".</li>
                             <li>La validación de Cédula y RUC implementada aquí es básica. Para cumplimiento estricto del SRI, se requieren algoritmos completos.</li>
                         </ul>
@@ -185,9 +189,9 @@ include '../layout/mensajes.php'; // Para mostrar mensajes flash
                                 <label for="create_provincia">Provincia</label>
                                 <select class="form-control" id="create_provincia" name="provincia">
                                     <option value="">Seleccione...</option>
-                                    <?php foreach($provincias_ecuador as $provincia): ?>
-                                        <option value="<?php echo htmlspecialchars($provincia['nombre_provincia']); ?>">
-                                            <?php echo htmlspecialchars($provincia['nombre_provincia']); ?>
+                                    <?php foreach($provincias_ecuador as $provincia_item): ?>
+                                        <option value="<?php echo htmlspecialchars($provincia_item['nombre_provincia']); ?>">
+                                            <?php echo htmlspecialchars($provincia_item['nombre_provincia']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -230,7 +234,6 @@ include '../layout/mensajes.php'; // Para mostrar mensajes flash
             <form id="form-edit-cliente" method="POST">
                 <input type="hidden" name="id_cliente_update" id="edit_id_cliente_update">
                 <div class="modal-body">
-                    <!-- Campos similares a crear, con prefijo 'edit_' en IDs -->
                      <div class="row">
                         <div class="col-md-7">
                             <div class="form-group">
@@ -306,9 +309,9 @@ include '../layout/mensajes.php'; // Para mostrar mensajes flash
                                 <label for="edit_provincia">Provincia</label>
                                 <select class="form-control" id="edit_provincia" name="provincia_update">
                                     <option value="">Seleccione...</option>
-                                    <?php foreach($provincias_ecuador as $provincia): ?>
-                                        <option value="<?php echo htmlspecialchars($provincia['nombre_provincia']); ?>">
-                                            <?php echo htmlspecialchars($provincia['nombre_provincia']); ?>
+                                    <?php foreach($provincias_ecuador as $provincia_item): ?>
+                                        <option value="<?php echo htmlspecialchars($provincia_item['nombre_provincia']); ?>">
+                                            <?php echo htmlspecialchars($provincia_item['nombre_provincia']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -371,7 +374,11 @@ $(document).ready(function() {
     // Inicializar DataTable
     function inicializarTablaClientes() {
         if ($.fn.DataTable.isDataTable('#tabla-clientes')) {
-            tablaClientes.destroy();
+            // No es necesario destroy() si se va a reinicializar con los mismos parámetros.
+            // tablaClientes.destroy(); 
+            // Simplemente recargar datos:
+             tablaClientes.ajax.reload(null, false); // false para no resetear paginación
+             return;
         }
         tablaClientes = $('#tabla-clientes').DataTable({
             "processing": true,
@@ -418,13 +425,21 @@ $(document).ready(function() {
                     "render": function(data) {
                         if (!data) return '<span class="text-muted">N/A</span>';
                         try {
-                            let date = new Date(data.replace(' ', 'T')+'Z'); // Asegurar que se interprete como UTC si no tiene offset
-                            if (isNaN(date.getTime())) { // Fallback si la fecha no es válida
-                                date = new Date(data);
+                            // Intenta crear la fecha asumiendo que puede o no tener la 'T' y el 'Z'
+                            let dateStr = data.replace(' ', 'T');
+                            if (!dateStr.endsWith('Z')) dateStr += 'Z'; // Asegurar que se interprete como UTC si no tiene offset
+                            let date = new Date(dateStr); 
+                            
+                            if (isNaN(date.getTime())) { // Fallback si la fecha no es válida con 'T' y 'Z'
+                                date = new Date(data); // Intenta parsear como viene
+                            }
+                            if (isNaN(date.getTime())) { // Si sigue sin ser válida
+                                 return data; // Devolver original
                             }
                             return date.toLocaleDateString('es-EC', {day: '2-digit', month: '2-digit', year: 'numeric'}) + ' ' + 
-                                   date.toLocaleTimeString('es-EC', {hour: '2-digit', minute:'2-digit'});
+                                   date.toLocaleTimeString('es-EC', {hour: '2-digit', minute:'2-digit', hour12: true });
                         } catch (e) {
+                            console.warn("Error parseando fecha: ", data, e);
                             return data; // Devolver original si hay error de parseo
                         }
                     }
@@ -433,7 +448,7 @@ $(document).ready(function() {
                     "data": null, "className": "text-center", "orderable": false, "searchable": false,
                     "render": function (data, type, row) {
                         return `
-                            <div class="btn-group btn-group-sm">
+                            <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-info btn-edit" data-id="${row.id_cliente}" title="Editar Cliente">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -448,14 +463,16 @@ $(document).ready(function() {
             "responsive": true, "lengthChange": true, "autoWidth": false, "pageLength": 10,
             "order": [[1, 'asc']],
             "buttons": [
-                { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar', className: 'btn-sm', exportOptions: { columns: [0,1,2,3,4,5,6,7] }},
-                { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn-sm', exportOptions: { columns: [0,1,2,3,4,5,6,7] }},
-                { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF', className: 'btn-sm', orientation: 'landscape', exportOptions: { columns: [0,1,2,3,4,5,6,7] }},
-                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', className: 'btn-sm', exportOptions: { columns: [0,1,2,3,4,5,6,7] }}
+                { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar', className: 'btn-sm', exportOptions: { columns: ':visible:not(:last-child)' }},
+                { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn-sm', exportOptions: { columns: ':visible:not(:last-child)' }},
+                { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF', className: 'btn-sm', orientation: 'landscape', exportOptions: { columns: ':visible:not(:last-child)' }},
+                { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', className: 'btn-sm', exportOptions: { columns: ':visible:not(:last-child)' }}
             ],
             "language": { "url": `${urlBase}/public/templeates/AdminLTE-3.2.0/plugins/datatables-plugins/i18n/es_es.json`}
         });
-        tablaClientes.buttons().container().appendTo('#tabla-clientes_wrapper .col-md-6:eq(0)');
+        if (tablaClientes.buttons) { // Verificar si buttons() está disponible
+             tablaClientes.buttons().container().appendTo('#tabla-clientes_wrapper .col-md-6:eq(0)');
+        }
     }
     
     inicializarTablaClientes();
@@ -466,7 +483,9 @@ $(document).ready(function() {
         let provincia = parseInt(cedula.substring(0, 2));
         if (provincia < 1 || provincia > 24) return { valido: false, mensaje: 'Código de provincia inválido en cédula.' };
         let tercerDigito = parseInt(cedula[2]);
-        if (tercerDigito >= 6) return { valido: false, mensaje: 'Tercer dígito de cédula inválido.' };
+        if (tercerDigito >= 6 && tercerDigito !== 9) { // 9 es para sociedades extranjeras y sucesiones indivisas, no aplica a personas naturales
+             return { valido: false, mensaje: 'Tercer dígito de cédula de persona natural inválido.' };
+        }
         
         let coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
         let suma = 0;
@@ -485,48 +504,62 @@ $(document).ready(function() {
         if (provincia < 1 || provincia > 24) return { valido: false, mensaje: 'Código de provincia inválido en RUC.' };
         
         let tipoContribuyente = parseInt(ruc[2]);
-        if (tipoContribuyente === 6 || tipoContribuyente === 9) { // Entidades públicas o Sociedades
-            // Algoritmo módulo 11 para estos casos (simplificado aquí)
-            let coef = (tipoContribuyente === 9) ? [4,3,2,7,6,5,4,3,2] : [3,2,7,6,5,4,3,2]; // Sociedades : Públicas
-            let ref = (tipoContribuyente === 9) ? 8 : 9;
-            let suma = 0;
-            for (let i = 0; i < ref; i++) suma += parseInt(ruc[i]) * coef[i];
-            let dv = (suma % 11 === 0) ? 0 : 11 - (suma % 11);
-            if (dv !== parseInt(ruc[ref])) return { valido: false, mensaje: 'RUC de entidad inválido.'};
+        let validacionExitosa = false;
 
-        } else if (tipoContribuyente < 6) { // Persona natural
+        if (tipoContribuyente >= 0 && tipoContribuyente < 6) { // Persona natural
             let validacionCedulaBase = validarCedulaCliente(ruc.substring(0,10));
             if (!validacionCedulaBase.valido) return { valido: false, mensaje: 'RUC (persona natural) con base de cédula inválida.'};
+            validacionExitosa = true;
+        } else if (tipoContribuyente === 6) { // Entidades públicas
+            let coef = [3,2,7,6,5,4,3,2]; 
+            let suma = 0;
+            for (let i = 0; i < 8; i++) suma += parseInt(ruc[i]) * coef[i];
+            let dv = (suma % 11 === 0) ? 0 : 11 - (suma % 11);
+            if (dv !== parseInt(ruc[8])) return { valido: false, mensaje: 'RUC de entidad pública inválido.'};
+            validacionExitosa = true;
+        } else if (tipoContribuyente === 9) { // Sociedades privadas o extranjeros sin cédula
+            let coef = [4,3,2,7,6,5,4,3,2]; 
+            let suma = 0;
+            for (let i = 0; i < 9; i++) suma += parseInt(ruc[i]) * coef[i];
+            let dv = (suma % 11 === 0) ? 0 : 11 - (suma % 11);
+             if (dv !== parseInt(ruc[9])) return { valido: false, mensaje: 'RUC de sociedad o extranjero inválido.'};
+            validacionExitosa = true;
         } else {
-            return { valido: false, mensaje: 'Tercer dígito de RUC no reconocido.'};
+            return { valido: false, mensaje: 'Tercer dígito de RUC no reconocido para validación específica.'};
         }
-        if (!/00[1-9]$/.test(ruc.substring(10,13)) && ruc.substring(10,13) !== '000' && !/001$/.test(ruc.substring(10,13))) {
-             // Permite 000 y 001-009 para establecimientos. 
-             // La lógica original '001' es muy restrictiva para algunos RUCs válidos con múltiples establecimientos.
-             // Si se quiere ser estricto con '001' para el principal: if (ruc.substring(10,13) !== '001') ...
+        
+        // Validar sufijo de establecimiento (001, 002, etc.)
+        const establecimiento = ruc.substring(10, 13);
+        if (!/^\d{3}$/.test(establecimiento) ) { // SRI ahora permite 000 para RISE que emiten factura
+             return { valido: false, mensaje: 'Sufijo de establecimiento en RUC debe ser de 3 dígitos.'};
         }
-        return { valido: true, mensaje: 'RUC válido.' };
+        // if (establecimiento === '000') { // Antes no se permitía 000, pero SRI ha cambiado
+        //     return { valido: false, mensaje: 'Sufijo de establecimiento "000" no es válido para RUCs que facturan normalmente.' };
+        // }
+
+
+        return { valido: validacionExitosa, mensaje: validacionExitosa ? 'RUC válido.' : 'RUC no pudo ser validado completamente.' };
     }
     
     function mostrarErroresModal(modalId, errores) {
-        const errorDivId = (modalId === 'modal-create-cliente') ? 'create_validation_errors' : 'edit_validation_errors';
-        let mensajesHtml = '<ul>';
+        const errorDivId = (modalId === 'modal-create-cliente') ? '#create_validation_errors' : '#edit_validation_errors';
+        let mensajesHtml = '<ul class="list-unstyled mb-0">';
         if (typeof errores === 'string') {
-            mensajesHtml += `<li>${errores}</li>`;
+            mensajesHtml += `<li><i class="fas fa-times-circle text-danger"></i> ${errores}</li>`;
         } else if (Array.isArray(errores)) {
-            errores.forEach(err => mensajesHtml += `<li>${err}</li>`);
+            errores.forEach(err => mensajesHtml += `<li><i class="fas fa-times-circle text-danger"></i> ${err}</li>`);
         } else if (typeof errores === 'object') {
             for (const key in errores) {
-                mensajesHtml += `<li>${errores[key]}</li>`;
+                mensajesHtml += `<li><i class="fas fa-times-circle text-danger"></i> ${errores[key]}</li>`;
             }
         }
         mensajesHtml += '</ul>';
-        $('#' + errorDivId).html(mensajesHtml).show();
+        $(errorDivId).html(mensajesHtml).show();
     }
 
     function limpiarErroresModal(modalId) {
-         const errorDivId = (modalId === 'modal-create-cliente') ? 'create_validation_errors' : 'edit_validation_errors';
-         $('#' + errorDivId).hide().html('');
+         const errorDivId = (modalId === 'modal-create-cliente') ? '#create_validation_errors' : '#edit_validation_errors';
+         $(errorDivId).hide().html('');
     }
     
     // --- Configuración Dinámica de Campos de Documento ---
@@ -539,13 +572,13 @@ $(document).ready(function() {
             let placeholder = "Nro. Documento";
             let help = "";
             let requerido = false;
-            $inputDoc.val(''); // Limpiar al cambiar tipo
+             $inputDoc.val(''); // Limpiar al cambiar tipo
 
             switch(tipo) {
                 case 'consumidor_final':
-                    placeholder = "9999999999 (Opcional)";
-                    help = "Para Consumidor Final, usar 9999999999 o dejar vacío.";
-                    $labelDoc.text("Nro. Documento");
+                    placeholder = "9999999999";
+                    help = "Para Consumidor Final, se usará 9999999999 si se deja vacío.";
+                    $labelDoc.text("Nro. Documento (Consumidor Final)");
                     $inputDoc.val('9999999999'); // Autocompletar
                     break;
                 case 'cedula':
@@ -562,7 +595,7 @@ $(document).ready(function() {
                     break;
                 case 'pasaporte':
                     placeholder = "Ej: A123B456";
-                    help = "Documento de pasaporte.";
+                    help = "Letras y números según formato de pasaporte.";
                     $labelDoc.text("Nro. Pasaporte *");
                     requerido = true;
                     break;
@@ -570,19 +603,18 @@ $(document).ready(function() {
                 case 'otro':
                     placeholder = "Documento de Identificación";
                     help = "Documento de identificación según país/tipo.";
-                    $labelDoc.text("Nro. Documento");
+                    $labelDoc.text("Nro. Documento"); // No es obligatorio por defecto
                     break;
             }
             $inputDoc.attr('placeholder', placeholder).prop('required', requerido);
             $helpText.text(help);
-        }).trigger('change');
+        }).trigger('change'); // Ejecutar al inicio para el modal de creación
     }
 
     configurarCampoDocumento('create_tipo_documento', 'create_nit_ci_cliente', 'create_documento_help', 'label_create_documento');
     configurarCampoDocumento('edit_tipo_documento', 'edit_nit_ci_cliente', 'edit_documento_help', 'label_edit_documento');
 
     // --- Eventos CRUD ---
-    // Crear/Verificar Consumidor Final
     $('#btn-consumidor-final').on('click', function() {
         const btn = $(this);
         btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
@@ -595,26 +627,41 @@ $(document).ready(function() {
                     Swal.fire('Realizado', response.message, 'success');
                     tablaClientes.ajax.reload(null, false);
                 } else {
-                    Swal.fire('Error', response.message || 'No se pudo procesar.', 'error');
+                    Swal.fire('Error', response.message || 'No se pudo procesar la solicitud.', 'error');
                 }
             },
-            error: function() { Swal.fire('Error', 'No se pudo contactar al servidor.', 'error'); },
+            error: function(xhr) { 
+                Swal.fire('Error', 'No se pudo contactar al servidor. Verifique la consola.', 'error');
+                console.error("Error en AJAX para crear consumidor final:", xhr.responseText);
+            },
             complete: function() { btn.prop('disabled', false).html('<i class="fas fa-user-check"></i> Crear/Verif. Consumidor Final');}
         });
     });
 
-    // Submit Formulario Crear Cliente
     $('#form-create-cliente').on('submit', function(e) {
         e.preventDefault();
         limpiarErroresModal('modal-create-cliente');
-        const formData = $(this).serialize();
+        const formData = $(this).serializeArray(); // Usar serializeArray para modificar
         const tipoDoc = $('#create_tipo_documento').val();
-        const numDoc = $('#create_nit_ci_cliente').val().trim();
-        let validacionCliente = { valido: true };
+        let numDoc = $('#create_nit_ci_cliente').val().trim();
+        let validacionCliente = { valido: true, mensaje: '' };
 
-        if (numDoc && tipoDoc !== 'consumidor_final' && tipoDoc !== 'otro' && tipoDoc !== 'extranjero') {
+        // Si es consumidor final y el campo está vacío o es el genérico, asegurar que se envíe el genérico.
+        if (tipoDoc === 'consumidor_final') {
+            if (numDoc === '' || numDoc === '9999999999') {
+                numDoc = '9999999999'; // Asegurar el valor genérico
+                // Modificar formData para asegurar que nit_ci_cliente tenga este valor
+                let docField = formData.find(field => field.name === 'nit_ci_cliente');
+                if (docField) {
+                    docField.value = numDoc;
+                } else {
+                    formData.push({name: 'nit_ci_cliente', value: numDoc});
+                }
+            }
+        } else if (numDoc && tipoDoc !== 'otro' && tipoDoc !== 'extranjero') {
             if (tipoDoc === 'cedula') validacionCliente = validarCedulaCliente(numDoc);
-            if (tipoDoc === 'ruc') validacionCliente = validarRucCliente(numDoc);
+            else if (tipoDoc === 'ruc') validacionCliente = validarRucCliente(numDoc);
+            // Para pasaporte no hay validación JS compleja aquí, se confía en la del servidor.
             
             if (!validacionCliente.valido) {
                 mostrarErroresModal('modal-create-cliente', validacionCliente.mensaje);
@@ -624,7 +671,7 @@ $(document).ready(function() {
         
         $.ajax({
             url: `${urlBase}/app/controllers/clientes/create_cliente.php`,
-            type: 'POST', data: formData, dataType: 'json',
+            type: 'POST', data: $.param(formData), dataType: 'json', // Usar $.param para enviar el array modificado
             success: function(response) {
                 if (response.status === 'success') {
                     $('#modal-create-cliente').modal('hide');
@@ -634,11 +681,13 @@ $(document).ready(function() {
                     mostrarErroresModal('modal-create-cliente', response.message || 'Error al crear el cliente.');
                 }
             },
-            error: function() { mostrarErroresModal('modal-create-cliente', 'Error de conexión con el servidor.');}
+            error: function(xhr) { 
+                mostrarErroresModal('modal-create-cliente', 'Error de conexión. Revise consola.');
+                console.error("Error AJAX crear cliente:", xhr.responseText);
+            }
         });
     });
 
-    // Cargar datos para Editar Cliente
     $('#tabla-clientes tbody').on('click', '.btn-edit', function() {
         const idCliente = $(this).data('id');
         limpiarErroresModal('modal-edit-cliente');
@@ -650,7 +699,7 @@ $(document).ready(function() {
                     const cliente = response.data;
                     $('#edit_id_cliente_update').val(cliente.id_cliente);
                     $('#edit_nombre_cliente').val(cliente.nombre_cliente);
-                    $('#edit_tipo_documento').val(cliente.tipo_documento).trigger('change'); // Trigger para actualizar UI
+                    $('#edit_tipo_documento').val(cliente.tipo_documento).trigger('change');
                     $('#edit_nit_ci_cliente').val(cliente.nit_ci_cliente);
                     $('#edit_celular_cliente').val(cliente.celular_cliente);
                     $('#edit_telefono_fijo').val(cliente.telefono_fijo);
@@ -658,7 +707,7 @@ $(document).ready(function() {
                     $('#edit_direccion').val(cliente.direccion);
                     $('#edit_ciudad').val(cliente.ciudad);
                     $('#edit_provincia').val(cliente.provincia);
-                    $('#edit_fecha_nacimiento').val(cliente.fecha_nacimiento); // Asegurar formato YYYY-MM-DD
+                    $('#edit_fecha_nacimiento').val(cliente.fecha_nacimiento);
                     $('#edit_observaciones').val(cliente.observaciones);
                     $('#edit_estado').val(cliente.estado);
                     $('#modal-edit-cliente').modal('show');
@@ -666,37 +715,41 @@ $(document).ready(function() {
                     Swal.fire('Error', response.message || 'No se pudieron cargar los datos del cliente.', 'error');
                 }
             },
-            error: function() { Swal.fire('Error', 'No se pudo contactar al servidor.', 'error');}
+            error: function(xhr) { 
+                Swal.fire('Error', 'No se pudo contactar al servidor para cargar datos.', 'error');
+                console.error("Error AJAX get cliente:", xhr.responseText);
+            }
         });
     });
 
-    // Submit Formulario Editar Cliente
     $('#form-edit-cliente').on('submit', function(e) {
         e.preventDefault();
         limpiarErroresModal('modal-edit-cliente');
-        const formData = $(this).serialize();
+        const formData = $(this).serializeArray();
         const tipoDoc = $('#edit_tipo_documento').val();
-        const numDoc = $('#edit_nit_ci_cliente').val().trim();
-        let validacionCliente = { valido: true };
+        let numDoc = $('#edit_nit_ci_cliente').val().trim();
+        let validacionCliente = { valido: true, mensaje: '' };
 
-        if (numDoc && tipoDoc !== 'consumidor_final' && tipoDoc !== 'otro' && tipoDoc !== 'extranjero') {
-             // No validar si es el documento genérico de consumidor final
-            if (tipoDoc === 'consumidor_final' && (numDoc === '9999999999' || numDoc === '9999999999999')) {
-                // No hacer nada, es válido
-            } else {
-                if (tipoDoc === 'cedula') validacionCliente = validarCedulaCliente(numDoc);
-                if (tipoDoc === 'ruc') validacionCliente = validarRucCliente(numDoc);
+        if (tipoDoc === 'consumidor_final') {
+             if (numDoc === '' || numDoc === '9999999999') {
+                numDoc = '9999999999'; 
+                let docField = formData.find(field => field.name === 'nit_ci_cliente_update');
+                if (docField) docField.value = numDoc;
+                else formData.push({name: 'nit_ci_cliente_update', value: numDoc});
+            }
+        } else if (numDoc && tipoDoc !== 'otro' && tipoDoc !== 'extranjero') {
+            if (tipoDoc === 'cedula') validacionCliente = validarCedulaCliente(numDoc);
+            else if (tipoDoc === 'ruc') validacionCliente = validarRucCliente(numDoc);
             
-                if (!validacionCliente.valido) {
-                    mostrarErroresModal('modal-edit-cliente', validacionCliente.mensaje);
-                    return;
-                }
+            if (!validacionCliente.valido) {
+                mostrarErroresModal('modal-edit-cliente', validacionCliente.mensaje);
+                return;
             }
         }
-
+        
         $.ajax({
             url: `${urlBase}/app/controllers/clientes/update_cliente.php`,
-            type: 'POST', data: formData, dataType: 'json',
+            type: 'POST', data: $.param(formData), dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
                     $('#modal-edit-cliente').modal('hide');
@@ -706,11 +759,13 @@ $(document).ready(function() {
                     mostrarErroresModal('modal-edit-cliente', response.message || 'Error al actualizar el cliente.');
                 }
             },
-            error: function() { mostrarErroresModal('modal-edit-cliente', 'Error de conexión con el servidor.');}
+            error: function(xhr) { 
+                mostrarErroresModal('modal-edit-cliente', 'Error de conexión. Revise consola.');
+                console.error("Error AJAX update cliente:", xhr.responseText);
+            }
         });
     });
 
-    // Abrir Modal de Confirmación para Eliminar
     $('#tabla-clientes tbody').on('click', '.btn-delete', function() {
         const idCliente = $(this).data('id');
         const nombreCliente = $(this).data('nombre');
@@ -719,7 +774,6 @@ $(document).ready(function() {
         $('#modal-delete-cliente').modal('show');
     });
 
-    // Confirmar Eliminación
     $('#btn-confirmar-delete').on('click', function() {
         const idCliente = $('#delete_id_cliente_hidden').val();
         $.ajax({
@@ -734,24 +788,24 @@ $(document).ready(function() {
                     Swal.fire('Error al Eliminar', response.message || 'No se pudo eliminar el cliente.', 'error');
                 }
             },
-            error: function() {
+            error: function(xhr) {
                 $('#modal-delete-cliente').modal('hide');
                 Swal.fire('Error', 'No se pudo contactar al servidor.', 'error');
+                console.error("Error AJAX delete cliente:", xhr.responseText);
             }
         });
     });
 
-    // Limpiar modales al cerrar para evitar datos cacheados
     $('.modal').on('hidden.bs.modal', function () {
-        $(this).find('form')[0]?.reset(); // Resetea el formulario si existe
-        const createErrorDiv = $('#create_validation_errors');
-        if (createErrorDiv.length) createErrorDiv.hide().html('');
-        const editErrorDiv = $('#edit_validation_errors');
-        if (editErrorDiv.length) editErrorDiv.hide().html('');
+        const form = $(this).find('form');
+        if (form.length) form[0].reset();
+        
+        limpiarErroresModal('#modal-create-cliente');
+        limpiarErroresModal('#modal-edit-cliente');
 
-        // Resetear selects de tipo de documento a un estado inicial
+        // Resetear selects de tipo de documento a un estado inicial y disparar change
         $('#create_tipo_documento').val('consumidor_final').trigger('change');
-        // Para el modal de edición, no es necesario resetear el tipo si se va a cargar data nueva.
+        // Para el modal de edición, el trigger('change') se hace cuando se cargan los datos.
     });
 });
 </script>
