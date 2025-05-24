@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-05-2025 a las 18:53:23
+-- Tiempo de generación: 25-05-2025 a las 01:17:14
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -127,15 +127,24 @@ CREATE TABLE `tb_clientes` (
   `observaciones` text DEFAULT NULL,
   `estado` enum('activo','inactivo') DEFAULT 'activo',
   `fyh_creacion` datetime NOT NULL,
-  `fyh_actualizacion` datetime NOT NULL
+  `fyh_actualizacion` datetime NOT NULL,
+  `direccion_cliente` varchar(255) DEFAULT NULL,
+  `provincia_cliente` varchar(100) DEFAULT NULL,
+  `ciudad_cliente` varchar(100) DEFAULT NULL,
+  `referencia_cliente` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
 -- Volcado de datos para la tabla `tb_clientes`
 --
 
-INSERT INTO `tb_clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `tipo_documento`, `nit_ci_cliente`, `celular_cliente`, `telefono_fijo`, `email_cliente`, `direccion`, `ciudad`, `provincia`, `fecha_nacimiento`, `observaciones`, `estado`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(1, 1, 'CONSUMIDOR FINAL', 'consumidor_final', '9999999999', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Cliente genérico para ventas rápidas.', 'activo', '2025-05-24 09:50:39', '2025-05-24 10:06:44');
+INSERT INTO `tb_clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `tipo_documento`, `nit_ci_cliente`, `celular_cliente`, `telefono_fijo`, `email_cliente`, `direccion`, `ciudad`, `provincia`, `fecha_nacimiento`, `observaciones`, `estado`, `fyh_creacion`, `fyh_actualizacion`, `direccion_cliente`, `provincia_cliente`, `ciudad_cliente`, `referencia_cliente`) VALUES
+(1, 1, 'CONSUMIDOR FINAL', 'consumidor_final', '9999999999', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Cliente genérico para ventas rápidas.', 'activo', '2025-05-24 09:50:39', '2025-05-24 10:06:44', NULL, NULL, NULL, NULL),
+(5, 1, 'juan perezf', 'cedula', '1757949936', '42424224', '121134224', 'clientese@gmail.com', 'fsafsafas', 'lago agrio', 'Cotopaxi', '2025-05-22', 'fasfsaasf', 'activo', '2025-05-24 13:47:02', '2025-05-24 13:47:02', NULL, NULL, NULL, NULL),
+(7, 1, 'juan perez', 'cedula', '1757949934', '42424224', NULL, 'clientese@gmail.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 13:48:25', '2025-05-24 13:48:25', NULL, NULL, NULL, NULL),
+(9, 1, 'juan perez', 'cedula', '2112424242', '42424224', NULL, 'clientee@gmail.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 14:17:35', '2025-05-24 14:17:35', NULL, NULL, NULL, NULL),
+(11, 1, 'juan perez', 'cedula', '0962525225', 'fsafasfsfa', NULL, 'asfasf525@gmai.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 14:18:51', '2025-05-24 14:18:51', NULL, NULL, NULL, NULL),
+(12, 15, 'CONSUMIDOR FINAL', 'consumidor_final', '9999999999', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Cliente genérico para ventas rápidas.', 'activo', '2025-05-24 17:55:21', '2025-05-24 17:55:21', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -202,6 +211,27 @@ INSERT INTO `tb_detalle_compras` (`id_detalle_compra`, `id_compra`, `id_producto
 (10, 10, 25, 1.00, 9.00, 9.00, 9.00, 0.81, 9.81, '2025-05-23 15:28:11', '2025-05-23 17:32:41'),
 (12, 10, 18, 1.00, 22.00, 12.00, 22.00, 2.64, 24.64, '2025-05-23 17:17:47', '2025-05-23 17:32:41'),
 (13, 12, 19, 1.00, 33.00, 33.00, 33.00, 10.89, 43.89, '2025-05-23 17:51:29', '2025-05-23 17:51:29');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tb_detalle_ventas`
+--
+
+CREATE TABLE `tb_detalle_ventas` (
+  `id_detalle_venta` int(11) NOT NULL,
+  `id_venta` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` decimal(10,2) NOT NULL,
+  `precio_venta_unitario` decimal(10,2) NOT NULL,
+  `porcentaje_iva_item` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `monto_iva_item` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descuento_item` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `subtotal_item` decimal(10,2) NOT NULL COMMENT 'cantidad * precio_venta_unitario - descuento_item',
+  `total_item` decimal(10,2) NOT NULL COMMENT 'subtotal_item + monto_iva_item',
+  `fyh_creacion` datetime NOT NULL,
+  `fyh_actualizacion` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 -- --------------------------------------------------------
 
@@ -325,7 +355,8 @@ INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `imagen_perfil`, `p
 (10, 'administrador', 'admin@gmail.com', 'user_default.png', '$2y$10$LOP8dOv1tmWBnuZOrxmnw.TK6358ZDbFSgo6FwjuOtm.JVYxd8YGG', '', 1, '2025-05-03 06:55:54', '0000-00-00 00:00:00'),
 (12, 'venderw', 'vender@gmail.com', 'user_default.png', '$2y$10$EBfd4aY2yFbbWpkPSAC1XO4PKFeWTK9r9WKa/WB5iRTD5fRGlRNJi', '', 7, '2025-05-04 06:19:20', '2025-05-11 14:41:07'),
 (13, 'xd 22', '1@gmail.com', 'user_default.png', '$2y$10$uzWGvuEd0xTk3.jnYza22.FMIzgIxgsPYuGzl7oHngZDxtE6mrr4S', '', 1, '2025-05-08 21:57:46', '2025-05-11 15:04:05'),
-(14, '2', '2@gmail.com', 'user_default.png', '$2y$10$8NahENpQCkCI565YSxAffOcfuyB5gfzrtt5UkHyhvx0YfBLrWkXt6', '', 7, '2025-05-10 17:32:16', '2025-05-10 17:32:22');
+(14, '2', '2@gmail.com', 'user_default.png', '$2y$10$8NahENpQCkCI565YSxAffOcfuyB5gfzrtt5UkHyhvx0YfBLrWkXt6', '', 7, '2025-05-10 17:32:16', '2025-05-10 17:32:22'),
+(15, 'xxx', 'xxx@gmail.com', 'user_default.png', '$2y$10$cDaz6wsPAuXoLIENVFEWmOZYMUSeb9zNdR8ZGRryS/YVmGg9dnRdC', '', 7, '2025-05-24 17:54:55', '2025-05-24 17:55:03');
 
 -- --------------------------------------------------------
 
@@ -335,10 +366,19 @@ INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `imagen_perfil`, `p
 
 CREATE TABLE `tb_ventas` (
   `id_venta` int(11) NOT NULL,
-  `nro_venta` int(11) NOT NULL,
-  `id_cliente` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL,
-  `total_pagado` decimal(10,2) NOT NULL,
+  `id_usuario` int(11) NOT NULL COMMENT 'Usuario que registra la venta (vendedor)',
+  `id_cliente` int(11) NOT NULL COMMENT 'Cliente al que se realiza la venta',
+  `nro_venta_secuencial` int(11) NOT NULL COMMENT 'Número secuencial único por usuario/sistema',
+  `codigo_venta_referencia` varchar(50) NOT NULL COMMENT 'Código visible para el usuario (ej. V-00001)',
+  `fecha_venta` date NOT NULL,
+  `tipo_comprobante` varchar(100) DEFAULT NULL COMMENT 'Ej: Factura, Nota de Venta, Ticket',
+  `nro_comprobante_fisico` varchar(100) DEFAULT NULL COMMENT 'Número del documento físico si aplica',
+  `subtotal_general` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `monto_iva_general` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descuento_general` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `total_general` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `estado_venta` enum('PENDIENTE','PAGADA','ANULADA','ENTREGADA') DEFAULT 'PENDIENTE',
+  `observaciones` text DEFAULT NULL,
   `fyh_creacion` datetime NOT NULL,
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -397,6 +437,14 @@ ALTER TABLE `tb_detalle_compras`
   ADD KEY `idx_producto_detalle` (`id_producto`);
 
 --
+-- Indices de la tabla `tb_detalle_ventas`
+--
+ALTER TABLE `tb_detalle_ventas`
+  ADD PRIMARY KEY (`id_detalle_venta`),
+  ADD KEY `fk_detalle_venta_venta` (`id_venta`),
+  ADD KEY `fk_detalle_venta_producto` (`id_producto`);
+
+--
 -- Indices de la tabla `tb_proveedores`
 --
 ALTER TABLE `tb_proveedores`
@@ -426,9 +474,9 @@ ALTER TABLE `tb_usuarios`
 --
 ALTER TABLE `tb_ventas`
   ADD PRIMARY KEY (`id_venta`),
-  ADD KEY `id_cliente` (`id_cliente`),
-  ADD KEY `nro_venta` (`nro_venta`),
-  ADD KEY `fk_tb_ventas_tb_usuarios` (`id_usuario`);
+  ADD UNIQUE KEY `uq_usuario_codigo_venta` (`id_usuario`,`codigo_venta_referencia`),
+  ADD KEY `fk_venta_usuario` (`id_usuario`),
+  ADD KEY `fk_venta_cliente` (`id_cliente`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -456,7 +504,7 @@ ALTER TABLE `tb_categorias`
 -- AUTO_INCREMENT de la tabla `tb_clientes`
 --
 ALTER TABLE `tb_clientes`
-  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_compras`
@@ -469,6 +517,12 @@ ALTER TABLE `tb_compras`
 --
 ALTER TABLE `tb_detalle_compras`
   MODIFY `id_detalle_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT de la tabla `tb_detalle_ventas`
+--
+ALTER TABLE `tb_detalle_ventas`
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_proveedores`
@@ -492,13 +546,13 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_ventas`
 --
 ALTER TABLE `tb_ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
@@ -544,6 +598,13 @@ ALTER TABLE `tb_detalle_compras`
   ADD CONSTRAINT `fk_detallecompras_producto` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `tb_detalle_ventas`
+--
+ALTER TABLE `tb_detalle_ventas`
+  ADD CONSTRAINT `fk_detalle_venta_producto` FOREIGN KEY (`id_producto`) REFERENCES `tb_almacen` (`id_producto`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_detalle_venta_venta` FOREIGN KEY (`id_venta`) REFERENCES `tb_ventas` (`id_venta`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Filtros para la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
@@ -553,9 +614,8 @@ ALTER TABLE `tb_usuarios`
 -- Filtros para la tabla `tb_ventas`
 --
 ALTER TABLE `tb_ventas`
-  ADD CONSTRAINT `fk_tb_ventas_tb_usuarios` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `tb_ventas_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `tb_clientes` (`id_cliente`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `tb_ventas_ibfk_2` FOREIGN KEY (`nro_venta`) REFERENCES `tb_carrito` (`nro_venta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_venta_cliente` FOREIGN KEY (`id_cliente`) REFERENCES `tb_clientes` (`id_cliente`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_venta_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `tb_usuarios` (`id_usuario`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
