@@ -277,17 +277,40 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     </li>
                    
 
-<!-- Agregar antes del item de Cerrar Sesión -->
-<li class="nav-item">
-    <a href="<?php echo $URL;?>/perfil" class="nav-link">
-        <i class="nav-icon fas fa-user-circle"></i>
-        <p>
-            Mi Perfil
-        </p>
-    </a>
-</li>
+                    <!-- Agregar antes del item de Cerrar Sesión -->
+                    <li class="nav-item">
+                        <a href="<?php echo $URL;?>/perfil" class="nav-link">
+                            <i class="nav-icon fas fa-user-circle"></i>
+                            <p>
+                                Mi Perfil
+                            </p>
+                        </a>
+                    </li>
 
 
+
+
+                  <li class="nav-item has-treeview <?php if($modulo_abierto=='clientes') echo 'menu-open'; ?>">
+                        <a href="#" class="nav-link active <?php if($modulo_abierto=='clientes') echo 'active'; ?>">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                Clientes
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="<?php echo $URL;?>/clientes" class="nav-link <?php if($pagina_activa=='clientes') echo 'active'; ?>">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Mis Clientes</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
+
+                    
                     <li class="nav-item">
                         <a href="<?php echo $URL;?>/app/controllers/login/cerrar_sesion.php" class="nav-link" style="background-color: #ca0a0b">
                             <i class="nav-icon fas fa-door-closed"></i>
