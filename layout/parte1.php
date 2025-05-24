@@ -13,6 +13,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/plugins/fontawesome-free/css/all.min.css">
+     <!-- jQuery UI CSS -->
+    <link rel="stylesheet" href="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/plugins/jquery-ui/jquery-ui.min.css"> {/* Asegúrate que esta ruta sea correcta */}
+
     <!-- Theme style -->
     <link rel="stylesheet" href="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/dist/css/adminlte.min.css">
 
@@ -277,18 +280,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     </li>
                    
 
-                    <!-- Agregar antes del item de Cerrar Sesión -->
-                    <li class="nav-item">
-                        <a href="<?php echo $URL;?>/perfil" class="nav-link">
-                            <i class="nav-icon fas fa-user-circle"></i>
-                            <p>
-                                Mi Perfil
-                            </p>
-                        </a>
-                    </li>
-
-
-
 
                   <li class="nav-item has-treeview <?php if($modulo_abierto=='clientes') echo 'menu-open'; ?>">
                         <a href="#" class="nav-link active <?php if($modulo_abierto=='clientes') echo 'active'; ?>">
@@ -309,8 +300,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     </li>
 
 
+                    <!-- Agregar antes del item de Cerrar Sesión -->
+                    <li class="nav-item">
+                        <a href="<?php echo $URL;?>/perfil" class="nav-link">
+                            <i class="nav-icon fas fa-user-circle"></i>
+                            <p>
+                                Mi Perfil
+                            </p>
+                        </a>
+                    </li>
 
-                    
+
+
+
                     <li class="nav-item">
                         <a href="<?php echo $URL;?>/app/controllers/login/cerrar_sesion.php" class="nav-link" style="background-color: #ca0a0b">
                             <i class="nav-icon fas fa-door-closed"></i>

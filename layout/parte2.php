@@ -11,6 +11,11 @@
 <!-- ./wrapper -->
 
 <!-- REQUIRED SCRIPTS -->
+<!-- jQuery UI JS -->
+<script src="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/plugins/jquery-ui/jquery-ui.min.js"></script> {/* Asegúrate que esta ruta sea correcta */}
+<!-- (Opcional) jQuery UI Datepicker Localización para Español-->
+ <script src="<?php echo $URL;?>/public/templeates/AdminLTE-3.2.0/plugins/jquery-ui/i18n/datepicker-es.js"></script> 
+
 
 
 <!-- Bootstrap 4 -->
