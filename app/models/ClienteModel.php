@@ -2,7 +2,7 @@
 
 class ClienteModel {
     private $pdo;
-    private $URL;
+    private $URL; // Puede ser útil para futuras extensiones
 
     public function __construct(PDO $pdo, string $URL) {
         $this->pdo = $pdo;
@@ -10,20 +10,10 @@ class ClienteModel {
     }
 
     /**
-     * Obtiene todos los clientes de un usuario específico
-     */
-    public function getClientesByUsuarioId(int $id_usuario): array {
-        $sql = "SELECT * FROM tb_clientes 
-                WHERE id_usuario = :id_usuario 
-                ORDER BY nombre_cliente ASC";
-        $query = $this->pdo->prepare($sql);
-        $query->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        $query->execute();
-        return $query->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Obtiene un cliente específico por ID y usuario
+     * Obtiene un cliente específico por su ID, verificando que pertenezca al usuario.
+     * @param int $id_cliente
+     * @param int $id_usuario
+     * @return array|false Datos del cliente o false si no se encuentra o no pertenece al usuario.
      */
     public function getClienteByIdAndUsuarioId(int $id_cliente, int $id_usuario) {
         $sql = "SELECT * FROM tb_clientes 
@@ -36,200 +26,184 @@ class ClienteModel {
     }
 
     /**
-     * Valida documento ecuatoriano (cédula, RUC, pasaporte)
+     * Valida un documento ecuatoriano (Cédula, RUC, Pasaporte).
+     * Implementa validaciones básicas de formato y longitud.
+     * @param string $documento Número de documento.
+     * @param string $tipo 'cedula', 'ruc', 'pasaporte', 'consumidor_final', 'otro', 'extranjero'.
+     * @return array ['valido' => bool, 'mensaje' => string]
      */
     public function validarDocumentoEcuatoriano(string $documento, string $tipo): array {
-        $documento = preg_replace('/[^0-9]/', '', $documento); // Solo números
-        
+        $documento = trim(preg_replace('/[^a-zA-Z0-9]/', '', $documento)); // Permitir alfanuméricos para pasaporte
+
         switch ($tipo) {
             case 'cedula':
-                return $this->validarCedulaEcuatoriana($documento);
+                if (!ctype_digit($documento)) {
+                    return ['valido' => false, 'mensaje' => 'La cédula debe contener solo números.'];
+                }
+                if (strlen($documento) !== 10) {
+                    return ['valido' => false, 'mensaje' => 'La cédula ecuatoriana debe tener 10 dígitos.'];
+                }
+                // Aquí iría el algoritmo de validación del SRI si se requiere mayor precisión
+                return ['valido' => true, 'mensaje' => 'Formato de cédula válido.'];
             case 'ruc':
-                return $this->validarRucEcuatoriano($documento);
+                if (!ctype_digit($documento)) {
+                    return ['valido' => false, 'mensaje' => 'El RUC debe contener solo números.'];
+                }
+                if (strlen($documento) !== 13) {
+                    return ['valido' => false, 'mensaje' => 'El RUC ecuatoriano debe tener 13 dígitos.'];
+                }
+                // Aquí iría el algoritmo de validación del SRI
+                return ['valido' => true, 'mensaje' => 'Formato de RUC válido.'];
             case 'pasaporte':
-                return ['valido' => true, 'mensaje' => 'Formato de pasaporte aceptado'];
+                if (empty($documento) || strlen($documento) < 5 || strlen($documento) > 20) { // Longitud genérica
+                    return ['valido' => false, 'mensaje' => 'Formato o longitud de pasaporte no válido.'];
+                }
+                return ['valido' => true, 'mensaje' => 'Formato de pasaporte aceptado.'];
+            case 'consumidor_final':
+                 if ($documento === '9999999999999' || $documento === '9999999999' || empty($documento)) {
+                    return ['valido' => true, 'mensaje' => 'Documento de Consumidor Final válido.'];
+                }
+                return ['valido' => false, 'mensaje' => 'Documento para Consumidor Final no es el genérico.'];
+            case 'otro':
             case 'extranjero':
-                return ['valido' => true, 'mensaje' => 'Documento extranjero aceptado'];
+                if (empty($documento) || strlen($documento) < 3 || strlen($documento) > 25) {
+                     return ['valido' => false, 'mensaje' => 'Formato o longitud de documento no válido para tipo ' . $tipo];
+                }
+                return ['valido' => true, 'mensaje' => 'Documento tipo "' . $tipo . '" aceptado.'];
             default:
-                return ['valido' => false, 'mensaje' => 'Tipo de documento no válido'];
+                return ['valido' => false, 'mensaje' => 'Tipo de documento no reconocido para validación.'];
         }
     }
 
     /**
-     * Validación de cédula ecuatoriana (algoritmo oficial)
+     * Verifica si un número de documento ya existe para OTRO cliente del MISMO usuario.
+     * @param string $documento Número de documento.
+     * @param string $tipo_documento Tipo de documento.
+     * @param int $id_usuario ID del usuario actual.
+     * @param int|null $excluir_id_cliente ID del cliente a excluir (útil al actualizar).
+     * @return bool True si ya existe para otro cliente del mismo usuario, false en caso contrario.
      */
-    private function validarCedulaEcuatoriana(string $cedula): array {
-        if (strlen($cedula) !== 10) {
-            return ['valido' => false, 'mensaje' => 'La cédula debe tener 10 dígitos'];
+    public function documentoExisteParaOtroCliente(string $documento, string $tipo_documento, int $id_usuario, ?int $excluir_id_cliente = null): bool {
+        if (empty($documento) || $tipo_documento === 'consumidor_final' && ($documento === '9999999999999' || $documento === '9999999999')) {
+            return false; // No verificar duplicidad para estos casos
         }
 
-        $provincia = (int)substr($cedula, 0, 2);
-        if ($provincia < 1 || $provincia > 24) {
-            return ['valido' => false, 'mensaje' => 'Código de provincia inválido'];
-        }
-
-        $tercerDigito = (int)$cedula[2];
-        if ($tercerDigito > 5) {
-            return ['valido' => false, 'mensaje' => 'Tercer dígito de cédula inválido'];
-        }
-
-        // Algoritmo de validación del dígito verificador
-        $coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
-        $suma = 0;
-        
-        for ($i = 0; $i < 9; $i++) {
-            $producto = (int)$cedula[$i] * $coeficientes[$i];
-            if ($producto >= 10) {
-                $producto = $producto - 9;
-            }
-            $suma += $producto;
-        }
-
-        $digitoVerificador = 10 - ($suma % 10);
-        if ($digitoVerificador === 10) $digitoVerificador = 0;
-
-        if ($digitoVerificador !== (int)$cedula[9]) {
-            return ['valido' => false, 'mensaje' => 'Dígito verificador de cédula incorrecto'];
-        }
-
-        return ['valido' => true, 'mensaje' => 'Cédula válida'];
-    }
-
-    /**
-     * Validación básica de RUC ecuatoriano
-     */
-    private function validarRucEcuatoriano(string $ruc): array {
-        if (strlen($ruc) !== 13) {
-            return ['valido' => false, 'mensaje' => 'El RUC debe tener 13 dígitos'];
-        }
-
-        $provincia = (int)substr($ruc, 0, 2);
-        if ($provincia < 1 || $provincia > 24) {
-            return ['valido' => false, 'mensaje' => 'Código de provincia en RUC inválido'];
-        }
-
-        $tercerDigito = (int)$ruc[2];
-        
-        // RUC Persona Natural (tercer dígito 0-5)
-        if ($tercerDigito <= 5) {
-            $cedula = substr($ruc, 0, 10);
-            $validacionCedula = $this->validarCedulaEcuatoriana($cedula);
-            if (!$validacionCedula['valido']) {
-                return ['valido' => false, 'mensaje' => 'RUC con cédula base inválida'];
-            }
-            
-            $establecimiento = substr($ruc, 10, 3);
-            if ($establecimiento !== '001') {
-                return ['valido' => false, 'mensaje' => 'Código de establecimiento RUC inválido'];
-            }
-            
-            return ['valido' => true, 'mensaje' => 'RUC de persona natural válido'];
-        }
-        
-        // RUC Jurídica (tercer dígito 6) o Pública (tercer dígito 9)
-        if ($tercerDigito === 6 || $tercerDigito === 9) {
-            return ['valido' => true, 'mensaje' => 'RUC de persona jurídica/pública válido'];
-        }
-
-        return ['valido' => false, 'mensaje' => 'Tipo de RUC no reconocido'];
-    }
-
-    /**
-     * Verifica si ya existe un documento para otro cliente del mismo usuario
-     */
-    public function documentoExisteParaOtroCliente(string $documento, int $id_usuario, ?int $excluir_id_cliente = null): bool {
         $sql = "SELECT COUNT(*) FROM tb_clientes 
-                WHERE nit_ci_cliente = :documento AND id_usuario = :id_usuario";
-        
+                WHERE nit_ci_cliente = :documento 
+                AND tipo_documento = :tipo_documento
+                AND id_usuario = :id_usuario";
         if ($excluir_id_cliente !== null) {
-            $sql .= " AND id_cliente != :excluir_id";
+            $sql .= " AND id_cliente != :excluir_id_cliente";
         }
-
         $query = $this->pdo->prepare($sql);
         $query->bindParam(':documento', $documento, PDO::PARAM_STR);
+        $query->bindParam(':tipo_documento', $tipo_documento, PDO::PARAM_STR);
         $query->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        
         if ($excluir_id_cliente !== null) {
-            $query->bindParam(':excluir_id', $excluir_id_cliente, PDO::PARAM_INT);
+            $query->bindParam(':excluir_id_cliente', $excluir_id_cliente, PDO::PARAM_INT);
         }
-
         $query->execute();
         return $query->fetchColumn() > 0;
     }
 
     /**
-     * Crear cliente genérico
+     * Crea un nuevo cliente.
+     * @param array $datos Datos del cliente.
+     * @return string|false El ID del cliente creado o false en error.
      */
     public function crearCliente(array $datos): ?string {
-        $sql = "INSERT INTO tb_clientes 
-                (nombre_cliente, nit_ci_cliente, tipo_documento, celular_cliente, 
-                 telefono_fijo, email_cliente, direccion, ciudad, provincia, 
-                 fecha_nacimiento, observaciones, estado, id_usuario, fyh_creacion, fyh_actualizacion) 
-                VALUES 
-                (:nombre_cliente, :nit_ci_cliente, :tipo_documento, :celular_cliente,
-                 :telefono_fijo, :email_cliente, :direccion, :ciudad, :provincia,
-                 :fecha_nacimiento, :observaciones, :estado, :id_usuario, :fyh_creacion, :fyh_actualizacion)";
-
+        $sql = "INSERT INTO tb_clientes (id_usuario, nombre_cliente, tipo_documento, nit_ci_cliente, 
+                                     celular_cliente, telefono_fijo, email_cliente, direccion, 
+                                     ciudad, provincia, fecha_nacimiento, observaciones, estado, 
+                                     fyh_creacion, fyh_actualizacion) 
+                VALUES (:id_usuario, :nombre_cliente, :tipo_documento, :nit_ci_cliente, 
+                        :celular_cliente, :telefono_fijo, :email_cliente, :direccion, 
+                        :ciudad, :provincia, :fecha_nacimiento, :observaciones, :estado, 
+                        :fyh_creacion, :fyh_actualizacion)";
+        
         $query = $this->pdo->prepare($sql);
         
-        foreach ($datos as $key => $value) {
-            $paramType = ($key === 'id_usuario') ? PDO::PARAM_INT : PDO::PARAM_STR;
-            $query->bindValue(":$key", $value, $paramType);
-        }
+        $params_to_bind = [
+            ':id_usuario' => $datos['id_usuario'],
+            ':nombre_cliente' => $datos['nombre_cliente'],
+            ':tipo_documento' => $datos['tipo_documento'],
+            ':nit_ci_cliente' => $datos['nit_ci_cliente'],
+            ':celular_cliente' => $datos['celular_cliente'],
+            ':telefono_fijo' => $datos['telefono_fijo'],
+            ':email_cliente' => $datos['email_cliente'],
+            ':direccion' => $datos['direccion'],
+            ':ciudad' => $datos['ciudad'],
+            ':provincia' => $datos['provincia'],
+            ':fecha_nacimiento' => $datos['fecha_nacimiento'],
+            ':observaciones' => $datos['observaciones'],
+            ':estado' => $datos['estado'],
+            ':fyh_creacion' => $datos['fyh_creacion'],
+            ':fyh_actualizacion' => $datos['fyh_actualizacion']
+        ];
 
-        if ($query->execute()) {
+        if ($query->execute($params_to_bind)) {
             return $this->pdo->lastInsertId();
         }
         return null;
     }
 
     /**
-     * Actualizar cliente
+     * Actualiza un cliente existente, verificando pertenencia.
+     * @param int $id_cliente ID del cliente a actualizar.
+     * @param int $id_usuario ID del usuario propietario.
+     * @param array $datos Nuevos datos del cliente.
+     * @return bool True si se actualizó, false si no o si no pertenece al usuario.
      */
     public function actualizarCliente(int $id_cliente, int $id_usuario, array $datos): bool {
         $cliente_actual = $this->getClienteByIdAndUsuarioId($id_cliente, $id_usuario);
         if (!$cliente_actual) {
-            return false;
+            return false; 
         }
 
-        $set_parts = [];
-        foreach (array_keys($datos) as $key) {
-            if ($key !== 'id_cliente' && $key !== 'id_usuario' && $key !== 'fyh_creacion') {
-                $set_parts[] = "$key = :$key";
+        $sql_parts = [];
+        $bindings = [];
+        $allowed_fields = ['nombre_cliente', 'tipo_documento', 'nit_ci_cliente', 'celular_cliente', 
+                           'telefono_fijo', 'email_cliente', 'direccion', 'ciudad', 'provincia', 
+                           'fecha_nacimiento', 'observaciones', 'estado', 'fyh_actualizacion'];
+
+        foreach ($allowed_fields as $field) {
+            if (array_key_exists($field, $datos)) { // Usar array_key_exists para permitir valores null o vacíos explícitos
+                $sql_parts[] = "$field = :$field";
+                $bindings[":$field"] = $datos[$field];
             }
         }
 
-        if (empty($set_parts)) return false;
+        if (empty($sql_parts)) {
+            return true; // No hay nada que actualizar, se considera exitoso.
+        }
 
-        $sql = "UPDATE tb_clientes SET " . implode(', ', $set_parts) . 
+        $sql = "UPDATE tb_clientes SET " . implode(', ', $sql_parts) . 
                " WHERE id_cliente = :id_cliente_cond AND id_usuario = :id_usuario_cond";
-
+        
         $query = $this->pdo->prepare($sql);
         
-        foreach ($datos as $key => $value) {
-            if ($key !== 'id_cliente' && $key !== 'id_usuario' && $key !== 'fyh_creacion') {
-                $query->bindValue(":$key", $value, PDO::PARAM_STR);
-            }
-        }
+        $bindings[':id_cliente_cond'] = $id_cliente;
+        $bindings[':id_usuario_cond'] = $id_usuario;
         
-        $query->bindValue(':id_cliente_cond', $id_cliente, PDO::PARAM_INT);
-        $query->bindValue(':id_usuario_cond', $id_usuario, PDO::PARAM_INT);
-        
-        return $query->execute();
+        return $query->execute($bindings);
     }
 
     /**
-     * Eliminar cliente
+     * Elimina un cliente, verificando pertenencia.
+     * @param int $id_cliente
+     * @param int $id_usuario
+     * @return bool True si se eliminó, false en caso contrario.
      */
     public function eliminarCliente(int $id_cliente, int $id_usuario): bool {
-        // Verificar si está en uso en ventas
-        $sql_check = "SELECT COUNT(*) FROM tb_ventas WHERE id_cliente = :id_cliente";
-        $query_check = $this->pdo->prepare($sql_check);
-        $query_check->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
-        $query_check->execute();
-        
-        if ($query_check->fetchColumn() > 0) {
-            return false; // Cliente en uso, no se puede eliminar
+        // Primero verificar si el cliente tiene ventas asociadas
+        $sql_check_ventas = "SELECT COUNT(*) FROM tb_ventas WHERE id_cliente = :id_cliente";
+        $query_check_ventas = $this->pdo->prepare($sql_check_ventas);
+        $query_check_ventas->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
+        $query_check_ventas->execute();
+        if ($query_check_ventas->fetchColumn() > 0) {
+            // Podrías lanzar una excepción o devolver un código específico
+            // throw new Exception("No se puede eliminar el cliente porque tiene ventas asociadas.");
+            return false; // No se elimina si tiene ventas
         }
 
         $sql = "DELETE FROM tb_clientes 
@@ -238,97 +212,141 @@ class ClienteModel {
         $query->bindParam(':id_cliente', $id_cliente, PDO::PARAM_INT);
         $query->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
         
-        return $query->execute() && $query->rowCount() > 0;
+        if ($query->execute()) {
+            return $query->rowCount() > 0; 
+        }
+        return false;
     }
-
+    
     /**
-     * Crear cliente genérico "Consumidor Final" automáticamente
+     * Crea un cliente "Consumidor Final" para un usuario si no existe uno genérico.
+     * @param int $id_usuario
+     * @param string $fyh_actual
+     * @return string|false El ID del cliente Consumidor Final (existente o nuevo) o false.
      */
-    public function crearClienteConsumidorFinal(int $id_usuario): ?string {
-        // Verificar si ya existe
-        $sql = "SELECT id_cliente FROM tb_clientes 
-                WHERE nombre_cliente = 'CONSUMIDOR FINAL' AND id_usuario = :id_usuario";
-        $query = $this->pdo->prepare($sql);
-        $query->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        $query->execute();
-        
-        $existente = $query->fetch(PDO::FETCH_ASSOC);
+    public function obtenerOCrearConsumidorFinal(int $id_usuario, string $fyh_actual): ?string {
+        $nombre_cf = 'CONSUMIDOR FINAL';
+        $doc_cf = '9999999999'; // Para Cédula/RUC genérico si el tipo es 'consumidor_final' o un RUC genérico
+        $tipo_doc_cf = 'consumidor_final';
+
+        $sql_find = "SELECT id_cliente FROM tb_clientes 
+                     WHERE id_usuario = :id_usuario 
+                     AND tipo_documento = :tipo_documento 
+                     AND (nit_ci_cliente = :nit_ci_cliente OR nombre_cliente = :nombre_cliente)
+                     LIMIT 1";
+        $query_find = $this->pdo->prepare($sql_find);
+        $query_find->execute([
+            ':id_usuario' => $id_usuario,
+            ':tipo_documento' => $tipo_doc_cf,
+            ':nit_ci_cliente' => $doc_cf,
+            ':nombre_cliente' => $nombre_cf
+        ]);
+        $existente = $query_find->fetch(PDO::FETCH_ASSOC);
+
         if ($existente) {
             return $existente['id_cliente'];
         }
 
-        // Crear cliente genérico
-        $datos_genericos = [
-            'nombre_cliente' => 'CONSUMIDOR FINAL',
-            'nit_ci_cliente' => '9999999999999', // Documento genérico
-            'tipo_documento' => 'consumidor_final',
-            'celular_cliente' => 'N/A',
-            'telefono_fijo' => null,
-            'email_cliente' => 'consumidor@final.ec',
-            'direccion' => 'N/A',
-            'ciudad' => 'N/A',
-            'provincia' => 'N/A',
-            'fecha_nacimiento' => null,
-            'observaciones' => 'Cliente genérico para ventas al consumidor final',
-            'estado' => 'activo',
+        $datos_cf = [
             'id_usuario' => $id_usuario,
-            'fyh_creacion' => date('Y-m-d H:i:s'),
-            'fyh_actualizacion' => date('Y-m-d H:i:s')
+            'nombre_cliente' => $nombre_cf,
+            'tipo_documento' => $tipo_doc_cf,
+            'nit_ci_cliente' => $doc_cf,
+            'celular_cliente' => null,
+            'telefono_fijo' => null,
+            'email_cliente' => null,
+            'direccion' => null,
+            'ciudad' => null,
+            'provincia' => null,
+            'fecha_nacimiento' => null,
+            'observaciones' => 'Cliente genérico para ventas rápidas.',
+            'estado' => 'activo',
+            'fyh_creacion' => $fyh_actual,
+            'fyh_actualizacion' => $fyh_actual
         ];
-
-        return $this->crearCliente($datos_genericos);
+        return $this->crearCliente($datos_cf);
     }
 
     /**
-     * Búsqueda para DataTables
+     * Busca clientes para DataTables con paginación, búsqueda y ordenamiento del lado del servidor.
+     * @param int $id_usuario
+     * @param array $params Parámetros de DataTables (draw, start, length, search, order).
+     * @return array Formateado para DataTables: ['draw', 'recordsTotal', 'recordsFiltered', 'data'].
      */
     public function buscarClientesDataTables(int $id_usuario, array $params): array {
-        $start = $params['start'] ?? 0;
-        $length = $params['length'] ?? 10;
-        $search = $params['search'] ?? '';
-        $orderColumn = $params['orderColumn'] ?? 'nombre_cliente';
-        $orderDir = $params['orderDir'] ?? 'ASC';
+        $draw = intval($params['draw'] ?? 0);
+        $start = intval($params['start'] ?? 0);
+        $length = intval($params['length'] ?? 10);
+        $searchValue = trim($params['search']['value'] ?? '');
 
-        // Conteo total
-        $sqlTotal = "SELECT COUNT(*) FROM tb_clientes WHERE id_usuario = :id_usuario";
-        $queryTotal = $this->pdo->prepare($sqlTotal);
-        $queryTotal->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-        $queryTotal->execute();
-        $recordsTotal = $queryTotal->fetchColumn();
+        $columnMapping = [
+            0 => 'id_cliente', 
+            1 => 'nombre_cliente',
+            2 => 'tipo_documento',
+            3 => 'nit_ci_cliente',
+            4 => 'celular_cliente',
+            5 => 'email_cliente',
+            6 => 'fyh_creacion'
+        ];
+        
+        $orderByColumnIndex = intval($params['order'][0]['column'] ?? 1);
+        $orderByColumnName = $columnMapping[$orderByColumnIndex] ?? 'nombre_cliente'; 
+        $orderDir = strtolower($params['order'][0]['dir'] ?? 'asc') === 'asc' ? 'ASC' : 'DESC';
 
-        // Query principal con búsqueda
-        $whereClause = "WHERE id_usuario = :id_usuario";
         $bindings = [':id_usuario' => $id_usuario];
 
-        if (!empty($search)) {
-            $whereClause .= " AND (nombre_cliente LIKE :search OR nit_ci_cliente LIKE :search 
-                             OR celular_cliente LIKE :search OR email_cliente LIKE :search)";
-            $bindings[':search'] = "%$search%";
+        $stmtTotal = $this->pdo->prepare("SELECT COUNT(id_cliente) FROM tb_clientes WHERE id_usuario = :id_usuario");
+        $stmtTotal->execute([':id_usuario' => $id_usuario]);
+        $recordsTotal = $stmtTotal->fetchColumn();
+
+        $sql = "SELECT id_cliente, nombre_cliente, tipo_documento, nit_ci_cliente, celular_cliente, email_cliente, estado, fyh_creacion 
+                FROM tb_clientes
+                WHERE id_usuario = :id_usuario";
+
+        $searchSql = "";
+        if (!empty($searchValue)) {
+            $searchSql = " AND (nombre_cliente LIKE :searchValue 
+                             OR nit_ci_cliente LIKE :searchValue 
+                             OR celular_cliente LIKE :searchValue 
+                             OR email_cliente LIKE :searchValue
+                             OR tipo_documento LIKE :searchValue)";
+            $bindings[':searchValue'] = '%' . $searchValue . '%';
+        }
+        $sql .= $searchSql;
+
+        $stmtFiltered = $this->pdo->prepare("SELECT COUNT(id_cliente) FROM tb_clientes WHERE id_usuario = :id_usuario_filtered " . $searchSql);
+        $bindingsFiltered = [':id_usuario_filtered' => $id_usuario];
+        if (!empty($searchValue)) {
+            $bindingsFiltered[':searchValue'] = '%' . $searchValue . '%';
+        }
+        $stmtFiltered->execute($bindingsFiltered);
+        $recordsFiltered = $stmtFiltered->fetchColumn();
+
+        $sql .= " ORDER BY $orderByColumnName $orderDir";
+        if ($length != -1) {
+            $sql .= " LIMIT :start, :length";
+            $bindings[':start'] = $start; 
+            $bindings[':length'] = $length;
         }
 
-        // Conteo filtrado
-        $sqlFiltered = "SELECT COUNT(*) FROM tb_clientes $whereClause";
-        $queryFiltered = $this->pdo->prepare($sqlFiltered);
-        $queryFiltered->execute($bindings);
-        $recordsFiltered = $queryFiltered->fetchColumn();
-
-        // Query de datos
-        $sql = "SELECT * FROM tb_clientes $whereClause 
-                ORDER BY $orderColumn $orderDir 
-                LIMIT :start, :length";
-
-        $query = $this->pdo->prepare($sql);
-        foreach ($bindings as $key => $value) {
-            $query->bindValue($key, $value);
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        if (!empty($searchValue)) {
+            $stmt->bindParam(':searchValue', $bindings[':searchValue'], PDO::PARAM_STR);
         }
-        $query->bindValue(':start', $start, PDO::PARAM_INT);
-        $query->bindValue(':length', $length, PDO::PARAM_INT);
-        $query->execute();
+        if ($length != -1) {
+            $stmt->bindParam(':start', $bindings[':start'], PDO::PARAM_INT);
+            $stmt->bindParam(':length', $bindings[':length'], PDO::PARAM_INT);
+        }
+        
+        $stmt->execute();
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return [
-            'data' => $query->fetchAll(PDO::FETCH_ASSOC),
-            'recordsTotal' => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered
+            "draw" => $draw,
+            "recordsTotal" => intval($recordsTotal),
+            "recordsFiltered" => intval($recordsFiltered),
+            "data" => $data,
         ];
     }
 }
