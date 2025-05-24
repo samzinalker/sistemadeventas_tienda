@@ -97,7 +97,7 @@ if (isset($params['start']) && $params['length'] != -1) {
 
 // --- Consulta Principal para obtener los datos ---
 // Selecciona los campos que necesitas mostrar en la tabla y/o usar en el JavaScript al seleccionar un cliente
-$campos_select = "c.id_cliente, c.nombre_cliente, c.tipo_documento, c.nit_ci_cliente, c.celular_cliente, c.email_cliente, c.direccion_cliente, c.provincia_cliente, c.ciudad_cliente, c.referencia_cliente, c.estado";
+$campos_select = "c.id_cliente, c.nombre_cliente, c.tipo_documento, c.nit_ci_cliente, c.celular_cliente, c.email_cliente, c.direccion_cliente, c.provincia_cliente, c.ciudad_cliente, c.referencia_cliente, c.estado"; // Añadí c.estado también, puede ser útil
 
 $querySql = "SELECT " . $campos_select . " " . $sqlBase . $sqlSearch . $sqlOrder . $sqlLimit;
 
