@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-05-2025 a las 16:45:21
+-- Tiempo de generación: 24-05-2025 a las 18:53:23
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -129,6 +129,13 @@ CREATE TABLE `tb_clientes` (
   `fyh_creacion` datetime NOT NULL,
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `tb_clientes`
+--
+
+INSERT INTO `tb_clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `tipo_documento`, `nit_ci_cliente`, `celular_cliente`, `telefono_fijo`, `email_cliente`, `direccion`, `ciudad`, `provincia`, `fecha_nacimiento`, `observaciones`, `estado`, `fyh_creacion`, `fyh_actualizacion`) VALUES
+(1, 1, 'CONSUMIDOR FINAL', 'consumidor_final', '9999999999', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Cliente genérico para ventas rápidas.', 'activo', '2025-05-24 09:50:39', '2025-05-24 10:06:44');
 
 -- --------------------------------------------------------
 
@@ -449,7 +456,7 @@ ALTER TABLE `tb_categorias`
 -- AUTO_INCREMENT de la tabla `tb_clientes`
 --
 ALTER TABLE `tb_clientes`
-  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_compras`
