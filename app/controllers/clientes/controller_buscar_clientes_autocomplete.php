@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../app/config.php'; // Ajusta la ruta según sea necesario
+require_once __DIR__ . '/../../app/config.php'; // Ajusta la ruta según sea necesario *le quite el  /..
 
 session_start();
 header('Content-Type: application/json');
