@@ -416,7 +416,33 @@ $(document).ready(function() {
     const ID_USUARIO_LOGUEADO = <?php echo $id_usuario_sesion; ?>;
     let tablaBuscarProductosVentaDT;
 
-    
+    $(document).ready(function() {
+    // ...
+    $('#fecha_venta').datepicker({
+        dateFormat: 'dd/mm/yy', // Formato de fecha
+        monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+        dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+        dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+        weekHeader: 'Sm',
+        firstDay: 1, // Lunes como primer día de la semana
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: ''
+    });
+    // O si usaste el archivo de localización datepicker-es.js:
+    $('#fecha_venta').datepicker($.datepicker.regional['es']);
+    // Y luego puedes añadir opciones específicas si es necesario:
+    $('#fecha_venta').datepicker('option', 'dateFormat', 'dd/mm/yy');
+
+    // Para que el datepicker de jQuery UI funcione bien con los modales de Bootstrap
+    // a veces se necesita ajustar el z-index.
+    // Si el calendario aparece detrás del modal, puedes añadir esto:
+    // $('.ui-datepicker').css('z-index', 999999); // O un valor suficientemente alto
+
+    // ... resto de tu código ...
+});
     // --- INICIALIZACIONES ---
     generarNumeroVenta();
     configurarSelect2Clientes();
