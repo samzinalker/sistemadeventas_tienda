@@ -205,12 +205,19 @@ class VentasModel {
      * @return array Array de items de la venta.
      */
     public function getDetallesVentaById($id_venta) {
+        if (!$this->id_usuario_sesion) {
+            throw new Exception("ID de usuario no establecido en VentasModel para getDetallesVentaById.");
+        }
+        
         $sql = "SELECT dv.*, p.codigo as codigo_producto, p.nombre as nombre_producto
                 FROM tb_detalle_ventas as dv
                 INNER JOIN tb_almacen as p ON dv.id_producto = p.id_producto
-                WHERE dv.id_venta = :id_venta";
+                INNER JOIN tb_ventas as v ON dv.id_venta = v.id_venta  -- ✅ AGREGADO
+                WHERE dv.id_venta = :id_venta 
+                AND v.id_usuario = :id_usuario_sesion";  //VERIFICACIÓN DE USUARIO
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id_venta', $id_venta, PDO::PARAM_INT);
+        $stmt->bindParam(':id_usuario_sesion', $this->id_usuario_sesion, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
