@@ -59,7 +59,7 @@ include '../layout/mensajes.php';
                                             <th><center>Comprobante</center></th>
                                             <th><center>Total Compra</center></th>
                                             <th><center>Registrado</center></th>
-                                            <th style="width: 100px;"><center>Acciones</center></th>
+                                            <th style="width: 140px;"><center>Acciones</center></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -89,7 +89,7 @@ include '../layout/mensajes.php';
                                                     </td>
                                                     <td><?php echo htmlspecialchars($compra['comprobante'] ?: 'N/A'); ?></td>
                                                     <td class="text-right">
-                                                        <?php echo number_format((float)$compra['total_general'], 2, '.', ','); ?>
+                                                        $<?php echo number_format((float)$compra['total_general'], 2, '.', ','); ?>
                                                     </td>
                                                     <td>
                                                         <center>
@@ -101,19 +101,19 @@ include '../layout/mensajes.php';
                                                     </td>
                                                     <td>
                                                         <center>
-                                                            <div class="btn-group">
+                                                            <div class="btn-group" role="group">
                                                                 <a href="<?php echo $URL; ?>/compras/show.php?id=<?php echo $compra['id_compra']; ?>" class="btn btn-info btn-xs" title="Ver Detalles">
-                                                                    <i class="fas fa-eye"></i> Ver
+                                                                    <i class="fas fa-eye"></i>
                                                                 </a>
-                                                                <!-- Futuro: Botones para Editar/Eliminar si es necesario -->
-                                                                <!-- 
                                                                 <a href="<?php echo $URL; ?>/compras/edit.php?id=<?php echo $compra['id_compra']; ?>" class="btn btn-success btn-xs" title="Editar Compra">
                                                                     <i class="fas fa-edit"></i>
                                                                 </a>
-                                                                <button type="button" class="btn btn-danger btn-xs btn-delete-compra" data-id="<?php echo $compra['id_compra']; ?>" title="Eliminar Compra">
+                                                                <button type="button" class="btn btn-danger btn-xs btn-delete-compra" 
+                                                                        data-id="<?php echo $compra['id_compra']; ?>" 
+                                                                        data-codigo="<?php echo htmlspecialchars($compra['codigo_compra_referencia']); ?>"
+                                                                        title="Eliminar Compra">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
-                                                                -->
                                                             </div>
                                                         </center>
                                                     </td>
@@ -143,6 +143,44 @@ include '../layout/mensajes.php';
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<!-- MODAL PARA ELIMINAR COMPRA -->
+<div class="modal fade" id="modal-delete-compra" tabindex="-1" role="dialog" aria-labelledby="modalDeleteCompraLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalDeleteCompraLabel">
+                    <i class="fas fa-trash-alt"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="id_compra_delete">
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">¿Está seguro de eliminar esta compra?</h5>
+                    <p class="mt-3">
+                        <strong>Compra:</strong> <span id="codigo_compra_delete_display" class="text-primary"></span>
+                    </p>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Advertencia:</strong> Esta acción eliminará la compra y ajustará el stock de los productos. No se puede deshacer.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="btn_delete_confirm_compra">
+                    <i class="fas fa-trash"></i> Eliminar Compra
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include '../layout/parte2.php'; // Pie de página, JS global ?>
 
@@ -192,5 +230,66 @@ $(document).ready(function() {
             }
         }
     }).buttons().container().appendTo('#tabla_compras_listado_wrapper .col-md-6:eq(0)');
+
+    // Función para mostrar alertas
+    function mostrarAlerta(title, text, icon, callback) {
+        Swal.fire({
+            title: title, 
+            text: text, 
+            icon: icon,
+            timer: icon === 'success' ? 2500 : 4000,
+            showConfirmButton: icon !== 'success',
+            allowOutsideClick: false, 
+            allowEscapeKey: false
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+    function recargarPagina() { 
+        location.reload(); 
+    }
+
+    // Evento para abrir modal de eliminación
+    $('#tabla_compras_listado tbody').on('click', '.btn-delete-compra', function () {
+        var id_compra = $(this).data('id');
+        var codigo_compra = $(this).data('codigo');
+        
+        $('#id_compra_delete').val(id_compra);
+        $('#codigo_compra_delete_display').text(codigo_compra);
+        $('#modal-delete-compra').modal('show');
+    });
+
+    // Evento para confirmar eliminación
+    $('#btn_delete_confirm_compra').click(function () {
+        var id_compra_val = $('#id_compra_delete').val();
+        
+        // Deshabilitar botón mientras se procesa
+        $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Eliminando...');
+        
+        $.post("<?php echo $URL; ?>/app/controllers/compras/delete.php", { id_compra: id_compra_val }, function (response) {
+            $('#modal-delete-compra').modal('hide');
+            $('#btn_delete_confirm_compra').prop('disabled', false).html('<i class="fas fa-trash"></i> Eliminar Compra');
+            
+            if (response.status === 'success') {
+                mostrarAlerta('¡Eliminado!', response.message, 'success', function() {
+                    recargarPagina();
+                });
+            } else {
+                mostrarAlerta(response.status === 'warning' ? 'Advertencia' : 'Error', response.message || 'No se pudo eliminar.', response.status || 'error');
+            }
+            if (response.redirectTo) {
+                 mostrarAlerta('Sesión Expirada', response.message, 'warning', function() {
+                    window.location.href = response.redirectTo;
+                });
+            }
+        }, "json").fail(function() {
+            $('#modal-delete-compra').modal('hide');
+            $('#btn_delete_confirm_compra').prop('disabled', false).html('<i class="fas fa-trash"></i> Eliminar Compra');
+            mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
+        });
+    });
 });
 </script>
