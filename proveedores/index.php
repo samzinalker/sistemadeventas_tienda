@@ -117,19 +117,20 @@ $pagina_activa = 'proveedores_listado';
                             </div>
                             <div class="col-md-6 form-group">
                                 <label for="telefono_form">
-                                    <i class="fas fa-phone"></i> Teléfono Fijo 
-                                    <span class="text-danger">*</span>
+                                    <i class="fas fa-phone"></i> Teléfono Fijo
                                 </label>
                                 <input type="tel" 
                                        class="form-control" 
                                        id="telefono_form" 
                                        name="telefono_update" 
                                        placeholder="Ej: (01) 234-5678"
-                                       required 
                                        pattern="[+]?[0-9\s\-\(\)]{7,20}">
                                 <div class="invalid-feedback">
                                     Por favor ingrese un número de teléfono válido.
                                 </div>
+                                <small class="form-text text-muted">
+                                    Campo opcional
+                                </small>
                             </div>
                         </div>
 
