@@ -60,7 +60,19 @@ class VentasModel {
             throw new Exception("No se pueden registrar ventas sin productos.");
         }
 
+        foreach ($itemsVenta as $item) {
+            $stockProducto = $this->verificarStockProducto($item['id_producto']);
+            if ($stockProducto === null) {
+                throw new Exception("El producto ID {$item['id_producto']} no existe o no pertenece al usuario.");
+            }
+            if ($stockProducto < $item['cantidad']) {
+                throw new Exception("Stock insuficiente para el producto ID {$item['id_producto']}. Disponible: {$stockProducto}, Solicitado: {$item['cantidad']}");
+            }
+        }
+        
         $this->pdo->beginTransaction();
+        // ... resto del código ...
+        // Aquí se asume que los datos de la venta y los items son válidos y han sido validados previamente
         try {
             // 1. Insertar en tb_ventas
             $sqlVenta = "INSERT INTO tb_ventas 
@@ -108,7 +120,7 @@ class VentasModel {
             $stmtDetalle = $this->pdo->prepare($sqlDetalle);
 
             $sqlActualizarStock = "UPDATE tb_almacen SET stock = stock - :cantidad_vendida, fyh_actualizacion = :fyh_actualizacion 
-                                   WHERE id_producto = :id_producto AND id_usuario = :id_usuario";
+                       WHERE id_producto = :id_producto AND id_usuario = :id_usuario";  // ✅ CORRECTO
             $stmtActualizarStock = $this->pdo->prepare($sqlActualizarStock);
 
             foreach ($itemsVenta as $item) {
@@ -210,17 +222,19 @@ class VentasModel {
         }
         
         $sql = "SELECT dv.*, p.codigo as codigo_producto, p.nombre as nombre_producto
-                FROM tb_detalle_ventas as dv
-                INNER JOIN tb_almacen as p ON dv.id_producto = p.id_producto
-                INNER JOIN tb_ventas as v ON dv.id_venta = v.id_venta  -- ✅ AGREGADO
-                WHERE dv.id_venta = :id_venta 
-                AND v.id_usuario = :id_usuario_sesion";  //VERIFICACIÓN DE USUARIO
+        FROM tb_detalle_ventas as dv
+        INNER JOIN tb_almacen as p ON dv.id_producto = p.id_producto
+        INNER JOIN tb_ventas as v ON dv.id_venta = v.id_venta
+        WHERE dv.id_venta = :id_venta 
+        AND v.id_usuario = :id_usuario_sesion
+        AND p.id_usuario = :id_usuario_sesion_2";  //-- ✅ //DOBLE VERIFICACIÓN
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':id_venta', $id_venta, PDO::PARAM_INT);
         $stmt->bindParam(':id_usuario_sesion', $this->id_usuario_sesion, PDO::PARAM_INT);
+        $stmt->bindParam(':id_usuario_sesion_2', $this->id_usuario_sesion, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+        }
         // ... (otros métodos existentes) ...
 
     /**
