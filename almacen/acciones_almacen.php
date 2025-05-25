@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     $accion = $_POST['accion'];
 
     if ($accion === 'crear_producto_almacen_rapido') {
-        // Validar que el id_usuario_creador coincida con la sesión
+        // ✅ VALIDACIÓN CORREGIDA - Validar que el id_usuario_creador coincida con la sesión
         $id_usuario_creador_post = filter_input(INPUT_POST, 'id_usuario_creador', FILTER_VALIDATE_INT);
-        if ($id_usuario_creador_post !== $id_usuario_actual) {
+        if ($id_usuario_creador_post === false || intval($id_usuario_creador_post) !== intval($id_usuario_actual)) {
             $response['message'] = 'Error de validación de usuario.';
             echo json_encode($response);
             exit;
@@ -94,24 +94,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             exit;
         }
         
-        // El stock inicial al crear un producto desde aquí suele ser 0, ya que se añade con una compra.
-        $stock_inicial = 0; 
+        $producto_stock_inicial = filter_input(INPUT_POST, 'producto_stock_inicial', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]);
+        
+        // Validar que el stock inicial sea válido
+        if ($producto_stock_inicial === false || $producto_stock_inicial < 0) {
+            $producto_stock_inicial = 1; // Valor por defecto
+        }
+        
+        // Usar el stock inicial especificado en lugar de 0
+        $stock_inicial = $producto_stock_inicial;
 
         $datos_nuevo_producto = [
             'codigo' => $producto_codigo,
             'nombre' => $producto_nombre,
             'descripcion' => $producto_descripcion ?: null,
-            'stock' => $stock_inicial, 
+            'stock' => $stock_inicial, // ✅ Ahora usa el stock inicial del formulario
             'stock_minimo' => $producto_stock_minimo,
             'stock_maximo' => $producto_stock_maximo,
             'precio_compra' => $producto_precio_compra,
             'precio_venta' => $producto_precio_venta,
-            'iva_predeterminado' => $producto_iva_predeterminado, // NUEVO CAMPO
+            'iva_predeterminado' => $producto_iva_predeterminado,
             'fecha_ingreso' => $producto_fecha_ingreso,
-            'imagen' => null, // La creación rápida no maneja imagen
+            'imagen' => null,
             'id_usuario' => $id_usuario_actual,
             'id_categoria' => $producto_id_categoria,
-            'fyh_creacion' => $fechaHora, // $fechaHora viene de config.php
+            'fyh_creacion' => $fechaHora,
             'fyh_actualizacion' => $fechaHora
         ];
 

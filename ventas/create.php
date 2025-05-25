@@ -345,6 +345,7 @@ include '../layout/mensajes.php';
 </div>
 
 <!-- Modal para Crear Producto Rápido -->
+<!-- Modal para Crear Producto Rápido -->
 <div class="modal fade" id="modal-crear-producto-rapido-venta" tabindex="-1" aria-labelledby="modalCrearProductoRapidoVentaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -414,17 +415,27 @@ include '../layout/mensajes.php';
                             </div>
                         </div>
                     </div>
+                    <!-- ✅ NUEVA SECCIÓN MEJORADA DE STOCK -->
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="vr_producto_stock_inicial">Stock Inicial <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="vr_producto_stock_inicial" name="producto_stock_inicial" min="1" value="1" required>
+                                <small class="form-text text-muted">Cantidad inicial en inventario para la venta.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="vr_producto_stock_minimo">Stock Mínimo</label>
                                 <input type="number" class="form-control" id="vr_producto_stock_minimo" name="producto_stock_minimo" min="0">
+                                <small class="form-text text-muted">Alerta cuando llegue a este nivel.</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="vr_producto_stock_maximo">Stock Máximo</label>
                                 <input type="number" class="form-control" id="vr_producto_stock_maximo" name="producto_stock_maximo" min="0">
+                                <small class="form-text text-muted">Capacidad máxima de almacenamiento.</small>
                             </div>
                         </div>
                     </div>
@@ -755,6 +766,18 @@ $(document).ready(function() {
         });
     });
     
+    $('#vr_producto_stock_inicial').on('change blur', function() {
+    const stockValue = parseInt($(this).val());
+    if (isNaN(stockValue) || stockValue < 1) {
+        $(this).val(1);
+        Swal.fire({
+            icon: 'info',
+            title: 'Stock Inicial',
+            text: 'El stock inicial debe ser al menos 1 unidad para poder realizar ventas.',
+            timer: 3000
+        });
+    }
+});
     $('#descuento_general_venta').on('change keyup', calcularTotalesVenta);
 
     function calcularTotalesVenta() {
