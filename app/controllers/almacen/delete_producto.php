@@ -56,9 +56,12 @@ try {
         }
     }
 
+} catch (PDOException $e) {
+    error_log("PDO Error en delete_producto.php: " . $e->getMessage());
+    $response['message'] = "Error de base de datos al eliminar: " . $e->getMessage(); // Para debugging
 } catch (Exception $e) {
     error_log("Error en delete_producto.php: " . $e->getMessage());
-    $response['message'] = "Error del servidor al eliminar.";
+    $response['message'] = "Error del servidor al eliminar: " . $e->getMessage(); // Para debugging
 }
 
 // setMensaje($response['message'], $response['status']);

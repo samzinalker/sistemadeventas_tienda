@@ -159,6 +159,11 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                                 <label for="precio_venta_update">P. Venta <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="precio_venta_update" name="precio_venta_update" step="0.01" required min="0.01">
                             </div>
+                            <!-- En el modal de actualización, después del campo precio_venta_update, agrega: -->
+                                <div class="col-md-4 form-group">
+                                    <label for="iva_predeterminado_update">IVA Predeterminado (%)</label>
+                                    <input type="number" class="form-control" id="iva_predeterminado_update" name="iva_predeterminado_update" step="0.01" min="0" max="100" value="0">
+                                </div>
                             <div class="col-md-4 form-group">
                                 <label for="fecha_ingreso_update">F. Ingreso <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="fecha_ingreso_update" name="fecha_ingreso_update" required>
@@ -566,22 +571,23 @@ $(document).ready(function () {
     }
     
     function popularModalUpdate(producto) {
-        $('#id_producto_update').val(producto.id_producto);
-        $('#codigo_update_display').val(producto.codigo);
-        $('#nombre_update').val(producto.nombre);
-        $('#id_categoria_update').val(producto.id_categoria);
-        $('#descripcion_update').val(producto.descripcion);
-        $('#stock_update').val(producto.stock);
-        $('#stock_minimo_update').val(producto.stock_minimo);
-        $('#stock_maximo_update').val(producto.stock_maximo);
-        $('#precio_compra_update').val(producto.precio_compra);
-        $('#precio_venta_update').val(producto.precio_venta);
-        $('#fecha_ingreso_update').val(producto.fecha_ingreso);
-        $('#preview_imagen_update').attr('src', producto.imagen_url || '<?php echo $URL . "/almacen/img_productos/default_product.png"; ?>');
-        $('#imagen_producto_update').val('');
-        $('#error_message_update').hide();
-        $('#modal-update-producto').modal('show');
-    }
+    $('#id_producto_update').val(producto.id_producto);
+    $('#codigo_update_display').val(producto.codigo);
+    $('#nombre_update').val(producto.nombre);
+    $('#id_categoria_update').val(producto.id_categoria);
+    $('#descripcion_update').val(producto.descripcion);
+    $('#stock_update').val(producto.stock);
+    $('#stock_minimo_update').val(producto.stock_minimo);
+    $('#stock_maximo_update').val(producto.stock_maximo);
+    $('#precio_compra_update').val(producto.precio_compra);
+    $('#precio_venta_update').val(producto.precio_venta);
+    $('#iva_predeterminado_update').val(producto.iva_predeterminado || 0); // AGREGADO
+    $('#fecha_ingreso_update').val(producto.fecha_ingreso);
+    $('#preview_imagen_update').attr('src', producto.imagen_url || '<?php echo $URL . "/almacen/img_productos/default_product.png"; ?>');
+    $('#imagen_producto_update').val('');
+    $('#error_message_update').hide();
+    $('#modal-update-producto').modal('show');
+}
 
     $('#tabla_productos tbody').on('click', '.btn-show-producto, .btn-edit-producto', function () {
         var id_producto = $(this).data('id');

@@ -185,31 +185,22 @@ class AlmacenModel {
 
 
     public function productoEnUso(int $id_producto): bool {
+        // Verificar en carrito
         $sql_carrito = "SELECT COUNT(*) FROM tb_carrito WHERE id_producto = :id_producto";
         $query_carrito = $this->pdo->prepare($sql_carrito);
         $query_carrito->bindParam(':id_producto', $id_producto, PDO::PARAM_INT);
         $query_carrito->execute();
         if ($query_carrito->fetchColumn() > 0) return true;
-
-        // Asumiendo que la tabla tb_compras ya NO tiene id_producto directamente,
-        // sino que se relaciona a través de tb_detalle_compras.
-        // Si tb_compras aún tiene id_producto, la siguiente línea es correcta.
-        // Si ya se migró a tb_detalle_compras, esta verificación debe cambiar.
-        // BASADO EN EL SQL DEL PROMPT, tb_compras AÚN TIENE id_producto.
-        $sql_compras_directa = "SELECT COUNT(*) FROM tb_compras WHERE id_producto = :id_producto_directo";
-        $query_compras_directa = $this->pdo->prepare($sql_compras_directa);
-        $query_compras_directa->bindParam(':id_producto_directo', $id_producto, PDO::PARAM_INT);
-        $query_compras_directa->execute();
-        if ($query_compras_directa->fetchColumn() > 0) return true;
+    
+        // Remover verificación de tb_compras directa ya que no tiene id_producto
+        // $sql_compras_directa = "SELECT COUNT(*) FROM tb_compras WHERE id_producto = :id_producto_directo";
         
-        // Si ya tienes tb_detalle_compras, la verificación sería:
-        
+        // Verificar en detalle de compras
         $sql_detalle_compras = "SELECT COUNT(*) FROM tb_detalle_compras WHERE id_producto = :id_producto_detalle";
         $query_detalle_compras = $this->pdo->prepare($sql_detalle_compras);
         $query_detalle_compras->bindParam(':id_producto_detalle', $id_producto, PDO::PARAM_INT);
         $query_detalle_compras->execute();
         if ($query_detalle_compras->fetchColumn() > 0) return true;
-        
         
         return false;
     }
