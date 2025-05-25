@@ -84,12 +84,14 @@ $pagina_activa = 'categorias_listado'; // Para resaltar en el menú
                                 <?php
                                 $contador = 0;
                                 if (!empty($categorias_datos)) {
-                                    foreach ($categorias_datos as $categorias_dato){
+                                    // CORRECCIÓN DEL ERROR TIPOGRÁFICO AQUÍ:
+                                    foreach ($categorias_datos as $categorias_dato){ 
                                         $id_categoria = $categorias_dato['id_categoria'];
-                                        // Asegurarse de que nombre_categoria y fyh_creacion existan y sanearlos
                                         $nombre_categoria = isset($categorias_dato['nombre_categoria']) ? sanear($categorias_dato['nombre_categoria']) : 'N/A';
                                         $fyh_creacion_raw = isset($categorias_dato['fyh_creacion']) ? $categorias_dato['fyh_creacion'] : null;
                                         $fyh_creacion_formateada = $fyh_creacion_raw ? date('d/m/Y H:i:s', strtotime($fyh_creacion_raw)) : 'N/A';
+                                        // Usar htmlspecialchars para los atributos data-* para mayor seguridad
+                                        $nombre_categoria_attr = htmlspecialchars($nombre_categoria, ENT_QUOTES, 'UTF-8');
                                         ?>
                                         <tr id="fila_categoria_<?php echo $id_categoria; ?>">
                                             <td><center><?php echo ++$contador; ?></center></td>
@@ -100,14 +102,14 @@ $pagina_activa = 'categorias_listado'; // Para resaltar en el menú
                                                     <div class="btn-group">
                                                         <button type="button" class="btn btn-success btn-sm btn-edit" 
                                                                 data-id="<?php echo $id_categoria;?>"
-                                                                data-nombre="<?php echo $nombre_categoria; ?>"
+                                                                data-nombre="<?php echo $nombre_categoria_attr; ?>"
                                                                 data-toggle="modal"
                                                                 data-target="#modal-update">
                                                             <i class="fa fa-pencil-alt"></i> Editar
                                                         </button>
                                                         <button type="button" class="btn btn-danger btn-sm btn-delete" 
                                                                 data-id="<?php echo $id_categoria;?>"
-                                                                data-nombre="<?php echo $nombre_categoria; ?>"
+                                                                data-nombre="<?php echo $nombre_categoria_attr; ?>"
                                                                 data-toggle="modal"
                                                                 data-target="#modal-delete">
                                                             <i class="fa fa-trash"></i> Eliminar
@@ -118,9 +120,10 @@ $pagina_activa = 'categorias_listado'; // Para resaltar en el menú
                                         </tr>
                                     <?php
                                     }
-                                } else {
-                                    echo '<tr><td colspan="4"><center>No tienes categorías registradas.</center></td></tr>';
                                 }
+                                // EL BLOQUE 'else' HA SIDO ELIMINADO.
+                                // SI $categorias_datos ESTÁ VACÍO, EL TBODY QUEDARÁ VACÍO
+                                // Y DATATABLES MOSTRARÁ EL MENSAJE DE 'emptyTable'.
                                 ?>
                                 </tbody>
                                 <tfoot>
@@ -223,7 +226,24 @@ $(document).ready(function () {
             { extend: 'copy', text: 'Copiar', exportOptions: { columns: [0, 1, 2] }},
             { extend: 'csv', text: 'CSV', exportOptions: { columns: [0, 1, 2] }},
             { extend: 'excel', text: 'Excel', exportOptions: { columns: [0, 1, 2] }},
-            { extend: 'pdf', text: 'PDF', exportOptions: { columns: [0, 1, 2] }, orientation: 'portrait', pageSize: 'A4', customize: function (doc) { doc.defaultStyle.fontSize = 10; doc.styles.tableHeader.fontSize = 12; doc.content[1].table.widths = ['10%','60%','30%'];}},
+            // SECCIÓN CORREGIDA:
+            { 
+                extend: 'pdf', 
+                text: 'PDF', 
+                exportOptions: { columns: [0, 1, 2] }, 
+                orientation: 'portrait', 
+                pageSize: 'A4', 
+                customize: function (doc) { 
+                    doc.defaultStyle.fontSize = 10; 
+                    // Ejemplo de una personalización completa (puedes ajustarla o eliminarla si no la necesitas):
+                    // doc.styles.tableHeader = { 
+                    //     bold: true,
+                    //     fontSize: 11,
+                    //     color: 'black'
+                    // };
+                    // doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split(''); // Ajustar anchos de columna
+                } 
+            },
             { extend: 'print', text: 'Imprimir', exportOptions: { columns: [0, 1, 2] }},
             { extend: 'colvis', text: 'Visibilidad Columnas'}
         ]
@@ -276,8 +296,9 @@ $(document).ready(function () {
                     window.location.href = response.redirectTo;
                 }
             })
-            .fail(function () {
-                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
+            .fail(function (jqXHR, textStatus, errorThrown) { // Mejor manejo de errores AJAX
+                console.error("Error en AJAX para crear categoría: ", textStatus, errorThrown, jqXHR.responseText);
+                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor. Revisa la consola para más detalles.', 'error');
             });
     });
 
@@ -318,8 +339,9 @@ $(document).ready(function () {
                     window.location.href = response.redirectTo;
                 }
             })
-            .fail(function () {
-                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
+            .fail(function (jqXHR, textStatus, errorThrown) { // Mejor manejo de errores AJAX
+                console.error("Error en AJAX para actualizar categoría: ", textStatus, errorThrown, jqXHR.responseText);
+                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor. Revisa la consola para más detalles.', 'error');
             });
     });
 
@@ -348,9 +370,10 @@ $(document).ready(function () {
                     window.location.href = response.redirectTo;
                 }
             })
-            .fail(function () {
+            .fail(function (jqXHR, textStatus, errorThrown) { // Mejor manejo de errores AJAX
+                console.error("Error en AJAX para eliminar categoría: ", textStatus, errorThrown, jqXHR.responseText);
                 $('#modal-delete').modal('hide');
-                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
+                mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor. Revisa la consola para más detalles.', 'error');
             });
     });
     

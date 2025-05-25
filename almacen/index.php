@@ -60,14 +60,32 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                             <textarea class="form-control" id="descripcion_create" name="descripcion" rows="2"></textarea>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 form-group"><label for="stock_create">Stock <span class="text-danger">*</span></label><input type="number" class="form-control" id="stock_create" name="stock" required min="0"></div>
-                            <div class="col-md-4 form-group"><label for="stock_minimo_create">Stock Mínimo</label><input type="number" class="form-control" id="stock_minimo_create" name="stock_minimo" min="0" value="0"></div>
-                            <div class="col-md-4 form-group"><label for="stock_maximo_create">Stock Máximo</label><input type="number" class="form-control" id="stock_maximo_create" name="stock_maximo" min="0" value="0"></div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_create">Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stock_create" name="stock" required min="0">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_minimo_create">Stock Mínimo</label>
+                                <input type="number" class="form-control" id="stock_minimo_create" name="stock_minimo" min="0">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_maximo_create">Stock Máximo</label>
+                                <input type="number" class="form-control" id="stock_maximo_create" name="stock_maximo" min="0">
+                            </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 form-group"><label for="precio_compra_create">P. Compra <span class="text-danger">*</span></label><input type="number" class="form-control" id="precio_compra_create" name="precio_compra" step="0.01" required min="0.01"></div>
-                            <div class="col-md-4 form-group"><label for="precio_venta_create">P. Venta <span class="text-danger">*</span></label><input type="number" class="form-control" id="precio_venta_create" name="precio_venta" step="0.01" required min="0.01"></div>
-                            <div class="col-md-4 form-group"><label for="fecha_ingreso_create">F. Ingreso <span class="text-danger">*</span></label><input type="date" class="form-control" id="fecha_ingreso_create" name="fecha_ingreso" required value="<?php echo date('Y-m-d'); ?>"></div>
+                            <div class="col-md-4 form-group">
+                                <label for="precio_compra_create">P. Compra <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="precio_compra_create" name="precio_compra" step="0.01" required min="0.01">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="precio_venta_create">P. Venta <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="precio_venta_create" name="precio_venta" step="0.01" required min="0.01">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="fecha_ingreso_create">F. Ingreso <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="fecha_ingreso_create" name="fecha_ingreso" required value="<?php echo date('Y-m-d'); ?>">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="imagen_producto_create">Imagen</label>
@@ -97,8 +115,14 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                     <input type="hidden" id="id_producto_update" name="id_producto_update">
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-3 form-group"><label>Código:</label><input type="text" class="form-control" id="codigo_update_display" disabled></div>
-                            <div class="col-md-5 form-group"><label for="nombre_update">Nombre <span class="text-danger">*</span></label><input type="text" class="form-control" id="nombre_update" name="nombre_update" required></div>
+                            <div class="col-md-3 form-group">
+                                <label>Código:</label>
+                                <input type="text" class="form-control" id="codigo_update_display" disabled>
+                            </div>
+                            <div class="col-md-5 form-group">
+                                <label for="nombre_update">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nombre_update" name="nombre_update" required>
+                            </div>
                             <div class="col-md-4 form-group">
                                 <label for="id_categoria_update">Categoría <span class="text-danger">*</span></label>
                                 <select class="form-control" id="id_categoria_update" name="id_categoria_update" required>
@@ -108,16 +132,37 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group"><label for="descripcion_update">Descripción</label><textarea class="form-control" id="descripcion_update" name="descripcion_update" rows="2"></textarea></div>
-                        <div class="row">
-                            <div class="col-md-4 form-group"><label for="stock_update">Stock <span class="text-danger">*</span></label><input type="number" class="form-control" id="stock_update" name="stock_update" required min="0"></div>
-                            <div class="col-md-4 form-group"><label for="stock_minimo_update">Stock Mínimo</label><input type="number" class="form-control" id="stock_minimo_update" name="stock_minimo_update" min="0"></div>
-                            <div class="col-md-4 form-group"><label for="stock_maximo_update">Stock Máximo</label><input type="number" class="form-control" id="stock_maximo_update" name="stock_maximo_update" min="0"></div>
+                        <div class="form-group">
+                            <label for="descripcion_update">Descripción</label>
+                            <textarea class="form-control" id="descripcion_update" name="descripcion_update" rows="2"></textarea>
                         </div>
                         <div class="row">
-                            <div class="col-md-4 form-group"><label for="precio_compra_update">P. Compra <span class="text-danger">*</span></label><input type="number" class="form-control" id="precio_compra_update" name="precio_compra_update" step="0.01" required min="0.01"></div>
-                            <div class="col-md-4 form-group"><label for="precio_venta_update">P. Venta <span class="text-danger">*</span></label><input type="number" class="form-control" id="precio_venta_update" name="precio_venta_update" step="0.01" required min="0.01"></div>
-                            <div class="col-md-4 form-group"><label for="fecha_ingreso_update">F. Ingreso <span class="text-danger">*</span></label><input type="date" class="form-control" id="fecha_ingreso_update" name="fecha_ingreso_update" required></div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_update">Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stock_update" name="stock_update" required min="0">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_minimo_update">Stock Mínimo</label>
+                                <input type="number" class="form-control" id="stock_minimo_update" name="stock_minimo_update" min="0">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="stock_maximo_update">Stock Máximo</label>
+                                <input type="number" class="form-control" id="stock_maximo_update" name="stock_maximo_update" min="0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label for="precio_compra_update">P. Compra <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="precio_compra_update" name="precio_compra_update" step="0.01" required min="0.01">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="precio_venta_update">P. Venta <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="precio_venta_update" name="precio_venta_update" step="0.01" required min="0.01">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label for="fecha_ingreso_update">F. Ingreso <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="fecha_ingreso_update" name="fecha_ingreso_update" required>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-8 form-group">
@@ -240,8 +285,10 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                                                 <td><?php echo sanear($item['codigo']);?></td>
                                                 <td><?php echo sanear($item['categoria']);?></td>
                                                 <td>
-                                                    <img src="<?php echo $URL."/almacen/img_productos/".sanear($item['imagen'] ? $item['imagen'] : 'default_product.png');?>" 
-                                                         width="50px" alt="Img" class="img-thumbnail">
+                                                    <center>
+                                                        <img src="<?php echo $URL."/almacen/img_productos/".sanear($item['imagen'] ? $item['imagen'] : 'default_product.png');?>" 
+                                                             width="50px" alt="Img" class="img-thumbnail">
+                                                    </center>
                                                 </td>
                                                 <td><?php echo sanear($item['nombre']);?></td>
                                                 <td class="<?php echo $stock_display_class; ?>"><center><?php echo $item['stock'];?></center></td>
@@ -253,7 +300,7 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                                                                 <i class="fa fa-eye"></i>
                                                             </button>
                                                             <button type="button" class="btn btn-success btn-xs btn-edit-producto" data-id="<?php echo $id_producto_loop; ?>" title="Editar">
-                                                                <i class="fa fa-pencil-alt"></i> <!-- Asegúrate que este ícono esté aquí -->
+                                                                <i class="fa fa-pencil-alt"></i>
                                                             </button>
                                                             <button type="button" class="btn btn-danger btn-xs btn-delete-producto" data-id="<?php echo $id_producto_loop; ?>" data-nombre="<?php echo sanear($item['nombre']); ?>" title="Eliminar">
                                                                 <i class="fa fa-trash"></i>
@@ -264,9 +311,8 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
                                             </tr>
                                         <?php
                                         }
-                                    } else {
-                                        echo '<tr><td colspan="8"><center>No tienes productos registrados.</center></td></tr>';
                                     }
+                                    // NO agregamos ninguna fila cuando no hay productos - DataTables se encarga de mostrar el mensaje
                                     ?>
                                     </tbody>
                                 </table>
@@ -285,38 +331,126 @@ $pagina_activa = 'almacen_listado'; // Para resaltar en el menú
 
 <script>
 $(document).ready(function () {
-    var tablaProductos = $("#tabla_productos").DataTable({
-        "pageLength": 5, // Mostrar 5 por defecto, puedes cambiarlo
-        "language": { /* ... tu config de idioma ... */ 
-            "emptyTable": "No hay productos registrados",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ productos",
-            "infoEmpty": "Mostrando 0 a 0 de 0 productos",
-            "infoFiltered": "(Filtrado de _MAX_ total productos)",
-            "lengthMenu": "Mostrar _MENU_ productos",
-            "search": "Buscar:",
-            "zeroRecords": "No se encontraron resultados",
-            "paginate": {"first": "Primero", "last": "Último", "next": "Siguiente", "previous": "Anterior"}
-        },
-        "responsive": true, "lengthChange": true, "autoWidth": false,
-        "buttons": [
-            { extend: 'copy', text: 'Copiar', exportOptions: { columns: [0,1,2,4,5,6] } }, // Ajusta columnas según necesidad
-            { extend: 'excel', text: 'Excel', exportOptions: { columns: [0,1,2,4,5,6] } },
-            { extend: 'pdf', text: 'PDF', exportOptions: { columns: [0,1,2,4,5,6] }, orientation: 'landscape' },
-            { extend: 'print', text: 'Imprimir', exportOptions: { columns: [0,1,2,4,5,6] } },
-            { extend: 'colvis', text: 'Columnas Visibles' }
-        ]
-    }).buttons().container().appendTo('#tabla_productos_wrapper .col-md-6:eq(0)');
+    // Verificar que la tabla existe antes de inicializar DataTables
+    if ($('#tabla_productos').length === 0) {
+        console.error('Tabla con ID "tabla_productos" no encontrada');
+        return;
+    }
 
-    function mostrarAlerta(title, text, icon, callback) { // Añadimos un callback opcional
+    try {
+        var tablaProductos = $("#tabla_productos").DataTable({
+            "pageLength": 5,
+            "language": {
+                "emptyTable": "No tienes productos registrados. Haz clic en 'Registrar Nuevo Producto' para agregar tu primer producto.",
+                "info": "Mostrando _START_ a _END_ de _TOTAL_ productos",
+                "infoEmpty": "Mostrando 0 a 0 de 0 productos",
+                "infoFiltered": "(Filtrado de _MAX_ total productos)",
+                "lengthMenu": "Mostrar _MENU_ productos",
+                "search": "Buscar:",
+                "zeroRecords": "No se encontraron productos que coincidan con tu búsqueda",
+                "paginate": {
+                    "first": "Primero", 
+                    "last": "Último", 
+                    "next": "Siguiente", 
+                    "previous": "Anterior"
+                },
+                "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+                "searchPlaceholder": "Buscar productos..."
+            },
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+            "processing": false,
+            "serverSide": false,
+            "columnDefs": [
+                { "orderable": false, "targets": [3, 7] }, // Imagen y Acciones no ordenables
+                { "searchable": false, "targets": [0, 3, 7] }, // Nro, Imagen y Acciones no buscables
+                { "className": "text-center", "targets": [0, 3, 5, 6, 7] }, // Centrar ciertas columnas
+                { "width": "5%", "targets": 0 }, // Nro
+                { "width": "10%", "targets": 1 }, // Código
+                { "width": "10%", "targets": 2 }, // Categoría
+                { "width": "8%", "targets": 3 }, // Imagen
+                { "width": "25%", "targets": 4 }, // Nombre
+                { "width": "8%", "targets": 5 }, // Stock
+                { "width": "10%", "targets": 6 }, // Precio
+                { "width": "15%", "targets": 7 } // Acciones
+            ],
+            "buttons": [
+                { 
+                    extend: 'copy', 
+                    text: '<i class="fas fa-copy"></i> Copiar', 
+                    exportOptions: { columns: [0,1,2,4,5,6] },
+                    className: 'btn btn-default btn-sm'
+                },
+                { 
+                    extend: 'excel', 
+                    text: '<i class="fas fa-file-excel"></i> Excel', 
+                    exportOptions: { columns: [0,1,2,4,5,6] },
+                    className: 'btn btn-success btn-sm',
+                    title: 'Listado de Productos'
+                },
+                { 
+                    extend: 'pdf', 
+                    text: '<i class="fas fa-file-pdf"></i> PDF', 
+                    exportOptions: { columns: [0,1,2,4,5,6] }, 
+                    orientation: 'landscape',
+                    className: 'btn btn-danger btn-sm',
+                    title: 'Listado de Productos'
+                },
+                { 
+                    extend: 'print', 
+                    text: '<i class="fas fa-print"></i> Imprimir', 
+                    exportOptions: { columns: [0,1,2,4,5,6] },
+                    className: 'btn btn-info btn-sm',
+                    title: 'Listado de Productos'
+                },
+                { 
+                    extend: 'colvis', 
+                    text: '<i class="fas fa-eye"></i> Columnas', 
+                    className: 'btn btn-warning btn-sm'
+                }
+            ],
+            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                  "<'row'<'col-sm-12'B>>" +
+                  "<'row'<'col-sm-12'tr>>" +
+                  "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "initComplete": function(settings, json) {
+                console.log('DataTable inicializado correctamente');
+                
+                // Personalizar botones después de la inicialización
+                $('.dt-buttons .btn').addClass('mr-1 mb-1');
+                
+                // Agregar clase personalizada a la búsqueda
+                $('.dataTables_filter input').addClass('form-control-sm').attr('placeholder', 'Buscar productos...');
+                $('.dataTables_length select').addClass('form-control-sm');
+            }
+        });
+        
+        // Mover botones al contenedor correcto
+        tablaProductos.buttons().container().appendTo('#tabla_productos_wrapper .col-md-6:eq(0)');
+        
+    } catch (error) {
+        console.error('Error al inicializar DataTable:', error);
+        // Mostrar mensaje de error en lugar de la tabla
+        $('#tabla_productos').closest('.card-body').html(
+            '<div class="alert alert-danger">' +
+            '<h5><i class="icon fas fa-ban"></i> Error!</h5>' +
+            'No se pudo cargar la tabla de productos. Por favor, recarga la página.' +
+            '</div>'
+        );
+    }
+
+    function mostrarAlerta(title, text, icon, callback) {
         Swal.fire({
             title: title,
             text: text,
             icon: icon,
-            timer: icon === 'success' ? 2500 : 4000, // Aumentamos timer para éxito a 2.5s, otros a 4s
-            showConfirmButton: icon !== 'success', // Muestra botón OK para errores/advertencias
-            allowOutsideClick: false, // Evita que se cierre al hacer clic fuera
-            allowEscapeKey: false // Evita que se cierre con la tecla Esc
-        }).then((result) => { // Usamos .then() para ejecutar el callback después de que la alerta se cierre (automáticamente o por el usuario)
+            timer: icon === 'success' ? 2500 : 4000,
+            showConfirmButton: icon !== 'success',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((result) => {
             if (callback && typeof callback === 'function') {
                 callback();
             }
@@ -324,9 +458,6 @@ $(document).ready(function () {
     }
 
     function recargarTablaProductos() { 
-        // Idealmente, si DataTables está configurado para carga AJAX:
-        // tablaProductos.ajax.reload(null, false); 
-        // Como fallback simple, recargamos la página:
         location.reload(); 
     }
 
@@ -335,49 +466,82 @@ $(document).ready(function () {
         const file = this.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) { $('#preview_imagen_create').attr('src', e.target.result).show(); }
+            reader.onload = function(e) { 
+                $('#preview_imagen_create').attr('src', e.target.result).show(); 
+            }
             reader.readAsDataURL(file);
-        } else { $('#preview_imagen_create').hide(); }
+        } else { 
+            $('#preview_imagen_create').hide(); 
+        }
     });
 
     $('#modal-create-producto').on('hidden.bs.modal', function () {
         $('#form-create-producto')[0].reset();
         $('#preview_imagen_create').hide().attr('src', '#');
         $('#error_message_create').hide().text('');
-        $('#fecha_ingreso_create').val('<?php echo date('Y-m-d'); ?>'); // Resetear fecha
+        $('#fecha_ingreso_create').val('<?php echo date('Y-m-d'); ?>');
     });
 
     $('#form-create-producto').submit(function (e) {
-            e.preventDefault();
-            $('#error_message_create').hide();
-            var formData = new FormData(this);
+        e.preventDefault();
+        $('#error_message_create').hide();
+        
+        // Validaciones del lado del cliente
+        var nombre = $('#nombre_create').val().trim();
+        var categoria = $('#id_categoria_create').val();
+        var stock = $('#stock_create').val();
+        var precio_compra = $('#precio_compra_create').val();
+        var precio_venta = $('#precio_venta_create').val();
+        var fecha_ingreso = $('#fecha_ingreso_create').val();
+        
+        if (!nombre || !categoria || !stock || !precio_compra || !precio_venta || !fecha_ingreso) {
+            $('#error_message_create').text('Todos los campos marcados con * son obligatorios.').show();
+            return;
+        }
+        
+        if (parseFloat(stock) < 0) {
+            $('#error_message_create').text('El stock no puede ser negativo.').show();
+            return;
+        }
+        
+        if (parseFloat(precio_compra) <= 0 || parseFloat(precio_venta) <= 0) {
+            $('#error_message_create').text('Los precios deben ser mayores a 0.').show();
+            return;
+        }
+        
+        var formData = new FormData(this);
 
-            $.ajax({
+        $.ajax({
             url: "../app/controllers/almacen/create_producto.php",
-            type: "POST", data: formData, contentType: false, processData: false, dataType: "json",
+            type: "POST", 
+            data: formData, 
+            contentType: false, 
+            processData: false, 
+            dataType: "json",
+            beforeSend: function() {
+                $('#modal-create-producto .btn-primary').prop('disabled', true).text('Guardando...');
+            },
             success: function(response) {
+                $('#modal-create-producto .btn-primary').prop('disabled', false).text('Guardar Producto');
+                
                 if (response.status === 'success') {
                     $('#modal-create-producto').modal('hide');
-                    // Mostrar alerta y LUEGO recargar
                     mostrarAlerta('¡Éxito!', response.message, 'success', function() {
                         recargarTablaProductos();
                     });
                 } else {
-                    // Para errores en el modal, no recargamos, solo mostramos el error en el modal.
                     $('#error_message_create').text(response.message || 'Error desconocido.').show();
-                    // Opcionalmente, un SweetAlert también para errores de modal si se prefiere:
-                    // mostrarAlerta('Error', response.message || 'No se pudo crear.', response.status || 'error');
                 }
-                if (response.redirectTo) { // Si la sesión expira
+                if (response.redirectTo) {
                      mostrarAlerta('Sesión Expirada', response.message, 'warning', function() {
                         window.location.href = response.redirectTo;
                     });
                 }
             },
-            error: function() {
-                 // Error de conexión, mostrar en el modal o con SweetAlert
-                $('#error_message_create').text('Error de conexión con el servidor.').show();
-                // mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
+            error: function(xhr, status, error) {
+                $('#modal-create-producto .btn-primary').prop('disabled', false).text('Guardar Producto');
+                console.error('Error AJAX:', error);
+                $('#error_message_create').text('Error de conexión con el servidor. Verifique su conexión e intente nuevamente.').show();
             }
         });
     });
@@ -392,9 +556,9 @@ $(document).ready(function () {
         $('#show_stock').text(producto.stock || '0');
         $('#show_stock_minimo').text(producto.stock_minimo || '0');
         $('#show_stock_maximo').text(producto.stock_maximo || '0');
-        $('#show_precio_compra').text(parseFloat(producto.precio_compra || 0).toFixed(2));
-        $('#show_precio_venta').text(parseFloat(producto.precio_venta || 0).toFixed(2));
-        $('#show_fecha_ingreso').text(producto.fecha_ingreso ? new Date(producto.fecha_ingreso + 'T00:00:00Z').toLocaleDateString() : 'N/A'); // Asegurar UTC para fecha
+        $('#show_precio_compra').text('$' + parseFloat(producto.precio_compra || 0).toFixed(2));
+        $('#show_precio_venta').text('$' + parseFloat(producto.precio_venta || 0).toFixed(2));
+        $('#show_fecha_ingreso').text(producto.fecha_ingreso ? new Date(producto.fecha_ingreso + 'T00:00:00Z').toLocaleDateString() : 'N/A');
         $('#show_fyh_creacion').text(producto.fyh_creacion ? new Date(producto.fyh_creacion).toLocaleString() : 'N/A');
         $('#show_fyh_actualizacion').text(producto.fyh_actualizacion && producto.fyh_actualizacion !== '0000-00-00 00:00:00' ? new Date(producto.fyh_actualizacion).toLocaleString() : 'N/A');
         $('#show_imagen_prod').attr('src', producto.imagen_url || '<?php echo $URL . "/almacen/img_productos/default_product.png"; ?>');
@@ -412,21 +576,18 @@ $(document).ready(function () {
         $('#stock_maximo_update').val(producto.stock_maximo);
         $('#precio_compra_update').val(producto.precio_compra);
         $('#precio_venta_update').val(producto.precio_venta);
-        $('#fecha_ingreso_update').val(producto.fecha_ingreso); // Formato YYYY-MM-DD
-        // $('#imagen_actual_hidden').val(producto.imagen); // No es necesario si el backend lo maneja
+        $('#fecha_ingreso_update').val(producto.fecha_ingreso);
         $('#preview_imagen_update').attr('src', producto.imagen_url || '<?php echo $URL . "/almacen/img_productos/default_product.png"; ?>');
-        $('#imagen_producto_update').val(''); // Limpiar input file
+        $('#imagen_producto_update').val('');
         $('#error_message_update').hide();
         $('#modal-update-producto').modal('show');
     }
 
     $('#tabla_productos tbody').on('click', '.btn-show-producto, .btn-edit-producto', function () {
-        var id_producto = $(this).data('id'); // Verifica que 'data-id' esté en los botones HTML
+        var id_producto = $(this).data('id');
         var esParaEditar = $(this).hasClass('btn-edit-producto');
 
-        // Verifica la URL y el parámetro
         $.get("../app/controllers/almacen/get_producto.php", { id_producto: id_producto }, function(response) {
-            // El tercer parámetro "json" en $.get es importante para que jQuery parsee automáticamente la respuesta
             if (response.status === 'success' && response.data) {
                 if(esParaEditar) {
                     popularModalUpdate(response.data);
@@ -435,13 +596,13 @@ $(document).ready(function () {
                 }
             } else {
                 mostrarAlerta('Error al Cargar', response.message || 'No se pudo cargar la información del producto.', 'error');
-                if (response.redirectTo) { // Si la sesión expiró
+                if (response.redirectTo) {
                     window.location.href = response.redirectTo;
                 }
             }
-        }, "json").fail(function(jqXHR, textStatus, errorThrown) { // Manejo de error de la petición AJAX
+        }, "json").fail(function(jqXHR, textStatus, errorThrown) {
             console.error("Error en AJAX a get_producto.php:", textStatus, errorThrown);
-            console.error("Respuesta del servidor:", jqXHR.responseText); // Muestra lo que devolvió el servidor
+            console.error("Respuesta del servidor:", jqXHR.responseText);
             mostrarAlerta('Error de Conexión', 'No se pudo obtener datos del producto. Revise la consola para más detalles.', 'error');
         });
     });
@@ -456,34 +617,38 @@ $(document).ready(function () {
         e.preventDefault();
         $('#error_message_update').hide();
         var formData = new FormData(this);
-        // formData.append('id_producto', $('#id_producto_update').val()); // Ya está en el form como hidden
 
         $.ajax({
             url: "../app/controllers/almacen/update_producto.php",
-            type: "POST", data: formData, contentType: false, processData: false, dataType: "json",
+            type: "POST", 
+            data: formData, 
+            contentType: false, 
+            processData: false, 
+            dataType: "json",
+            beforeSend: function() {
+                $('#modal-update-producto .btn-success').prop('disabled', true).text('Actualizando...');
+            },
             success: function(response) {
+                $('#modal-update-producto .btn-success').prop('disabled', false).text('Actualizar Producto');
+                
                 if (response.status === 'success') {
                     $('#modal-update-producto').modal('hide');
-                    // Mostrar alerta y LUEGO recargar
                     mostrarAlerta('¡Éxito!', response.message, 'success', function() {
                         recargarTablaProductos();
                     });
                 } else {
-                     // Para errores en el modal, no recargamos, solo mostramos el error en el modal.
                     $('#error_message_update').text(response.message || 'Error desconocido.').show();
-                     // Opcionalmente, un SweetAlert también para errores de modal si se prefiere:
-                    // mostrarAlerta('Error', response.message || 'No se pudo actualizar.', response.status || 'error');
                 }
-                 if (response.redirectTo) { // Si la sesión expira
+                 if (response.redirectTo) {
                      mostrarAlerta('Sesión Expirada', response.message, 'warning', function() {
                         window.location.href = response.redirectTo;
                     });
                 }
             },
-            error: function() {
-                // Error de conexión, mostrar en el modal o con SweetAlert
+            error: function(xhr, status, error) {
+                $('#modal-update-producto .btn-success').prop('disabled', false).text('Actualizar Producto');
+                console.error('Error AJAX:', error);
                 $('#error_message_update').text('Error de conexión con el servidor.').show();
-                // mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
             }
         });
     });
@@ -497,24 +662,27 @@ $(document).ready(function () {
 
     $('#btn_delete_confirm_producto').click(function () {
         var id_producto = $('#id_producto_delete').val();
+        
+        $(this).prop('disabled', true).text('Eliminando...');
+        
         $.post("../app/controllers/almacen/delete_producto.php", { id_producto: id_producto }, function (response) {
+            $('#btn_delete_confirm_producto').prop('disabled', false).text('Eliminar');
             $('#modal-delete-producto').modal('hide');
+            
             if (response.status === 'success') {
-                // Mostrar alerta y LUEGO recargar
                 mostrarAlerta('¡Eliminado!', response.message, 'success', function() {
                     recargarTablaProductos();
                 });
             } else {
-                // Para errores o advertencias (ej. producto en uso)
                 mostrarAlerta(response.status === 'warning' ? 'Advertencia' : 'Error', response.message || 'No se pudo eliminar.', response.status || 'error');
-                // No recargamos la tabla aquí para que el usuario vea el estado actual si la eliminación falló.
             }
-            if (response.redirectTo) { // Si la sesión expira
+            if (response.redirectTo) {
                  mostrarAlerta('Sesión Expirada', response.message, 'warning', function() {
                     window.location.href = response.redirectTo;
                 });
             }
         }, "json").fail(function() {
+            $('#btn_delete_confirm_producto').prop('disabled', false).text('Eliminar');
             $('#modal-delete-producto').modal('hide');
             mostrarAlerta('Error de Conexión', 'No se pudo contactar al servidor.', 'error');
         });
