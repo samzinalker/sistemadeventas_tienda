@@ -13,20 +13,20 @@ require_once __DIR__ . '/../../models/UsuarioModel.php';
 // 3. Verificar que el usuario esté logueado (AISLAMIENTO DEL USUARIO)
 if (!isset($_SESSION['id_usuario'])) {
     setMensaje("Debe iniciar sesión para realizar esta acción.", "error");
-    redirigir($URL . '/login/');
+    redirigir('/login/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 $id_usuario_actualizar = (int)$_SESSION['id_usuario']; // Clave para todas las operaciones
 
 // 4. Verificar que la solicitud sea POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setMensaje("Acceso no permitido. El método de solicitud no es válido.", "error");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // 5. Verificar que se haya enviado un archivo y no haya errores iniciales de subida
 if (!isset($_FILES['imagen_perfil']) || empty($_FILES['imagen_perfil']['name'])) {
     setMensaje("No se ha seleccionado ninguna imagen para subir. Por favor, elija un archivo.", "warning");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // Verificar errores de subida del archivo (ej. UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE)
@@ -43,7 +43,7 @@ if ($_FILES['imagen_perfil']['error'] !== UPLOAD_ERR_OK) {
     $error_code = $_FILES['imagen_perfil']['error'];
     $mensaje_error = $upload_error_messages[$error_code] ?? "Error desconocido al subir el archivo (Código: {$error_code}).";
     setMensaje($mensaje_error, "error");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // 6. Configuración para la subida de archivos
@@ -63,25 +63,26 @@ $ruta_temporal_archivo = $archivo_subido['tmp_name'];
 // Validar tipo MIME
 if (!in_array($tipo_mime_archivo, $tipos_mime_permitidos)) {
     setMensaje("Tipo de archivo no permitido. Solo se aceptan imágenes en formato JPG, PNG o GIF.", "error");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // Validar tamaño del archivo
 if ($tamano_archivo_bytes > $tamano_maximo_bytes) {
     setMensaje("El archivo de imagen es demasiado grande. El tamaño máximo permitido es " . ($tamano_maximo_bytes / 1024 / 1024) . "MB.", "error");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // Validar si el archivo es una imagen válida (intento básico de evitar archivos maliciosos renombrados)
 $check_imagen = getimagesize($ruta_temporal_archivo);
 if ($check_imagen === false) {
     setMensaje("El archivo seleccionado no parece ser una imagen válida o está corrupto.", "error");
-    redirigir($URL . '/perfil/');
+    redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 }
 
 // 9. Procesar y guardar el archivo
 try {
-    $usuarioModel = new UsuarioModel($pdo);
+    // CORRECCIÓN: Pasar ambos parámetros requeridos al constructor
+    $usuarioModel = new UsuarioModel($pdo, $URL);
 
     // Obtener el nombre de la imagen de perfil anterior del usuario para borrarla después si es necesario.
     $datos_usuario_actual = $usuarioModel->getUsuarioById($id_usuario_actualizar);
@@ -89,7 +90,7 @@ try {
         // Muy improbable si la sesión es válida.
         setMensaje("Error crítico: No se pudieron obtener los datos del usuario actual.", "error");
         session_destroy(); // Por seguridad
-        redirigir($URL . '/login/');
+        redirigir('/login/'); // ✅ CORRECCIÓN: Solo ruta relativa
     }
     $imagen_anterior_db = $datos_usuario_actual['imagen_perfil'] ?? null;
 
@@ -98,7 +99,7 @@ try {
     $extension_archivo = strtolower(pathinfo($nombre_original_archivo, PATHINFO_EXTENSION));
     if (!in_array($extension_archivo, ['jpg', 'jpeg', 'png', 'gif'])) { // Doble chequeo de extensión
         setMensaje("Extensión de archivo no válida. Solo se permiten JPG, PNG, GIF.", "error");
-        redirigir($URL . '/perfil/');
+        redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
     }
     $nombre_unico_nuevo_archivo = "user_{$id_usuario_actualizar}_" . time() . '.' . $extension_archivo;
     $ruta_completa_destino_fisico = $directorio_destino_fisico . $nombre_unico_nuevo_archivo;
@@ -108,13 +109,13 @@ try {
         if (!mkdir($directorio_destino_fisico, 0755, true)) { // Intentar crear recursivamente
             error_log("Error crítico: No se pudo crear el directorio de destino para imágenes de perfil: {$directorio_destino_fisico}");
             setMensaje("Error del sistema: No se puede guardar la imagen debido a un problema con el directorio de destino.", "error");
-            redirigir($URL . '/perfil/');
+            redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
         }
     }
     if (!is_writable($directorio_destino_fisico)) {
         error_log("Error crítico: El directorio de destino para imágenes de perfil no tiene permisos de escritura: {$directorio_destino_fisico}");
         setMensaje("Error del sistema: No se puede guardar la imagen debido a permisos incorrectos en el servidor.", "error");
-        redirigir($URL . '/perfil/');
+        redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
     }
     
     // Mover el archivo subido desde la ubicación temporal al directorio de destino final.
@@ -156,5 +157,5 @@ try {
 }
 
 // Siempre redirigir de vuelta a la página de perfil.
-redirigir($URL . '/perfil/');
+redirigir('/perfil/'); // ✅ CORRECCIÓN: Solo ruta relativa
 ?>
