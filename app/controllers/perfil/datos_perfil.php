@@ -32,30 +32,27 @@ require_once __DIR__ . '/../../models/UsuarioModel.php';
 $id_usuario_logueado = (int)$_SESSION['id_usuario'];
 
 // 4. Instanciar el modelo y obtener los datos del usuario
-// CORRECCIÓN AQUÍ: Asegurarse de pasar todos los argumentos esperados por el constructor de UsuarioModel.
-// El error indica que espera 2 argumentos, usualmente $pdo y $URL.
-$usuarioModel = new UsuarioModel($pdo, $URL); // <--- LÍNEA CORREGIDA
+$usuarioModel = new UsuarioModel($pdo, $URL);
 $usuario_datos = $usuarioModel->getUsuarioById($id_usuario_logueado);
 
 if (!$usuario_datos) {
-    // Si por alguna razón no se encuentra el usuario (ej. cuenta eliminada mientras está logueado,
-    // o un id_usuario inválido en la sesión).
+    // Si por alguna razón no se encuentra el usuario
     setMensaje("Error al cargar los datos de su perfil. Es posible que su sesión haya expirado o su cuenta ya no exista. Por favor, intente iniciar sesión nuevamente.", "error");
-    redirigir($URL . '/login/'); // $URL está disponible aquí
+    redirigir($URL . '/login/');
 }
 
 // 5. Asignar variables para la vista (perfil/index.php)
-// Estas variables serán usadas directamente en perfil/index.php
-// Se aplica saneamiento aquí para asegurar que los datos del modelo son seguros antes de pasarlos.
+// ✅ CORREGIDO: Separar claramente usuario de email
 $nombres = sanear($usuario_datos['nombres'] ?? 'N/A');
-$email = sanear($usuario_datos['email'] ?? 'N/A'); // Este es el "usuario" y el "email"
-$rol = sanear($usuario_datos['nombre_rol'] ?? 'Rol no definido'); // UsuarioModel debería devolver 'nombre_rol' a través del JOIN
-$imagen_perfil_actual_db = $usuario_datos['imagen_perfil'] ?? null; // Nombre del archivo de imagen desde la BD
-$fyh_creacion = $usuario_datos['fyh_creacion'] ?? '0000-00-00 00:00:00'; // Se formateará en la vista
-$fyh_actualizacion = $usuario_datos['fyh_actualizacion'] ?? '0000-00-00 00:00:00'; // Se formateará en la vista
+$usuario = sanear($usuario_datos['usuario'] ?? 'N/A'); // ✅ Campo separado para username
+$email = sanear($usuario_datos['email'] ?? 'N/A');     // ✅ Campo separado para email de contacto
+$rol = sanear($usuario_datos['nombre_rol'] ?? 'Rol no definido');
+$imagen_perfil_actual_db = $usuario_datos['imagen_perfil'] ?? null;
+$fyh_creacion = $usuario_datos['fyh_creacion'] ?? '0000-00-00 00:00:00';
+$fyh_actualizacion = $usuario_datos['fyh_actualizacion'] ?? '0000-00-00 00:00:00';
 
 // 6. Determinar la URL de la imagen de perfil
-$nombre_imagen_default = 'user_default.PNG'; // Asegúrate que el nombre coincida con tu archivo
+$nombre_imagen_default = 'user_default.PNG';
 $ruta_base_imagenes_perfil_fisica = __DIR__ . '/../../../public/images/perfiles/';
 $url_base_imagenes_perfil = $URL . '/public/images/perfiles/';
 
@@ -66,11 +63,7 @@ if (!empty($imagen_perfil_actual_db) && $imagen_perfil_actual_db !== $nombre_ima
 }
 
 // 7. Preparar datos para repoblar el formulario de "Actualizar Datos Personales"
-// Esto es útil si hubo un error en el controlador app/controllers/perfil/actualizar_datos.php
-// y se redirigió de vuelta al perfil. El controlador de actualización debería guardar los datos
-// en $_SESSION[$form_data_key_datos] antes de redirigir.
-
-$form_data_key_datos = 'form_data_perfil_datos_' . $id_usuario_logueado; // Clave de sesión única por usuario
+$form_data_key_datos = 'form_data_perfil_datos_' . $id_usuario_logueado;
 if (isset($_SESSION[$form_data_key_datos]) && is_array($_SESSION[$form_data_key_datos])) {
     $form_data_datos = $_SESSION[$form_data_key_datos];
     unset($_SESSION[$form_data_key_datos]); // Limpiar de la sesión después de usarla
@@ -78,11 +71,8 @@ if (isset($_SESSION[$form_data_key_datos]) && is_array($_SESSION[$form_data_key_
     $form_data_datos = [];
 }
 
-// Variables para repoblar el formulario de datos personales:
-// Priorizar datos de sesión (si hubo error previo), sino usar datos actuales de la BD.
+// ✅ CORREGIDO: Variables separadas para repoblar formulario
 $nombres_form = !empty($form_data_datos['nombres']) ? sanear($form_data_datos['nombres']) : $nombres;
+$usuario_form = !empty($form_data_datos['usuario']) ? sanear($form_data_datos['usuario']) : $usuario; // ✅ NUEVO
 $email_form = !empty($form_data_datos['email']) ? sanear($form_data_datos['email']) : $email;
-
-// No es necesario repoblar los formularios de imagen o contraseña de esta manera,
-// ya que esos campos se limpian por seguridad o por su naturaleza (el campo de archivo no se puede repoblar).
 ?>

@@ -7,17 +7,14 @@ if (session_status() === PHP_SESSION_NONE) {
 // 2. Cargar configuración principal
 require_once __DIR__ . '/../app/config.php'; // Define $pdo, $URL, $fechaHora
 
-// 3. Cargar utilidades globales ANTES de cualquier script que las pueda usar (como layout/sesion.php o datos_perfil.php)
+// 3. Cargar utilidades globales ANTES de cualquier script que las pueda usar
 require_once __DIR__ . '/../app/utils/funciones_globales.php'; // Define sanear(), setMensaje(), redirigir()
-require_once __DIR__ . '/../app/utils/Validator.php'; // Aunque no se use directamente aquí, es buena práctica tenerlo cerca
+require_once __DIR__ . '/../app/utils/Validator.php';
 
 // 4. Incluir el manejador de sesión (valida la sesión y carga datos básicos del usuario en $_SESSION)
-//    layout/sesion.php ahora puede usar setMensaje() si es necesario.
 include __DIR__ . '/../layout/sesion.php';
 
 // 5. Cargar el controlador que prepara los datos del perfil
-//    datos_perfil.php ahora puede usar sanear() y otras funciones globales.
-//    También puede usar $pdo y $URL de config.php, y $_SESSION de layout/sesion.php
 require_once __DIR__ . '/../app/controllers/perfil/datos_perfil.php';
 
 // --- Preparación para la vista ---
@@ -36,7 +33,7 @@ include('../layout/parte1.php');
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1 class="m-0"><?php echo sanear($titulo_pagina); // sanear() ya está disponible ?></h1>
+                    <h1 class="m-0"><?php echo sanear($titulo_pagina); ?></h1>
                 </div>
             </div>
         </div>
@@ -53,8 +50,8 @@ include('../layout/parte1.php');
                         <div class="card-body box-profile">
                             <div class="text-center">
                                 <img class="profile-user-img img-fluid img-circle"
-                                     src="<?php echo sanear($imagen_perfil_url); // Usar la variable preparada por datos_perfil.php ?>"
-                                     alt="Imagen de perfil de <?php echo sanear($nombres); // Usar $nombres saneado ?>"
+                                     src="<?php echo sanear($imagen_perfil_url); ?>"
+                                     alt="Imagen de perfil de <?php echo sanear($nombres); ?>"
                                      style="width: 150px; height: 150px; object-fit: cover;">
                             </div>
 
@@ -85,7 +82,12 @@ include('../layout/parte1.php');
                             <p class="text-muted"><?php echo sanear($nombres); ?></p>
                             <hr>
 
-                            <strong><i class="fas fa-envelope mr-1"></i> Usuario / Email de Contacto</strong>
+                            <!-- ✅ CORREGIDO: Campos separados -->
+                            <strong><i class="fas fa-at mr-1"></i> Usuario de Login</strong>
+                            <p class="text-muted">@<?php echo sanear($usuario); ?></p>
+                            <hr>
+
+                            <strong><i class="fas fa-envelope mr-1"></i> Email de Contacto</strong>
                             <p class="text-muted"><?php echo sanear($email); ?></p>
                             <hr>
 
@@ -122,14 +124,24 @@ include('../layout/parte1.php');
                                 <div class="form-group">
                                     <label for="nombres_edit">Nombre Completo</label>
                                     <input type="text" class="form-control" id="nombres_edit" name="nombres"
-                                           value="<?php echo sanear($nombres_form); // Usar variable para repoblar ?>" required>
+                                           value="<?php echo sanear($nombres_form); ?>" required>
                                 </div>
+                                
+                                <!-- ✅ CORREGIDO: Campos separados -->
                                 <div class="form-group">
-                                    <label for="email_edit">Usuario / Email de Contacto</label>
-                                    <input type="email" class="form-control" id="email_edit" name="email"
-                                           value="<?php echo sanear($email_form); // Usar variable para repoblar ?>" required>
-                                    <small class="form-text text-muted">Este es tu identificador para iniciar sesión y recibir comunicaciones.</small>
+                                    <label for="usuario_edit">Usuario de Login</label>
+                                    <input type="text" class="form-control" id="usuario_edit" name="usuario"
+                                           value="<?php echo sanear($usuario_form); ?>" required>
+                                    <small class="form-text text-muted">Este es tu nombre de usuario para iniciar sesión. Solo letras, números y guiones bajos.</small>
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label for="email_edit">Email de Contacto</label>
+                                    <input type="email" class="form-control" id="email_edit" name="email"
+                                           value="<?php echo sanear($email_form); ?>" required>
+                                    <small class="form-text text-muted">Email para comunicaciones y recuperación de cuenta.</small>
+                                </div>
+                                
                                 <button type="submit" class="btn btn-success">Guardar Cambios de Datos</button>
                             </form>
                         </div>
@@ -179,12 +191,8 @@ include('../layout/parte2.php');
 <script src="<?php echo $URL; ?>/public/js/perfil.js"></script>
 
 <script>
-// Inicialización de bsCustomFileInput (si no está ya en perfil.js o si se quiere mantener aquí)
+// Inicialización de bsCustomFileInput
 $(document).ready(function () {
   bsCustomFileInput.init();
-  
-  // La lógica de validación de formularios y vista previa de imagen se moverá a perfil.js
-  // para mantener este archivo más limpio.
-  // Si perfil.js ya contiene la inicialización de bsCustomFileInput.init(), se puede remover de aquí.
 });
 </script>
