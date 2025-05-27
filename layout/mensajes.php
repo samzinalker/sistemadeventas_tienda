@@ -2,7 +2,7 @@
 // DEBUG START
 echo "DEBUG: Inicio de mensajes.php. ";
 if( (isset($_SESSION['mensaje'])) && (isset($_SESSION['icono'])) ){
-    echo "Mensaje e icono ESTÁN SETEADOS en SESSION.<br>"; // DEBUG
+    //echo "Mensaje e icono ESTÁN SETEADOS en SESSION.<br>"; // DEBUG
     $respuesta = $_SESSION['mensaje'];
     $icono = $_SESSION['icono'];
     ?>
@@ -21,7 +21,7 @@ if( (isset($_SESSION['mensaje'])) && (isset($_SESSION['icono'])) ){
     unset($_SESSION['mensaje']);
     unset($_SESSION['icono']);
 } else {
-    echo "Mensaje o icono NO ESTÁN SETEADOS en SESSION.<br>"; // DEBUG
+    //echo "Mensaje o icono NO ESTÁN SETEADOS en SESSION.<br>"; // DEBUG
     //echo "Contenido actual de SESSION en mensajes.php:<pre>"; // DEBUG
    // print_r($_SESSION); // DEBUG
     //echo "</pre>"; // DEBUG
