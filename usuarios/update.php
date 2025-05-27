@@ -15,12 +15,13 @@ require_once __DIR__ . '/../app/utils/Validator.php';
 require_once __DIR__ . '/../app/models/UsuarioModel.php';
 require_once __DIR__ . '/../app/models/RolModel.php';
 
-// 5. Incluir el manejador de sesión (usa $pdo, $URL, y maneja la sesión)
-// Ahora layout/sesion.php es seguro de incluir incluso si la sesión ya empezó.
+// 5. Incluir el manejador de sesión (valida la sesión y carga datos del usuario logueado)
 include __DIR__ . '/../layout/sesion.php'; 
 
-// 6. Incluir manejador de permisos (usa variables de sesión seteadas por layout/sesion.php)
+// 6. Incluir manejador de permisos (asegura que solo administradores accedan)
 include __DIR__ . '/../layout/permisos.php'; 
+
+// --- Lógica específica de la página ---
 
 // Obtener el ID del usuario a editar
 $id_usuario_get = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -45,36 +46,53 @@ if (!$usuario_a_editar) {
 // Obtener todos los roles para el dropdown
 $roles_disponibles = $rolModel->getAllRoles();
 
-// Título y módulo (esto puede variar)
-$titulo_pagina = 'Actualizar Usuario: ' . sanear($usuario_a_editar['nombres']);
-$modulo_abierto = 'usuarios';
-$pagina_activa = 'usuarios'; // O podrías tener 'usuarios_update'
-
-// Incluir la parte superior del layout
-include('../layout/parte1.php'); 
-
 // Repoblar formulario si hay datos en sesión por un error previo
 $form_data = $_SESSION['form_data_usuario_update'][$id_usuario_get] ?? [];
 unset($_SESSION['form_data_usuario_update'][$id_usuario_get]); // Limpiar después de usar
+
+// --- Preparación para la vista ---
+$titulo_pagina = 'Actualizar Usuario: ' . sanear($usuario_a_editar['nombres']);
+$modulo_abierto = 'usuarios';
+$pagina_activa = 'usuarios';
+
+// 7. Incluir la parte superior del layout
+include __DIR__ . '/../layout/parte1.php'; 
 ?>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-12"><h1 class="m-0"><?php echo $titulo_pagina; ?></h1></div>
-            </div>
-        </div>
+                <div class="col-sm-6">
+                    <h1 class="m-0"><?php echo $titulo_pagina; ?></h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="<?php echo $URL; ?>/usuarios/">Usuarios</a></li>
+                        <li class="breadcrumb-item active">Actualizar Usuario</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
+    <!-- /.content-header -->
 
+    <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-8">
                     <div class="card card-success">
-                        <div class="card-header"><h3 class="card-title">Actualice los datos con cuidado</h3></div>
-                        <div class="card-body">
+                        <div class="card-header">
+                            <h3 class="card-title">Actualice los datos con cuidado</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body" style="display: block;">
                             <form action="<?php echo $URL; ?>/app/controllers/usuarios/update.php" method="post">
                                 <input type="hidden" name="id_usuario" value="<?php echo sanear($usuario_a_editar['id_usuario']); ?>">
                                 
@@ -88,13 +106,21 @@ unset($_SESSION['form_data_usuario_update'][$id_usuario_get]); // Limpiar despu�
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="email">Email</label>
-                                            <input type="email" name="email" id="email" class="form-control" 
-                                                   value="<?php echo sanear($form_data['email'] ?? $usuario_a_editar['email']); ?>" required>
+                                            <label for="usuario">Usuario (para iniciar sesión)</label>
+                                            <input type="text" name="usuario" id="usuario" class="form-control" 
+                                                   value="<?php echo sanear($form_data['usuario'] ?? $usuario_a_editar['usuario']); ?>" required>
+                                            <small class="form-text text-muted">Solo letras, números y guiones bajos. Sin espacios.</small>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="email">Email (para contacto)</label>
+                                            <input type="email" name="email" id="email" class="form-control" 
+                                                   value="<?php echo sanear($form_data['email'] ?? $usuario_a_editar['email']); ?>" required>
+                                        </div>
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="rol">Rol del usuario</label>
@@ -131,20 +157,26 @@ unset($_SESSION['form_data_usuario_update'][$id_usuario_get]); // Limpiar despu�
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="form-group">
+                                <div class="form-group text-right">
                                     <a href="<?php echo $URL; ?>/usuarios/" class="btn btn-secondary">Cancelar</a>
                                     <button type="submit" class="btn btn-success">Actualizar Usuario</button>
                                 </div>
                             </form>
                         </div>
+                        <!-- /.card-body -->
                     </div>
+                    <!-- /.card -->
                 </div>
             </div>
-        </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
+    <!-- /.content -->
 </div>
+<!-- /.content-wrapper -->
 
 <?php 
-include('../layout/mensajes.php'); 
-include('../layout/parte2.php'); 
+// 8. Incluir mensajes (si los hay) y la parte final del layout
+include __DIR__ . '/../layout/mensajes.php'; 
+include __DIR__ . '/../layout/parte2.php'; 
 ?>

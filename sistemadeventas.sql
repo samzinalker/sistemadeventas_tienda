@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-05-2025 a las 01:17:14
+-- Tiempo de generación: 25-05-2025 a las 17:21:08
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -103,7 +103,9 @@ INSERT INTO `tb_categorias` (`id_categoria`, `nombre_categoria`, `id_usuario`, `
 (13, 'ELECTRODOMESTICOS', 1, '2025-04-22 14:09:54', '0000-00-00 00:00:00'),
 (14, '1', 1, '2025-05-10 10:18:31', '0000-00-00 00:00:00'),
 (15, '2', 1, '2025-05-10 10:21:16', '0000-00-00 00:00:00'),
-(18, '1', 1, '2025-05-11 08:45:05', '0000-00-00 00:00:00');
+(18, '1', 1, '2025-05-11 08:45:05', '0000-00-00 00:00:00'),
+(19, 'sfsf', 1, '2025-05-24 15:21:20', '2025-05-24 15:21:20'),
+(21, 'sfsfsf', 16, '2025-05-24 15:29:47', '2025-05-24 15:29:47');
 
 -- --------------------------------------------------------
 
@@ -143,8 +145,7 @@ INSERT INTO `tb_clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `tipo_d
 (5, 1, 'juan perezf', 'cedula', '1757949936', '42424224', '121134224', 'clientese@gmail.com', 'fsafsafas', 'lago agrio', 'Cotopaxi', '2025-05-22', 'fasfsaasf', 'activo', '2025-05-24 13:47:02', '2025-05-24 13:47:02', NULL, NULL, NULL, NULL),
 (7, 1, 'juan perez', 'cedula', '1757949934', '42424224', NULL, 'clientese@gmail.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 13:48:25', '2025-05-24 13:48:25', NULL, NULL, NULL, NULL),
 (9, 1, 'juan perez', 'cedula', '2112424242', '42424224', NULL, 'clientee@gmail.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 14:17:35', '2025-05-24 14:17:35', NULL, NULL, NULL, NULL),
-(11, 1, 'juan perez', 'cedula', '0962525225', 'fsafasfsfa', NULL, 'asfasf525@gmai.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 14:18:51', '2025-05-24 14:18:51', NULL, NULL, NULL, NULL),
-(12, 15, 'CONSUMIDOR FINAL', 'consumidor_final', '9999999999', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Cliente genérico para ventas rápidas.', 'activo', '2025-05-24 17:55:21', '2025-05-24 17:55:21', NULL, NULL, NULL, NULL);
+(11, 1, 'juan perez', 'cedula', '0962525225', 'fsafasfsfa', NULL, 'asfasf525@gmai.com', NULL, NULL, NULL, NULL, NULL, 'activo', '2025-05-24 14:18:51', '2025-05-24 14:18:51', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -338,25 +339,30 @@ CREATE TABLE `tb_usuarios` (
   `id_usuario` int(11) NOT NULL,
   `nombres` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
+  `usuario` varchar(50) NOT NULL,
   `imagen_perfil` varchar(255) DEFAULT 'user_default.png',
+  `estado` enum('activo','eliminado') DEFAULT 'activo',
   `password_user` text NOT NULL,
   `token` varchar(100) NOT NULL,
   `id_rol` int(11) NOT NULL,
   `fyh_creacion` datetime NOT NULL,
-  `fyh_actualizacion` datetime NOT NULL
+  `fyh_actualizacion` datetime NOT NULL,
+  `fecha_eliminacion` datetime DEFAULT NULL,
+  `eliminado_por` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
 -- Volcado de datos para la tabla `tb_usuarios`
 --
 
-INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `imagen_perfil`, `password_user`, `token`, `id_rol`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(1, 'marcelo mamani', 'marcelo@gmail.com', '2025-05-11-14-59-30_682101a228f7c.PNG', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-05-24 08:12:56'),
-(10, 'administrador', 'admin@gmail.com', 'user_default.png', '$2y$10$LOP8dOv1tmWBnuZOrxmnw.TK6358ZDbFSgo6FwjuOtm.JVYxd8YGG', '', 1, '2025-05-03 06:55:54', '0000-00-00 00:00:00'),
-(12, 'venderw', 'vender@gmail.com', 'user_default.png', '$2y$10$EBfd4aY2yFbbWpkPSAC1XO4PKFeWTK9r9WKa/WB5iRTD5fRGlRNJi', '', 7, '2025-05-04 06:19:20', '2025-05-11 14:41:07'),
-(13, 'xd 22', '1@gmail.com', 'user_default.png', '$2y$10$uzWGvuEd0xTk3.jnYza22.FMIzgIxgsPYuGzl7oHngZDxtE6mrr4S', '', 1, '2025-05-08 21:57:46', '2025-05-11 15:04:05'),
-(14, '2', '2@gmail.com', 'user_default.png', '$2y$10$8NahENpQCkCI565YSxAffOcfuyB5gfzrtt5UkHyhvx0YfBLrWkXt6', '', 7, '2025-05-10 17:32:16', '2025-05-10 17:32:22'),
-(15, 'xxx', 'xxx@gmail.com', 'user_default.png', '$2y$10$cDaz6wsPAuXoLIENVFEWmOZYMUSeb9zNdR8ZGRryS/YVmGg9dnRdC', '', 7, '2025-05-24 17:54:55', '2025-05-24 17:55:03');
+INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `usuario`, `imagen_perfil`, `estado`, `password_user`, `token`, `id_rol`, `fyh_creacion`, `fyh_actualizacion`, `fecha_eliminacion`, `eliminado_por`) VALUES
+(1, 'marcelo mamani', 'marcelo@gmail.com', 'marcelo', '2025-05-11-14-59-30_682101a228f7c.PNG', 'activo', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-05-25 08:41:30', NULL, NULL),
+(10, 'administrador', 'admin@gmail.com', 'admin', 'user_default.png', 'activo', '$2y$10$LOP8dOv1tmWBnuZOrxmnw.TK6358ZDbFSgo6FwjuOtm.JVYxd8YGG', '', 1, '2025-05-03 06:55:54', '0000-00-00 00:00:00', NULL, NULL),
+(12, 'venderw', 'vender@gmail.com', 'vender', 'user_default.png', 'activo', '$2y$10$EBfd4aY2yFbbWpkPSAC1XO4PKFeWTK9r9WKa/WB5iRTD5fRGlRNJi', '', 7, '2025-05-04 06:19:20', '2025-05-11 14:41:07', NULL, NULL),
+(13, 'xd 22', '1@gmail.com', '1', 'user_default.png', 'activo', '$2y$10$uzWGvuEd0xTk3.jnYza22.FMIzgIxgsPYuGzl7oHngZDxtE6mrr4S', '', 1, '2025-05-08 21:57:46', '2025-05-11 15:04:05', NULL, NULL),
+(14, '2', '2@gmail.com', '2', 'user_default.png', 'activo', '$2y$10$8NahENpQCkCI565YSxAffOcfuyB5gfzrtt5UkHyhvx0YfBLrWkXt6', '', 7, '2025-05-10 17:32:16', '2025-05-10 17:32:22', NULL, NULL),
+(16, 'xxxx', 'xxxx@xxx.com', 'xxxx', 'user_default.png', 'activo', '$2y$10$wBQtOi/0pGcyvOX4icMlZ.5VklvZOS0/5gwFvnAcPSMJHfoZiGGGi', '', 1, '2025-05-24 15:22:28', '2025-05-24 15:22:50', NULL, NULL),
+(17, 'eee', 'eeee@gmail.com', 'eeee', 'user_default.png', 'activo', '$2y$10$8cpQ748aUYawDVj7LQisieFsNAgsMmpZZF9T2lnsm87Pv.CuJlKwG', '', 7, '2025-05-25 08:40:53', '2025-05-25 08:40:53', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -467,7 +473,9 @@ ALTER TABLE `tb_roles`
 --
 ALTER TABLE `tb_usuarios`
   ADD PRIMARY KEY (`id_usuario`),
-  ADD KEY `id_rol` (`id_rol`);
+  ADD UNIQUE KEY `idx_usuario_unique` (`usuario`),
+  ADD KEY `id_rol` (`id_rol`),
+  ADD KEY `fk_usuario_eliminado_por` (`eliminado_por`);
 
 --
 -- Indices de la tabla `tb_ventas`
@@ -498,7 +506,7 @@ ALTER TABLE `tb_carrito`
 -- AUTO_INCREMENT de la tabla `tb_categorias`
 --
 ALTER TABLE `tb_categorias`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_clientes`
@@ -546,7 +554,7 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_ventas`
@@ -608,6 +616,7 @@ ALTER TABLE `tb_detalle_ventas`
 -- Filtros para la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
+  ADD CONSTRAINT `fk_usuario_eliminado_por` FOREIGN KEY (`eliminado_por`) REFERENCES `tb_usuarios` (`id_usuario`),
   ADD CONSTRAINT `tb_usuarios_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `tb_roles` (`id_rol`) ON UPDATE CASCADE;
 
 --

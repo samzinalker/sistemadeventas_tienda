@@ -1,0 +1,60 @@
+{
+    "informacion_eliminacion": {
+        "fecha_eliminacion": "2025-05-25 11:36:46",
+        "eliminado_por_id": 1,
+        "eliminado_por_info": {
+            "id_usuario": 1,
+            "nombres": "marcelo mamani",
+            "email": "marcelo@gmail.com",
+            "usuario": "marcelo",
+            "imagen_perfil": "2025-05-11-14-59-30_682101a228f7c.PNG",
+            "estado": "activo",
+            "password_user": "$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm",
+            "token": "",
+            "id_rol": 1,
+            "fyh_creacion": "2025-04-14 21:07:42",
+            "fyh_actualizacion": "2025-05-25 11:33:08",
+            "fecha_eliminacion": null,
+            "eliminado_por": null,
+            "nombre_rol": "administrador",
+            "password_hash_backup": "$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm",
+            "backup_note": "Hash de contraseña respaldado solo para auditoría - NO reutilizar"
+        },
+        "backup_creado": "2025-05-25 11:36:46",
+        "version_sistema": "1.0"
+    },
+    "usuario": {
+        "id_usuario": 20,
+        "nombres": "sffssf",
+        "email": "vendersss@gmail.com",
+        "usuario": "sss",
+        "imagen_perfil": "user_default.png",
+        "estado": "activo",
+        "password_user": "$2y$10$aElZNQS3CEchKHdMqaruGuxNghQENCruyy9n.9yGPG8uKPtUZwMnS",
+        "token": "",
+        "id_rol": 7,
+        "fyh_creacion": "2025-05-25 11:27:19",
+        "fyh_actualizacion": "2025-05-25 11:27:25",
+        "fecha_eliminacion": null,
+        "eliminado_por": null,
+        "nombre_rol": "vendedor",
+        "password_hash_backup": "$2y$10$aElZNQS3CEchKHdMqaruGuxNghQENCruyy9n.9yGPG8uKPtUZwMnS",
+        "backup_note": "Hash de contraseña respaldado solo para auditoría - NO reutilizar"
+    },
+    "categorias": [
+        {
+            "id_categoria": 22,
+            "nombre_categoria": "ff",
+            "id_usuario": 20,
+            "fyh_creacion": "2025-05-25 11:27:42",
+            "fyh_actualizacion": "2025-05-25 11:27:42"
+        }
+    ],
+    "productos": [],
+    "ventas": [],
+    "clientes": [],
+    "compras": [],
+    "estadisticas": {
+        "error": "Error al generar estadísticas: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'total' in 'field list'"
+    }
+}

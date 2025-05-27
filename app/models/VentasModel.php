@@ -87,7 +87,8 @@ class VentasModel {
             $stmtVenta = $this->pdo->prepare($sqlVenta);
 
             $fechaHoraActual = date('Y-m-d H:i:s');
-            $estadoVentaPredeterminado = 'PAGADA'; // O 'PENDIENTE' si manejas estados de pago
+            $estadoVentaPredeterminado = $datosVenta['estado_venta'] ?? 'PENDIENTE';
+
 
             $stmtVenta->bindParam(':id_usuario', $this->id_usuario_sesion, PDO::PARAM_INT);
             $stmtVenta->bindParam(':id_cliente', $datosVenta['id_cliente'], PDO::PARAM_INT);
@@ -189,8 +190,6 @@ class VentasModel {
         return $resultado ? floatval($resultado['stock']) : null;
     }
 
-    // --- Métodos Adicionales que podrías necesitar (Listar Ventas, Ver Venta, etc.) ---
-
     /**
      * Obtiene una venta por su ID.
      *
@@ -234,8 +233,7 @@ class VentasModel {
         $stmt->bindParam(':id_usuario_sesion_2', $this->id_usuario_sesion, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
-        // ... (otros métodos existentes) ...
+    }
 
     /**
      * Obtiene todas las ventas registradas por el usuario actual, con opción de paginación y búsqueda para DataTables.
@@ -255,6 +253,12 @@ class VentasModel {
                     WHERE v.id_usuario = :id_usuario_sesion";
         $bindings[':id_usuario_sesion'] = $this->id_usuario_sesion;
 
+        // Filtrar por estado si se proporciona
+        if (isset($params['filtro_estado']) && $params['filtro_estado'] !== 'todos') {
+            $sqlBase .= " AND v.estado_venta = :estado_venta";
+            $bindings[':estado_venta'] = strtoupper($params['filtro_estado']);
+        }
+
         // Búsqueda (search)
         $sqlSearch = "";
         if (!empty($params['search']['value'])) {
@@ -270,8 +274,16 @@ class VentasModel {
         }
 
         // Conteo total de registros (sin filtros de búsqueda)
-        $stmtTotal = $this->pdo->prepare("SELECT COUNT(v.id_venta) " . $sqlBase);
-        $stmtTotal->execute([':id_usuario_sesion' => $this->id_usuario_sesion]); // Solo el binding de usuario aquí
+        $sqlTotal = "SELECT COUNT(v.id_venta) " . $sqlBase;
+        $stmtTotal = $this->pdo->prepare($sqlTotal);
+        
+        // Crear un array con solo el binding de usuario para el total
+        $bindingsTotal = [':id_usuario_sesion' => $this->id_usuario_sesion];
+        if (isset($bindings[':estado_venta'])) {
+            $bindingsTotal[':estado_venta'] = $bindings[':estado_venta'];
+        }
+        
+        $stmtTotal->execute($bindingsTotal);
         $recordsTotal = $stmtTotal->fetchColumn();
 
         // Conteo de registros filtrados (con filtros de búsqueda)
@@ -285,25 +297,24 @@ class VentasModel {
             $columnIdx = intval($params['order'][0]['column']);
             $columnDir = $params['order'][0]['dir'] === 'asc' ? 'ASC' : 'DESC';
             
-            // Mapeo de índices de columna de DataTables a nombres de columna de DB
-            // Asegúrate que estos índices coincidan con las columnas en tu JS de DataTables
+            // Mapeo de índices de columna a nombres de columna
             $columns = ['v.codigo_venta_referencia', 'c.nombre_cliente', 'v.fecha_venta', 'v.total_general', 'v.estado_venta', 'v.fyh_creacion']; 
             if (isset($columns[$columnIdx])) {
                 $sqlOrder = " ORDER BY " . $columns[$columnIdx] . " " . $columnDir;
             } else {
-                $sqlOrder = " ORDER BY v.fyh_creacion DESC"; // Orden por defecto
+                $sqlOrder = " ORDER BY v.fyh_creacion DESC";
             }
         } else {
-            $sqlOrder = " ORDER BY v.fyh_creacion DESC"; // Orden por defecto
+            $sqlOrder = " ORDER BY v.fyh_creacion DESC";
         }
 
-        // Paginación (limit y offset)
+        // Paginación
         $sqlLimit = "";
         if (isset($params['start']) && $params['length'] != -1) {
             $sqlLimit = " LIMIT " . intval($params['start']) . ", " . intval($params['length']);
         }
 
-        // Consulta principal para obtener los datos
+        // Consulta principal
         $stmtData = $this->pdo->prepare(
             "SELECT v.id_venta, v.codigo_venta_referencia, c.nombre_cliente, v.fecha_venta, 
                     v.total_general, v.estado_venta, v.fyh_creacion "
@@ -320,7 +331,4 @@ class VentasModel {
         ];
     }
 }
-
-
-
 ?>

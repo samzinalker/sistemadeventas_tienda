@@ -55,13 +55,12 @@
         <div class="card-body">
             <p class="login-box-msg">Ingrese sus datos</p>
 
-            <form action="../app/controllers/login/ingreso.php" method="post">
+                        <form action="../app/controllers/login/ingreso.php" method="post">
                 <div class="input-group mb-3">
-                    <!-- Cambiado de type="email" a type="text" para permitir cualquier formato -->
-                    <input type="text" name="email" class="form-control" placeholder="Usuario">
+                    <!-- ✅ CAMBIAR name="email" por name="usuario" -->
+                    <input type="text" name="usuario" class="form-control" placeholder="Usuario" required>
                     <div class="input-group-append">
                         <div class="input-group-text">
-                            <!-- Cambiado de fa-envelope a fa-user para reflejar que es un usuario -->
                             <span class="fas fa-user"></span>
                         </div>
                     </div>

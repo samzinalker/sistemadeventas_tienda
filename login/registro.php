@@ -52,24 +52,37 @@ if (!function_exists('sanear_vista')) {
             <p class="login-box-msg">Registrar una nueva cuenta</p>
 
             <form action="../app/controllers/login/registro.php" method="post" id="formulario-registro">
-                <div class="input-group mb-3">
-                    <input type="text" name="nombres" class="form-control" placeholder="Nombre completo" 
-                           value="<?php echo sanear_vista($form_data['nombres'] ?? ''); ?>" required>
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-user"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    <input type="text" name="email" class="form-control" placeholder="Usuario (Email)" 
-                           value="<?php echo sanear_vista($form_data['email'] ?? ''); ?>" required>
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-envelope"></span> {/* Cambiado a envelope para email */}
-                        </div>
-                    </div>
-                </div>
+    <div class="input-group mb-3">
+        <input type="text" name="nombres" class="form-control" placeholder="Nombre completo" 
+               value="<?php echo sanear_vista($form_data['nombres'] ?? ''); ?>" required>
+        <div class="input-group-append">
+            <div class="input-group-text">
+                <span class="fas fa-user"></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ✅ NUEVO: Campo usuario separado -->
+    <div class="input-group mb-3">
+        <input type="text" name="usuario" class="form-control" placeholder="Nombre de usuario" 
+               value="<?php echo sanear_vista($form_data['usuario'] ?? ''); ?>" required>
+        <div class="input-group-append">
+            <div class="input-group-text">
+                <span class="fas fa-at"></span>
+            </div>
+        </div>
+        <small class="form-text text-muted">Solo letras, números y guiones bajos. Sin espacios.</small>
+    </div>
+    
+    <div class="input-group mb-3">
+        <input type="email" name="email" class="form-control" placeholder="Email (para contacto)" 
+               value="<?php echo sanear_vista($form_data['email'] ?? ''); ?>" required>
+        <div class="input-group-append">
+            <div class="input-group-text">
+                <span class="fas fa-envelope"></span>
+            </div>
+        </div>
+    </div>
                 <div class="input-group mb-3">
                     <input type="password" name="password_user" class="form-control" placeholder="Contraseña" required id="password">
                     <div class="input-group-append">

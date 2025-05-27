@@ -15,44 +15,46 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirigir('/login/'); // Redirigir a la página de login
 }
 
+// ✅ CAMBIAR estas líneas:
+
 // 4. Obtener y sanear datos del formulario
-$email_ingresado = trim($_POST['email'] ?? '');
+$usuario_ingresado = trim($_POST['usuario'] ?? ''); // ✅ Cambiar 'email' por 'usuario'
 $password_ingresada = $_POST['password_user'] ?? '';
 
-if (empty($email_ingresado) || empty($password_ingresada)) {
-    setMensaje("Email y contraseña son requeridos.", "warning");
+if (empty($usuario_ingresado) || empty($password_ingresada)) {
+    setMensaje("Usuario y contraseña son requeridos.", "warning"); // ✅ Actualizar mensaje
     redirigir('/login/');
 }
 
 // 5. Lógica de autenticación usando el Modelo
 try {
     $usuarioModel = new UsuarioModel($pdo, $URL);
-    $usuario_data = $usuarioModel->getUsuarioByEmail($email_ingresado);
+    // ✅ CAMBIAR: Usar getUsuarioByUsername en lugar de getUsuarioByEmail
+    $usuario_data = $usuarioModel->getUsuarioByUsername($usuario_ingresado);
 
     if ($usuario_data) {
         // Usuario encontrado, verificar contraseña
         if (password_verify($password_ingresada, $usuario_data['password_user'])) {
             // Contraseña correcta: Iniciar sesión
             $_SESSION['id_usuario'] = $usuario_data['id_usuario'];
-            $_SESSION['sesion_email'] = $usuario_data['email']; // Usado por layout/sesion.php
-            $_SESSION['rol'] = $usuario_data['nombre_rol'];   // UsuarioModel devuelve 'nombre_rol'
+            $_SESSION['sesion_email'] = $usuario_data['email']; // Mantener para compatibilidad
+            $_SESSION['usuario'] = $usuario_data['usuario']; // ✅ NUEVO: Agregar usuario a sesión
+            $_SESSION['rol'] = $usuario_data['nombre_rol'];
             $_SESSION['nombres'] = $usuario_data['nombres'];
 
-            // Actualizar fecha y hora de última actualización (o login)
-            // $fechaHora global de config.php
+            // Actualizar fecha y hora de última actualización
             $usuarioModel->actualizarFechaHoraLogin($usuario_data['id_usuario'], $fechaHora);
             
-            redirigir('/index.php'); // Redirigir al panel principal
+            redirigir('/index.php');
         } else {
-            // Contraseña incorrecta
             setMensaje("Contraseña incorrecta. Inténtelo de nuevo.", "error");
             redirigir('/login/');
         }
     } else {
-        // Usuario no encontrado
-        setMensaje("Usuario no encontrado. Verifique el email ingresado.", "error");
+        setMensaje("Usuario no encontrado. Verifique el nombre de usuario ingresado.", "error"); // ✅ Actualizar mensaje
         redirigir('/login/');
     }
+
 
 } catch (PDOException $e) {
     // Error en la base de datos

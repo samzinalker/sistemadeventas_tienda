@@ -18,16 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // 4. Obtener y sanear datos del formulario
 $nombres = trim($_POST['nombres'] ?? '');
-$email = trim($_POST['email'] ?? ''); // Este será el "usuario" para login
+$usuario = trim($_POST['usuario'] ?? ''); // ✅ AGREGAR ESTA LÍNEA
+$email = trim($_POST['email'] ?? '');
 $password = $_POST['password_user'] ?? '';
-$password_repeat = $_POST['repassword'] ?? ''; // Corregido de 'repassword' a 'password_repeat' si es necesario o viceversa, asegurar consistencia con el form. El form usa 'repassword'.
-                                              // Mantendré 'repassword' para coincidir con el form que me pasaste.
+$password_repeat = $_POST['repassword'] ?? '';
 
 // Guardar datos en sesión para repoblar el formulario en caso de error
 $_SESSION['form_data_registro'] = $_POST;
 
 // 5. Validaciones
-$campos_requeridos = ['nombres', 'email', 'password_user', 'repassword'];
+$campos_requeridos = ['nombres', 'usuario', 'email', 'password_user', 'repassword']; // ✅ AGREGAR 'usuario'
 $campos_faltantes = Validator::requiredFields($_POST, $campos_requeridos);
 
 if (!empty($campos_faltantes)) {
@@ -42,10 +42,10 @@ if (!Validator::isValidEmail($email)) {
 }
 
 // Validar y procesar contraseña usando la función global
-list($password_hash, $error_password) = procesarPassword($password, $password_repeat, 6); // procesarPassword ya valida longitud y coincidencia
+list($password_hash, $error_password) = procesarPassword($password, $password_repeat, 6);
 
 if ($error_password) {
-    setMensaje($error_password, "error"); // El mensaje de error viene de procesarPassword
+    setMensaje($error_password, "error");
     redirigir('/login/registro.php');
 }
 
@@ -53,25 +53,30 @@ if ($error_password) {
 try {
     $usuarioModel = new UsuarioModel($pdo, $URL);
 
-    // Verificar si el email (usuario) ya existe
-    if ($usuarioModel->emailExiste($email)) {
-        setMensaje("El nombre de usuario (email) '" . sanear($email) . "' ya está registrado. Intente con otro.", "warning");
+    // Verificar si el usuario ya existe
+    if ($usuarioModel->usuarioExiste($usuario)) {
+        setMensaje("El nombre de usuario '" . sanear($usuario) . "' ya está registrado. Intente con otro.", "warning");
         redirigir('/login/registro.php');
     }
 
-    // Determinar el ID del rol para nuevos usuarios (ej. "vendedor")
-    // Este ID puede venir de una constante, configuración, o una consulta si es dinámico.
-    // Por ahora, usamos el ID 7 (vendedor) como en tu código original.
-    $id_rol_defecto = 7; 
-    // En una mejora futura, podrías obtener el ID del rol "vendedor" por su nombre desde RolModel.
+    // Verificar si el email ya existe
+    if ($usuarioModel->emailExiste($email)) {
+        setMensaje("El email '" . sanear($email) . "' ya está registrado. Intente con otro.", "warning");
+        redirigir('/login/registro.php');
+    }
 
-    // $fechaHora global de config.php
-    $creado = $usuarioModel->crearUsuario($nombres, $email, $password_hash, $id_rol_defecto, $fechaHora);
+    // Crear el usuario
+    $creado = $usuarioModel->crearUsuario($nombres, $usuario, $email, $password_hash);
 
     if ($creado) {
-        unset($_SESSION['form_data_registro']); // Limpiar datos del formulario de la sesión
+        unset($_SESSION['form_data_registro']);
+        
+        // Log de auditoría para registro público
+        $ultimo_id = $usuarioModel->getUltimoIdUsuario();
+        error_log("Registro público exitoso: Usuario '$usuario' creado con ID: $ultimo_id");
+        
         setMensaje("Usuario registrado correctamente. Ahora puede iniciar sesión.", "success");
-        redirigir('/login/'); // Redirigir a la página de login
+        redirigir('/login/');
     } else {
         setMensaje("Error al registrar el usuario. Inténtelo de nuevo.", "error");
         redirigir('/login/registro.php');
@@ -86,8 +91,4 @@ try {
     setMensaje("Ocurrió un error inesperado durante el registro. Por favor, intente más tarde.", "error");
     redirigir('/login/registro.php');
 }
-?>// En login/registro.php, dentro del formulario:
-    <?php $form_data = $_SESSION['form_data_registro'] ?? []; ?>
-<input type="text" name="nombres" class="form-control" placeholder="Nombre completo" required value="<?php echo sanear($form_data['nombres'] ?? ''); ?>">
-    // ... y así para otros campos.
-    <?php unset($_SESSION['form_data_registro']); // Limpiar después de usar ?>
+?>

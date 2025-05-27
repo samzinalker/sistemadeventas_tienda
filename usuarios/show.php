@@ -8,13 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../app/config.php';
 
 // 3. Cargar utilidades globales (usan $URL, pueden usar sesión)
-require_once __DIR__ . '/../app/utils/funciones_globales.php'; // para sanear(), setMensaje(), redirigir()
-// Validator.php no es estrictamente necesario aquí, pero mantener el orden de inclusión es bueno.
+require_once __DIR__ . '/../app/utils/funciones_globales.php';
 require_once __DIR__ . '/../app/utils/Validator.php'; 
 
 // 4. Cargar modelos (usan $pdo)
 require_once __DIR__ . '/../app/models/UsuarioModel.php';
-// RolModel no es necesario aquí ya que getUsuarioById ya nos trae el nombre del rol.
 
 // 5. Incluir el manejador de sesión (valida la sesión y carga datos del usuario logueado)
 include __DIR__ . '/../layout/sesion.php'; 
@@ -28,9 +26,8 @@ include __DIR__ . '/../layout/permisos.php';
 $id_usuario_get = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$id_usuario_get) {
-    // Si el ID no es válido o no se proporciona
     setMensaje("ID de usuario no válido.", "error");
-    redirigir('/usuarios/'); // Redirige al listado de usuarios
+    redirigir('/usuarios/');
 }
 
 // Instanciar el modelo de usuario
@@ -39,26 +36,24 @@ $usuarioModel = new UsuarioModel($pdo, $URL);
 $usuario_detalle = $usuarioModel->getUsuarioById($id_usuario_get);
 
 if (!$usuario_detalle) {
-    // Si no se encuentra un usuario con ese ID
     setMensaje("Usuario no encontrado.", "error");
-    redirigir('/usuarios/'); // Redirige al listado
+    redirigir('/usuarios/');
 }
 
 // --- Preparación para la vista ---
 $titulo_pagina = 'Detalles del Usuario: ' . sanear($usuario_detalle['nombres']);
-$modulo_abierto = 'usuarios'; // Para el menú lateral
-$pagina_activa = 'usuarios';    // Para resaltar en el menú
+$modulo_abierto = 'usuarios';
+$pagina_activa = 'usuarios';
 
 // Determinar la ruta completa de la imagen de perfil
 $nombre_imagen_perfil = $usuario_detalle['imagen_perfil'] ?? 'user_default.png';
-if (empty($nombre_imagen_perfil)) { // Doble seguro por si está vacío en la BD
+if (empty($nombre_imagen_perfil)) {
     $nombre_imagen_perfil = 'user_default.png';
 }
 $ruta_imagen = $URL . '/public/images/perfiles/' . $nombre_imagen_perfil;
 
-
-// 7. Incluir la parte superior del layout (HTML hasta el contenido principal)
-include('../layout/parte1.php'); 
+// 7. Incluir la parte superior del layout
+include __DIR__ . '/../layout/parte1.php'; 
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -85,7 +80,7 @@ include('../layout/parte1.php');
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8"> {/* Ajusta el ancho si es necesario */}
+                <div class="col-md-8">
                     <div class="card card-info">
                         <div class="card-header">
                             <h3 class="card-title">Información Registrada</h3>
@@ -115,6 +110,10 @@ include('../layout/parte1.php');
                                                 <td><?php echo sanear($usuario_detalle['nombres']); ?></td>
                                             </tr>
                                             <tr>
+                                                <th>Usuario:</th>
+                                                <td><?php echo sanear($usuario_detalle['usuario']); ?></td>
+                                            </tr>
+                                            <tr>
                                                 <th>Email:</th>
                                                 <td><?php echo sanear($usuario_detalle['email']); ?></td>
                                             </tr>
@@ -124,11 +123,11 @@ include('../layout/parte1.php');
                                             </tr>
                                             <tr>
                                                 <th>Fecha de Creación:</th>
-                                                <td><?php echo htmlspecialchars(date('d/m/Y H:i:s', strtotime($usuario_detalle['fyh_creacion']))); ?></td>
+                                                <td><?php echo sanear(date('d/m/Y H:i:s', strtotime($usuario_detalle['fyh_creacion']))); ?></td>
                                             </tr>
                                             <tr>
                                                 <th>Última Actualización:</th>
-                                                <td><?php echo htmlspecialchars(date('d/m/Y H:i:s', strtotime($usuario_detalle['fyh_actualizacion']))); ?></td>
+                                                <td><?php echo sanear(date('d/m/Y H:i:s', strtotime($usuario_detalle['fyh_actualizacion']))); ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -153,6 +152,6 @@ include('../layout/parte1.php');
 
 <?php 
 // 8. Incluir mensajes (si los hay) y la parte final del layout
-include('../layout/mensajes.php'); 
-include('../layout/parte2.php'); 
+include __DIR__ . '/../layout/mensajes.php'; 
+include __DIR__ . '/../layout/parte2.php'; 
 ?>

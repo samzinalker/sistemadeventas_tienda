@@ -165,7 +165,19 @@ include '../layout/mensajes.php';
                                         <input type="hidden" id="monto_iva_general_venta_calculado" name="monto_iva_general_venta_calculado" value="0.00">
                                     </div>
                                 </div>
-                                 <div class="form-group row mb-1">
+                                <!-- Selector de Estado de Venta - Mejorado -->
+                                <div class="form-group row mb-2">
+                                    <label for="estado_venta" class="col-sm-6 col-form-label font-weight-bold">Estado de Venta:</label>
+                                    <div class="col-sm-6">
+                                        <select class="form-control text-center" id="estado_venta" name="estado_venta" style="font-weight:bold; border: 2px solid #17a2b8;">
+                                            <option value="PENDIENTE">PENDIENTE</option>
+                                            <option value="PAGADA" selected>PAGADA</option>
+                                            <option value="ENTREGADA">ENTREGADA</option>
+                                            <option value="ANULADA">ANULADA</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-1">
                                     <label for="descuento_general_venta" class="col-sm-6 col-form-label col-form-label-sm">Descuento (-):</label>
                                     <div class="col-sm-6">
                                         <input type="number" class="form-control form-control-sm text-right" id="descuento_general_venta" name="descuento_general_venta" value="0.00" step="0.01" min="0">
@@ -345,7 +357,6 @@ include '../layout/mensajes.php';
 </div>
 
 <!-- Modal para Crear Producto Rápido -->
-<!-- Modal para Crear Producto Rápido -->
 <div class="modal fade" id="modal-crear-producto-rapido-venta" tabindex="-1" aria-labelledby="modalCrearProductoRapidoVentaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -452,10 +463,6 @@ include '../layout/mensajes.php';
 
 
 <?php include '../layout/parte2.php'; ?>
-<!-- Select2 ya no es necesario para el cliente principal, pero podría usarse en otros lugares. Lo dejo por si acaso, pero podría eliminarse si no se usa. -->
-<!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> -->
-<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css"> -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.full.min.js"></script> -->
 
 <script>
 // Variable global para la tabla de items de venta
@@ -524,44 +531,51 @@ $(document).ready(function() {
     // Se llama cuando el modal se abre y también aquí para asegurar que esté lista si el modal se muestra por error o directamente.
     configurarCampoDocumento('dv_tipo_documento', 'dv_nit_ci_cliente', 'dv_documento_help', 'label_dv_documento');
 
-
     // --- NÚMERO DE VENTA ---
     function generarNumeroVenta() {
+        console.log("Generando número de venta...");
         $.ajax({
             url: `${URL_BASE}/app/controllers/ventas/controller_generar_codigo_venta.php`,
             type: 'POST',
             dataType: 'json',
             success: function(response) {
+                console.log("Respuesta del servidor:", response);
                 if (response.status === 'success') {
                     $('#nro_venta_referencia').val(response.codigo_venta);
                     $('#nro_venta_secuencial').val(response.nro_secuencial);
+                    console.log("Número de venta establecido:", response.codigo_venta);
                 } else {
                     Swal.fire('Error', response.message || 'No se pudo generar el número de venta.', 'error');
                 }
             },
-            error: function() { Swal.fire('Error', 'Error al contactar para generar número de venta.', 'error');}
+            error: function(xhr, status, error) { 
+                console.error("Error al generar número de venta:", status, error);
+                console.error("Respuesta:", xhr.responseText);
+                Swal.fire('Error', 'Error al contactar para generar número de venta.', 'error');
+            }
         });
     }
 
     // --- GESTIÓN DE CLIENTES (NUEVA LÓGICA) ---
     $('#btn-gestionar-cliente-venta').click(function() {
+        console.log("Botón gestionar cliente clickeado");
         $('#modal-gestionar-cliente-venta').modal('show');
         if ($.fn.DataTable.isDataTable('#tabla_buscar_clientes_gestion_dt')) {
             tablaBuscarClientesGestionDT.ajax.reload();
         } else {
             tablaBuscarClientesGestionDT = $('#tabla_buscar_clientes_gestion_dt').DataTable({
-                processing: true, serverSide: true,
+                processing: true,
+                serverSide: true,
                 ajax: {
                     url: `${URL_BASE}/app/controllers/clientes/controller_listado_clientes_dt.php`,
-    type: 'POST',
-    error: function (jqXHR, textStatus, errorThrown) {
-        console.error("Error AJAX de DataTables:");
-        console.error("Status: ", textStatus);
-        console.error("Error Thrown: ", errorThrown);
-        console.error("Respuesta del servidor (jqXHR.responseText):");
-        console.error(jqXHR.responseText); // Esto mostrará la respuesta cruda
-        alert("Error al cargar datos de clientes. Revise la consola (F12) para más detalles. Respuesta del servidor: " + jqXHR.responseText.substring(0, 500) + "...");
-    }
+                    type: 'POST',
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error("Error AJAX de DataTables:");
+                        console.error("Status: ", textStatus);
+                        console.error("Error Thrown: ", errorThrown);
+                        console.error("Respuesta del servidor:", jqXHR.responseText);
+                        alert("Error al cargar datos de clientes. Revise la consola (F12) para más detalles.");
+                    }
                 },
                 columns: [
                     { data: 'id_cliente', visible: false },
@@ -577,7 +591,9 @@ $(document).ready(function() {
                     }
                 ],
                 language: { url: `${URL_BASE}/public/templeates/AdminLTE-3.2.0/plugins/datatables-plugins/i18n/es_es.json`},
-                responsive: true, pageLength: 5, lengthChange: false,
+                responsive: true, 
+                pageLength: 5, 
+                lengthChange: false,
             });
         }
     });
@@ -614,7 +630,9 @@ $(document).ready(function() {
         const formData = $(this).serialize();
         $.ajax({
             url: `${URL_BASE}/app/controllers/clientes/create_cliente.php`,
-            type: 'POST', data: formData, dataType: 'json',
+            type: 'POST', 
+            data: formData, 
+            dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
                     $('#modal-crear-cliente-directo-venta').modal('hide');
@@ -626,7 +644,9 @@ $(document).ready(function() {
                     $('#dv_validation_errors').html(response.message || 'Error desconocido.').show();
                 }
             },
-            error: function() { $('#dv_validation_errors').html('Error de conexión.').show(); }
+            error: function() { 
+                $('#dv_validation_errors').html('Error de conexión.').show(); 
+            }
         });
     });
 
@@ -636,14 +656,17 @@ $(document).ready(function() {
             tablaBuscarProductosVentaDT.ajax.reload();
         } else {
             tablaBuscarProductosVentaDT = $('#tabla_buscar_productos_venta_dt').DataTable({
-                processing: true, serverSide: true,
+                processing: true, 
+                serverSide: true,
                 ajax: {
                     url: `${URL_BASE}/app/controllers/almacen/controller_buscar_productos_dt.php`,
                     type: 'POST',
                     data: { id_usuario: ID_USUARIO_LOGUEADO }
                 },
                 columns: [
-                    { data: 'id_producto', visible: false }, { data: 'codigo' }, { data: 'nombre' },
+                    { data: 'id_producto', visible: false }, 
+                    { data: 'codigo' }, 
+                    { data: 'nombre' },
                     { data: 'stock', className: 'text-center' },
                     { data: 'precio_venta', className: 'text-right', render: $.fn.dataTable.render.number(',', '.', 2, '$ ') },
                     { data: 'iva_porcentaje_producto', className: 'text-center', render: function(data){ return (data ? parseFloat(data).toFixed(2) : '0.00') + '%';} },
@@ -655,7 +678,9 @@ $(document).ready(function() {
                     }
                 ],
                 language: { url: `${URL_BASE}/public/templeates/AdminLTE-3.2.0/plugins/datatables-plugins/i18n/es_es.json`},
-                responsive: true, pageLength: 5, lengthChange: false,
+                responsive: true, 
+                pageLength: 5, 
+                lengthChange: false,
             });
         }
         $('#modal-buscar-producto-venta').modal('show');
@@ -663,30 +688,39 @@ $(document).ready(function() {
 
     $('#tabla_buscar_productos_venta_dt tbody').on('click', '.btn-seleccionar-producto-venta', function() {
         var data = tablaBuscarProductosVentaDT.row($(this).parents('tr')).data();
-        if (data) { anadirProductoAVenta(data); }
+        if (data) { 
+            anadirProductoAVenta(data); 
+        }
     });
 
     function anadirProductoAVenta(producto) {
         if (itemsVenta[producto.id_producto]) {
-            Swal.fire('Aviso', 'El producto ya está en la lista. Puede modificar la cantidad.', 'info'); return;
+            Swal.fire('Aviso', 'El producto ya está en la lista. Puede modificar la cantidad.', 'info'); 
+            return;
         }
         if (parseFloat(producto.stock) <= 0) {
-            Swal.fire('Stock Agotado', 'Este producto no tiene stock disponible.', 'warning'); return;
+            Swal.fire('Stock Agotado', 'Este producto no tiene stock disponible.', 'warning'); 
+            return;
         }
         itemsVenta[producto.id_producto] = {
-            id: producto.id_producto, codigo: producto.codigo, nombre: producto.nombre,
-            stock_disponible: parseFloat(producto.stock), cantidad: 1,
+            id: producto.id_producto, 
+            codigo: producto.codigo, 
+            nombre: producto.nombre,
+            stock_disponible: parseFloat(producto.stock), 
+            cantidad: 1, // Siempre empezar con cantidad 1 (entero)
             precio_venta_unitario: parseFloat(producto.precio_venta || 0),
             porcentaje_iva: parseFloat(producto.iva_porcentaje_producto || 0)
         };
-        renderizarTablaItemsVenta(); calcularTotalesVenta();
+        renderizarTablaItemsVenta(); 
+        calcularTotalesVenta();
     }
 
     function renderizarTablaItemsVenta() {
         const tbody = $('#tabla_items_venta tbody');
         tbody.empty();
         if (Object.keys(itemsVenta).length === 0) {
-            tbody.html('<tr><td colspan="8" class="text-center py-3"><small>Aún no ha añadido productos a la venta.</small></td></tr>'); return;
+            tbody.html('<tr><td colspan="8" class="text-center py-3"><small>Aún no ha añadido productos a la venta.</small></td></tr>'); 
+            return;
         }
         for (const id in itemsVenta) {
             const item = itemsVenta[id];
@@ -694,8 +728,10 @@ $(document).ready(function() {
             let fila = `
                 <tr data-id-producto="${item.id}">
                     <td><button type="button" class="btn btn-xs btn-danger btn-remover-item-venta"><i class="fas fa-times"></i></button></td>
-                    <td>${item.codigo}</td><td>${item.nombre}</td><td class="text-center">${item.stock_disponible}</td>
-                    <td><input type="number" class="form-control form-control-sm item-cantidad-venta" value="${item.cantidad}" min="1" max="${item.stock_disponible}" step="1" style="width: 70px;"></td>
+                    <td>${item.codigo}</td>
+                    <td>${item.nombre}</td>
+                    <td class="text-center">${Math.floor(item.stock_disponible)}</td>
+                    <td><input type="number" class="form-control form-control-sm item-cantidad-venta" value="${item.cantidad}" min="1" max="${Math.floor(item.stock_disponible)}" step="1" style="width: 70px;" onchange="this.value=parseInt(this.value) || 1"></td>
                     <td><input type="number" class="form-control form-control-sm item-precio-venta" value="${item.precio_venta_unitario.toFixed(2)}" min="0" step="0.01" style="width: 90px;"></td>
                     <td><input type="number" class="form-control form-control-sm item-porcentaje-iva-venta" value="${item.porcentaje_iva.toFixed(2)}" min="0" step="0.01" style="width: 70px;"></td>
                     <td class="text-right item-subtotal-display-venta">${subtotalItem.toFixed(2)}</td>
@@ -708,15 +744,23 @@ $(document).ready(function() {
         const fila = $(this).closest('tr');
         const idProducto = fila.data('id-producto');
         if (!itemsVenta[idProducto]) return;
-        let cantidad = parseFloat(fila.find('.item-cantidad-venta').val());
+        
+        // Forzar que la cantidad sea un entero
+        let cantidad = parseInt(fila.find('.item-cantidad-venta').val()) || 1;
+        
         const precioVenta = parseFloat(fila.find('.item-precio-venta').val());
         const porcentajeIva = parseFloat(fila.find('.item-porcentaje-iva-venta').val());
+        
         if (isNaN(cantidad) || cantidad < 1) cantidad = 1;
-        if (cantidad > itemsVenta[idProducto].stock_disponible) {
-            cantidad = itemsVenta[idProducto].stock_disponible;
-            Swal.fire('Límite de Stock', `La cantidad no puede exceder el stock disponible (${itemsVenta[idProducto].stock_disponible}).`, 'warning');
+        
+        // Limitar la cantidad al stock disponible (como entero)
+        let stockDisponibleEntero = Math.floor(itemsVenta[idProducto].stock_disponible);
+        if (cantidad > stockDisponibleEntero) {
+            cantidad = stockDisponibleEntero;
+            Swal.fire('Límite de Stock', `La cantidad no puede exceder el stock disponible (${stockDisponibleEntero}).`, 'warning');
             fila.find('.item-cantidad-venta').val(cantidad);
         }
+        
         itemsVenta[idProducto].cantidad = cantidad;
         itemsVenta[idProducto].precio_venta_unitario = isNaN(precioVenta) ? 0 : precioVenta;
         itemsVenta[idProducto].porcentaje_iva = isNaN(porcentajeIva) ? 0 : porcentajeIva;
@@ -728,18 +772,24 @@ $(document).ready(function() {
     $('#tabla_items_venta tbody').on('click', '.btn-remover-item-venta', function() {
         const idProducto = $(this).closest('tr').data('id-producto');
         delete itemsVenta[idProducto];
-        renderizarTablaItemsVenta(); calcularTotalesVenta();
+        renderizarTablaItemsVenta(); 
+        calcularTotalesVenta();
     });
 
     $('#btn-modal-crear-producto-rapido-venta').click(function() {
         $('#form-crear-producto-rapido-venta')[0].reset();
         $('#vr_validation_errors').hide().html('');
         $.ajax({
-            url: `${URL_BASE}/app/controllers/almacen/controller_generar_siguiente_codigo.php`, type: 'POST',
-            data: { id_usuario: ID_USUARIO_LOGUEADO }, dataType: 'json',
+            url: `${URL_BASE}/app/controllers/almacen/controller_generar_siguiente_codigo.php`, 
+            type: 'POST',
+            data: { id_usuario: ID_USUARIO_LOGUEADO }, 
+            dataType: 'json',
             success: function(response) {
-                if (response.status === 'success') $('#vr_producto_codigo').val(response.nuevo_codigo);
-                else Swal.fire('Error', 'No se pudo generar código para el producto.', 'error');
+                if (response.status === 'success') {
+                    $('#vr_producto_codigo').val(response.nuevo_codigo);
+                } else {
+                    Swal.fire('Error', 'No se pudo generar código para el producto.', 'error');
+                }
             }
         });
         $('#vr_producto_fecha_ingreso').val(new Date().toISOString().slice(0,10));
@@ -747,12 +797,16 @@ $(document).ready(function() {
     });
 
     $('#form-crear-producto-rapido-venta').submit(function(e) {
-        e.preventDefault(); $('#vr_validation_errors').hide().html('');
+        e.preventDefault(); 
+        $('#vr_validation_errors').hide().html('');
         var formData = $(this).serializeArray();
         formData.push({name: "accion", value: "crear_producto_almacen_rapido"});
         formData.push({name: "id_usuario_creador", value: ID_USUARIO_LOGUEADO});
         $.ajax({
-            url: `${URL_BASE}/almacen/acciones_almacen.php`, type: 'POST', data: $.param(formData), dataType: 'json',
+            url: `${URL_BASE}/almacen/acciones_almacen.php`, 
+            type: 'POST', 
+            data: $.param(formData), 
+            dataType: 'json',
             success: function(response) {
                 if (response.status === 'success' && response.producto) {
                     $('#modal-crear-producto-rapido-venta').modal('hide');
@@ -762,22 +816,65 @@ $(document).ready(function() {
                      $('#vr_validation_errors').html(response.message || 'Error desconocido.').show();
                 }
             },
-            error: function() { $('#vr_validation_errors').html('Error de conexión.').show(); }
+            error: function() { 
+                $('#vr_validation_errors').html('Error de conexión.').show(); 
+            }
         });
     });
     
     $('#vr_producto_stock_inicial').on('change blur', function() {
-    const stockValue = parseInt($(this).val());
-    if (isNaN(stockValue) || stockValue < 1) {
-        $(this).val(1);
-        Swal.fire({
-            icon: 'info',
-            title: 'Stock Inicial',
-            text: 'El stock inicial debe ser al menos 1 unidad para poder realizar ventas.',
-            timer: 3000
-        });
-    }
-});
+        const stockValue = parseInt($(this).val());
+        if (isNaN(stockValue) || stockValue < 1) {
+            $(this).val(1);
+            Swal.fire({
+                icon: 'info',
+                title: 'Stock Inicial',
+                text: 'El stock inicial debe ser al menos 1 unidad para poder realizar ventas.',
+                timer: 3000
+            });
+        }
+    });
+    
+    // Agregar un evento change para el selector de estado de venta
+    $('#estado_venta').on('change', function() {
+        const estadoSeleccionado = $(this).val();
+        // Puedes agregar lógica adicional según el estado seleccionado
+        console.log("Estado de venta cambiado a:", estadoSeleccionado);
+        
+        // Por ejemplo, mostrar una confirmación para estados específicos
+        if (estadoSeleccionado === 'ANULADA') {
+            Swal.fire({
+                title: 'Confirmar Anulación',
+                text: "¿Está seguro de crear la venta como ANULADA?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, marcar como ANULADA',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    $(this).val('PENDIENTE'); // Revertir a PENDIENTE si cancela
+                }
+            });
+        } else if (estadoSeleccionado === 'ENTREGADA') {
+            Swal.fire({
+                title: 'Confirmar Entrega',
+                text: "¿Los productos ya fueron entregados al cliente?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, confirmar entrega',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    $(this).val('PAGADA'); // Revertir a PAGADA si cancela
+                }
+            });
+        }
+    });
+    
     $('#descuento_general_venta').on('change keyup', calcularTotalesVenta);
 
     function calcularTotalesVenta() {
@@ -786,7 +883,8 @@ $(document).ready(function() {
             const item = itemsVenta[id];
             const subtotalItem = item.cantidad * item.precio_venta_unitario;
             const ivaItem = subtotalItem * (item.porcentaje_iva / 100);
-            subtotalGeneral += subtotalItem; ivaGeneral += ivaItem;
+            subtotalGeneral += subtotalItem; 
+            ivaGeneral += ivaItem;
         }
         let descuentoGeneral = parseFloat($('#descuento_general_venta').val()) || 0;
         if (descuentoGeneral < 0) descuentoGeneral = 0;
@@ -807,39 +905,96 @@ $(document).ready(function() {
 
     $('#form-registrar-venta').submit(function(e) {
         e.preventDefault();
-        $('#btn-guardar-venta').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+        
+        // Validaciones básicas
         if (Object.keys(itemsVenta).length === 0) {
             Swal.fire('Error', 'Debe añadir al menos un producto a la venta.', 'error');
-            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta'); return;
+            return;
         }
         if (!$('#id_cliente_venta').val()) {
-             Swal.fire('Error', 'Debe seleccionar un cliente.', 'error');
-            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta'); return;
+            Swal.fire('Error', 'Debe seleccionar un cliente.', 'error');
+            return;
         }
-        var formData = $(this).serializeArray();
+        
+        // Deshabilitar el botón y mostrar cargando
+        $('#btn-guardar-venta').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Guardando...');
+        
+        // Usar FormData para mejor manejo de datos
+        var formData = new FormData(this);
+        
+        // Asegurar que el estado se envía correctamente
+        formData.set('estado_venta', $('#estado_venta').val());
+        
+        // Añadir los productos (cantidades enteras)
         let itemIndex = 0;
         for (const idProducto in itemsVenta) {
             const item = itemsVenta[idProducto];
-            formData.push({name: `items[${itemIndex}][id_producto]`, value: item.id});
-            formData.push({name: `items[${itemIndex}][cantidad]`, value: item.cantidad});
-            formData.push({name: `items[${itemIndex}][precio_venta_unitario]`, value: item.precio_venta_unitario});
-            formData.push({name: `items[${itemIndex}][porcentaje_iva_item]`, value: item.porcentaje_iva});
+            formData.append(`items[${itemIndex}][id_producto]`, item.id);
+            formData.append(`items[${itemIndex}][cantidad]`, parseInt(item.cantidad));
+            formData.append(`items[${itemIndex}][precio_venta_unitario]`, item.precio_venta_unitario);
+            formData.append(`items[${itemIndex}][porcentaje_iva_item]`, item.porcentaje_iva);
             itemIndex++;
         }
-        $.ajax({
-            url: `${URL_BASE}/app/controllers/ventas/controller_create_venta.php`,
-            type: 'POST', data: $.param(formData), dataType: 'json',
-            success: function(response) {
-                if (response.status === 'success') {
-                    Swal.fire({title: '¡Venta Registrada!', text: response.message, icon: 'success', confirmButtonText: 'Aceptar'})
-                    .then(() => { window.location.href = `${URL_BASE}/ventas/show.php?id=${response.id_venta}`; });
-                } else {
-                    Swal.fire('Error', response.message || 'No se pudo registrar la venta.', 'error');
+        
+        // Enviar mediante Fetch API
+        fetch(`${URL_BASE}/app/controllers/ventas/controller_create_venta.php`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Respuesta del servidor:", data);
+            if (data.status === 'success') {
+                // Mostrar mensaje de éxito con información del estado
+                let estadoTexto = "";
+                switch ($('#estado_venta').val()) {
+                    case 'PAGADA':
+                        estadoTexto = "y marcada como PAGADA";
+                        break;
+                    case 'PENDIENTE':
+                        estadoTexto = "y está PENDIENTE de pago";
+                        break;
+                    case 'ENTREGADA':
+                        estadoTexto = "y ha sido ENTREGADA al cliente";
+                        break;
+                    case 'ANULADA':
+                        estadoTexto = "pero ha sido ANULADA";
+                        break;
                 }
-            },
-            error: function(xhr) { Swal.fire('Error de Servidor', 'No se pudo contactar al servidor.', 'error'); console.error(xhr.responseText);},
-            complete: function() { $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');}
+                
+                Swal.fire({
+                    title: '¡Venta Registrada!', 
+                    text: `La venta fue registrada exitosamente ${estadoTexto}.`, 
+                    icon: 'success', 
+                    confirmButtonText: 'Aceptar'
+                }).then(() => { 
+                    window.location.href = `${URL_BASE}/ventas/show.php?id=${data.id_venta}`; 
+                });
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo registrar la venta.', 'error');
+                $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');
+            }
+        })
+        .catch(error => {
+            console.error("Error en la petición:", error);
+            Swal.fire('Error de Servidor', 'No se pudo contactar al servidor.', 'error');
+            $('#btn-guardar-venta').prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Venta');
         });
+    });
+    
+    // Añadir opciones al selector de estado (si no existen)
+    if ($('#estado_venta option[value="ENTREGADA"]').length === 0) {
+        $('#estado_venta').append(new Option('ENTREGADA', 'ENTREGADA'));
+    }
+    
+    if ($('#estado_venta option[value="ANULADA"]').length === 0) {
+        $('#estado_venta').append(new Option('ANULADA', 'ANULADA'));
+    }
+    
+    // Dar estilo al selector de estado para que sea más visible
+    $('#estado_venta').css({
+        'font-weight': 'bold',
+        'border': '2px solid #17a2b8'
     });
 });
 </script>

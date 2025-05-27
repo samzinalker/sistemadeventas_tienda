@@ -1,0 +1,18 @@
+{
+    "id_usuario": 17,
+    "nombres": "eee",
+    "email": "eeee@gmail.com",
+    "usuario": "eeee",
+    "imagen_perfil": "user_default.png",
+    "estado": "activo",
+    "password_user": "$2y$10$8cpQ748aUYawDVj7LQisieFsNAgsMmpZZF9T2lnsm87Pv.CuJlKwG",
+    "token": "",
+    "id_rol": 7,
+    "fyh_creacion": "2025-05-25 08:40:53",
+    "fyh_actualizacion": "2025-05-25 08:40:53",
+    "fecha_eliminacion": null,
+    "eliminado_por": null,
+    "nombre_rol": "vendedor",
+    "password_hash_backup": "$2y$10$8cpQ748aUYawDVj7LQisieFsNAgsMmpZZF9T2lnsm87Pv.CuJlKwG",
+    "backup_note": "Hash de contraseña respaldado solo para auditoría - NO reutilizar"
+}

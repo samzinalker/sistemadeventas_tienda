@@ -1,0 +1,18 @@
+{
+    "id_usuario": 20,
+    "nombres": "sffssf",
+    "email": "vendersss@gmail.com",
+    "usuario": "sss",
+    "imagen_perfil": "user_default.png",
+    "estado": "activo",
+    "password_user": "$2y$10$aElZNQS3CEchKHdMqaruGuxNghQENCruyy9n.9yGPG8uKPtUZwMnS",
+    "token": "",
+    "id_rol": 7,
+    "fyh_creacion": "2025-05-25 11:27:19",
+    "fyh_actualizacion": "2025-05-25 11:27:25",
+    "fecha_eliminacion": null,
+    "eliminado_por": null,
+    "nombre_rol": "vendedor",
+    "password_hash_backup": "$2y$10$aElZNQS3CEchKHdMqaruGuxNghQENCruyy9n.9yGPG8uKPtUZwMnS",
+    "backup_note": "Hash de contraseña respaldado solo para auditoría - NO reutilizar"
+}

@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. Incluir config.php PRIMERO para que $pdo y $URL estén disponibles
-require_once __DIR__ . '/../../config.php'; // <--- ESTA LÍNEA ES CRUCIAL
+// 2. Incluir config.php PRIMERO
+require_once __DIR__ . '/../../config.php';
 
 // 3. Incluir las demás utilidades y modelos
 require_once __DIR__ . '/../../utils/Validator.php';
@@ -19,12 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Instanciar modelo
-// Ahora $pdo y $URL deberían estar definidos desde config.php
-$usuarioModel = new UsuarioModel($pdo, $URL); // Esta es la línea que daba el error (aprox. línea 27 en mi propuesta)
+$usuarioModel = new UsuarioModel($pdo, $URL);
 
 // Validar campos requeridos
 $id_usuario = filter_input(INPUT_POST, 'id_usuario', FILTER_VALIDATE_INT);
-$campos_requeridos = ['nombres', 'email', 'rol'];
+$campos_requeridos = ['nombres', 'usuario', 'email', 'rol']; // ✅ AGREGAR 'usuario'
 $campos_faltantes = Validator::requiredFields($_POST, $campos_requeridos);
 
 if (!$id_usuario) {
@@ -43,6 +42,7 @@ if (!empty($campos_faltantes)) {
 
 // Obtener y limpiar datos del formulario
 $nombres = trim($_POST['nombres']);
+$usuario = trim($_POST['usuario']); // ✅ AGREGAR ESTA LÍNEA
 $email = trim($_POST['email']);
 $id_rol = filter_input(INPUT_POST, 'rol', FILTER_VALIDATE_INT);
 $password = $_POST['password_user'] ?? ''; 
@@ -57,6 +57,13 @@ if (!Validator::isValidEmail($email)) {
 
 if ($id_rol === false || $id_rol <= 0) {
     setMensaje("Seleccione un rol válido.", "error");
+    $_SESSION['form_data_usuario_update'][$id_usuario] = $_POST;
+    redirigir($redirect_url_on_error);
+}
+
+// ✅ AGREGAR: Verificar si el usuario ya existe
+if ($usuarioModel->usuarioExiste($usuario, $id_usuario)) {
+    setMensaje("El nombre de usuario '" . sanear($usuario) . "' ya está registrado por otro usuario.", "error");
     $_SESSION['form_data_usuario_update'][$id_usuario] = $_POST;
     redirigir($redirect_url_on_error);
 }
@@ -83,7 +90,8 @@ if (!empty($password) || !empty($password_repeat)) {
 }
 
 if ($actualizado_ok) { 
-    if ($usuarioModel->actualizarUsuario($id_usuario, $nombres, $email, $id_rol, $fechaHora)) {
+    // ✅ CORREGIR: Agregar parámetro $usuario
+    if ($usuarioModel->actualizarUsuario($id_usuario, $nombres, $usuario, $email, $id_rol, $fechaHora)) {
         unset($_SESSION['form_data_usuario_update'][$id_usuario]);
         setMensaje("Usuario actualizado correctamente.", "success");
         redirigir('/usuarios/');

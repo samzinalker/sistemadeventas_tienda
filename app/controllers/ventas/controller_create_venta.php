@@ -11,10 +11,14 @@ session_start(); // Necesario para obtener el ID del usuario logueado
 // Establecer el tipo de contenido de la respuesta a JSON.
 // Todas las salidas de este script deben ser JSON para que el AJAX del frontend las procese correctamente.
 header('Content-Type: application/json');
-
+// Habilitar registro de errores detallado (solo para depuración)
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../../error_log');
 // 2. VERIFICACIÓN DE AUTENTICACIÓN Y MÉTODO DE SOLICITUD
 // -----------------------------------------------------
-if (!isset($_SESSION['id_usuario'])) { // <--- CAMBIO AQUÍ
+if (!isset($_SESSION['id_usuario'])) {
     echo json_encode([
         'status' => 'error',
         'message' => 'Acceso no autorizado. Por favor, inicie sesión.'
@@ -44,13 +48,17 @@ $tipo_comprobante = filter_input(INPUT_POST, 'tipo_comprobante_venta', FILTER_SA
 $nro_comprobante_fisico = filter_input(INPUT_POST, 'nro_comprobante_fisico_venta', FILTER_SANITIZE_STRING);
 $observaciones = filter_input(INPUT_POST, 'observaciones_venta', FILTER_SANITIZE_STRING);
 
+$estado_venta = filter_input(INPUT_POST, 'estado_venta', FILTER_SANITIZE_STRING);
+// Validamos que sea uno de los estados permitidos
+if (!in_array($estado_venta, ['PENDIENTE', 'PAGADA', 'ANULADA', 'ENTREGADA'])) {
+    $estado_venta = 'PENDIENTE'; // Valor predeterminado si no es válido
+}
 // Totales calculados (se deben validar o recalcular en el backend por seguridad)
 // Usar FILTER_VALIDATE_FLOAT con FILTER_FLAG_ALLOW_FRACTION para decimales.
 $subtotal_general_form = filter_input(INPUT_POST, 'subtotal_general_venta_calculado', FILTER_VALIDATE_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 $monto_iva_general_form = filter_input(INPUT_POST, 'monto_iva_general_venta_calculado', FILTER_VALIDATE_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 $descuento_general_form = filter_input(INPUT_POST, 'descuento_general_venta', FILTER_VALIDATE_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 $total_general_form = filter_input(INPUT_POST, 'total_general_venta_calculado', FILTER_VALIDATE_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-
 
 // Validaciones básicas de campos obligatorios
 if (!$id_cliente || !$nro_venta_secuencial || !$codigo_venta_referencia || !$fecha_venta) {
@@ -157,6 +165,7 @@ $datosVentaParaModelo = [
     'monto_iva_general' => $monto_iva_general_recalculado, // Usar el recalculado
     'descuento_general' => $descuento_general_form, // El descuento es directo del form
     'total_general' => $total_general_recalculado, // Usar el recalculado
+    'estado_venta' => $estado_venta, // CAMPO NUEVO
     'observaciones' => $observaciones ?: null
 ];
 
@@ -166,7 +175,7 @@ $datosVentaParaModelo = [
 try {
     $ventasModel = new VentasModel($pdo, $id_usuario_logueado);
 
-    // Antes de registrar, verificar stock de cada producto ( crucial si no se hizo estrictamente en frontend)
+    // Antes de registrar, verificar stock de cada producto (crucial si no se hizo estrictamente en frontend)
     foreach ($items_procesados as $item_a_vender) {
         $stock_actual_producto = $ventasModel->verificarStockProducto($item_a_vender['id_producto']);
         if ($stock_actual_producto === null) {
@@ -195,8 +204,7 @@ try {
     error_log("Error PDO en controller_create_venta: " . $e->getMessage());
     echo json_encode([
         'status' => 'error',
-        'message' => 'Error de base de datos al registrar la venta. Por favor, intente más tarde.'
-        // 'debug_message' => $e->getMessage() // Solo para desarrollo, no en producción
+        'message' => 'Error de base de datos al registrar la venta. Por favor, intente más tarde. Detalles: ' . $e->getMessage()
     ]);
 } catch (Exception $e) {
     // Otros errores (lanzados desde el modelo o validaciones personalizadas)
@@ -206,5 +214,4 @@ try {
         'message' => $e->getMessage() // Muestra el mensaje de error específico de la excepción.
     ]);
 }
-
 ?>

@@ -43,3 +43,28 @@ $URL = "http://localhost/sistemadeventas";
 
 date_default_timezone_set('America/Guayaquil');
 $fechaHora = date('Y-m-d H:i:s');
+
+
+// ✅ CONFIGURACIÓN DE ROLES DEL SISTEMA
+define('ROL_REGISTRO_PUBLICO', 7); // ID del rol para usuarios que se registran públicamente
+define('ROL_ADMINISTRADOR', 1);    // ID del rol de administrador (para validaciones)
+define('ROL_VENDEDOR', 7);         // ID del rol vendedor (alias para claridad)
+
+// Función para obtener el rol por defecto para registro público
+function obtenerRolRegistroPublico(): int {
+    return ROL_REGISTRO_PUBLICO;
+}
+
+// Función para validar que un rol existe antes de asignarlo
+function validarRolExiste(PDO $pdo, int $id_rol): bool {
+    try {
+        $sql = "SELECT COUNT(*) FROM tb_roles WHERE id_rol = :id_rol";
+        $query = $pdo->prepare($sql);
+        $query->bindParam(':id_rol', $id_rol, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetchColumn() > 0;
+    } catch (PDOException $e) {
+        error_log("Error al validar rol: " . $e->getMessage());
+        return false;
+    }
+}

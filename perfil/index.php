@@ -54,14 +54,14 @@ include('../layout/parte1.php');
                             <div class="text-center">
                                 <img class="profile-user-img img-fluid img-circle"
                                      src="<?php echo sanear($imagen_perfil_url); // Usar la variable preparada por datos_perfil.php ?>"
-                                     alt="Imagen de perfil de <?php echo $nombres; // Usar $nombres saneado ?>"
+                                     alt="Imagen de perfil de <?php echo sanear($nombres); // Usar $nombres saneado ?>"
                                      style="width: 150px; height: 150px; object-fit: cover;">
                             </div>
 
-                            <h3 class="profile-username text-center"><?php echo $nombres; ?></h3>
-                            <p class="text-muted text-center"><?php echo $rol; ?></p>
+                            <h3 class="profile-username text-center"><?php echo sanear($nombres); ?></h3>
+                            <p class="text-muted text-center"><?php echo sanear($rol); ?></p>
 
-                            <form action="<?php echo $URL; ?>/app/controllers/perfil/actualizar_imagen.php" method="post" enctype="multipart/form-data">
+                            <form action="<?php echo $URL; ?>/app/controllers/perfil/actualizar_imagen.php" method="post" enctype="multipart/form-data" id="form-actualizar-imagen">
                                 <div class="form-group">
                                     <label for="imagen_perfil_upload">Cambiar imagen de perfil</label>
                                     <div class="custom-file">
@@ -82,15 +82,15 @@ include('../layout/parte1.php');
                         </div>
                         <div class="card-body">
                             <strong><i class="fas fa-user mr-1"></i> Nombre Completo</strong>
-                            <p class="text-muted"><?php echo $nombres; ?></p>
+                            <p class="text-muted"><?php echo sanear($nombres); ?></p>
                             <hr>
 
                             <strong><i class="fas fa-envelope mr-1"></i> Usuario / Email de Contacto</strong>
-                            <p class="text-muted"><?php echo $email; ?></p>
+                            <p class="text-muted"><?php echo sanear($email); ?></p>
                             <hr>
 
                             <strong><i class="fas fa-id-card mr-1"></i> Rol Asignado</strong>
-                            <p class="text-muted"><?php echo $rol; ?></p>
+                            <p class="text-muted"><?php echo sanear($rol); ?></p>
                             <hr>
                             
                             <strong><i class="fas fa-calendar-alt mr-1"></i> Miembro Desde</strong>
@@ -118,17 +118,17 @@ include('../layout/parte1.php');
                             <h3 class="card-title">Actualizar Datos Personales</h3>
                         </div>
                         <div class="card-body">
-                            <form action="<?php echo $URL; ?>/app/controllers/perfil/actualizar_datos.php" method="post">
+                            <form action="<?php echo $URL; ?>/app/controllers/perfil/actualizar_datos.php" method="post" id="form-actualizar-datos">
                                 <div class="form-group">
                                     <label for="nombres_edit">Nombre Completo</label>
                                     <input type="text" class="form-control" id="nombres_edit" name="nombres"
-                                           value="<?php echo $nombres_form; // Usar variable para repoblar ?>" required>
+                                           value="<?php echo sanear($nombres_form); // Usar variable para repoblar ?>" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="email_edit">Usuario / Email de Contacto</label>
                                     <input type="email" class="form-control" id="email_edit" name="email"
-                                           value="<?php echo $email_form; // Usar variable para repoblar ?>" required>
-                                    <small class="form-text text-muted">Este es tu identificador para iniciar sesión.</small>
+                                           value="<?php echo sanear($email_form); // Usar variable para repoblar ?>" required>
+                                    <small class="form-text text-muted">Este es tu identificador para iniciar sesión y recibir comunicaciones.</small>
                                 </div>
                                 <button type="submit" class="btn btn-success">Guardar Cambios de Datos</button>
                             </form>
@@ -173,26 +173,18 @@ include('../layout/mensajes.php');
 include('../layout/parte2.php');
 ?>
 
-<!-- Script para bs-custom-file-input y validación de contraseña si es necesario -->
+<!-- Script para bs-custom-file-input y validaciones del lado del cliente -->
 <script src="<?php echo $URL; ?>/public/templeates/AdminLTE-3.2.0/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+<!-- Incluir el script de perfil.js que contendrá las validaciones y la vista previa de imagen -->
+<script src="<?php echo $URL; ?>/public/js/perfil.js"></script>
+
 <script>
+// Inicialización de bsCustomFileInput (si no está ya en perfil.js o si se quiere mantener aquí)
 $(document).ready(function () {
   bsCustomFileInput.init();
-
-  // Validación simple para el formulario de cambio de contraseña (opcional, ya que hay en servidor)
-  $("#form-password").submit(function(e){
-    var nueva = $("#password_nueva").val();
-    var confirmar = $("#password_confirmar").val();
-    if (nueva.length < 6) {
-        e.preventDefault();
-        Swal.fire('Error', 'La nueva contraseña debe tener al menos 6 caracteres.', 'error');
-        return false;
-    }
-    if (nueva !== confirmar) {
-        e.preventDefault();
-        Swal.fire('Error', 'Las nuevas contraseñas no coinciden.', 'error');
-        return false;
-    }
-  });
+  
+  // La lógica de validación de formularios y vista previa de imagen se moverá a perfil.js
+  // para mantener este archivo más limpio.
+  // Si perfil.js ya contiene la inicialización de bsCustomFileInput.init(), se puede remover de aquí.
 });
 </script>

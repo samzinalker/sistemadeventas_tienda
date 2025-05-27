@@ -1,21 +1,41 @@
 <?php
-// Incluir configuraciones y sesión primero
-include('../app/config.php'); 
-include('../layout/sesion.php'); 
-include('../layout/permisos.php'); // Asegura que solo administradores accedan
+// 1. Iniciar sesión (si no está activa)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Incluir el nuevo RolModel para obtener los roles
+// 2. Cargar configuración principal (define $pdo, $URL, $fechaHora)
+require_once __DIR__ . '/../app/config.php';
+
+// 3. Cargar utilidades globales (usan $URL, pueden usar sesión)
+require_once __DIR__ . '/../app/utils/funciones_globales.php';
+
+// 4. Cargar modelos (usan $pdo)
 require_once __DIR__ . '/../app/models/RolModel.php';
+
+// 5. Incluir el manejador de sesión (valida la sesión y carga datos del usuario logueado)
+include __DIR__ . '/../layout/sesion.php'; 
+
+// 6. Incluir manejador de permisos (asegura que solo administradores accedan)
+include __DIR__ . '/../layout/permisos.php'; 
+
+// --- Lógica específica de la página ---
+
+// Instanciar el modelo de roles para obtener los roles disponibles
 $rolModel = new RolModel($pdo);
 $roles_disponibles = $rolModel->getAllRoles();
 
-// Título y módulo
+// Repoblar formulario si hay datos en sesión por un error previo
+$form_data = $_SESSION['form_data_usuario_create'] ?? [];
+unset($_SESSION['form_data_usuario_create']); // Limpiar después de usar
+
+// --- Preparación para la vista ---
 $titulo_pagina = 'Creación de nuevo usuario';
 $modulo_abierto = 'usuarios';
 $pagina_activa = 'usuarios_create';
 
-// Incluir la parte superior del layout
-include('../layout/parte1.php'); 
+// 7. Incluir la parte superior del layout
+include __DIR__ . '/../layout/parte1.php'; 
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -24,11 +44,17 @@ include('../layout/parte1.php');
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-12">
-                    <h1 class="m-0"><?php echo htmlspecialchars($titulo_pagina); ?></h1>
-                </div>
-            </div>
-        </div>
+                <div class="col-sm-6">
+                    <h1 class="m-0"><?php echo sanear($titulo_pagina); ?></h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="<?php echo $URL; ?>/usuarios/">Usuarios</a></li>
+                        <li class="breadcrumb-item active">Crear Usuario</li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
 
@@ -36,7 +62,7 @@ include('../layout/parte1.php');
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-8"> {/* Ajusta el ancho si es necesario */}
+                <div class="col-md-8">
                     <div class="card card-primary">
                         <div class="card-header">
                             <h3 class="card-title">Llene los datos con cuidado</h3>
@@ -45,32 +71,42 @@ include('../layout/parte1.php');
                             </div>
                         </div>
                         <!-- /.card-header -->
-                        <div class="card-body">
-                            {/* El action apunta al controlador refactorizado */}
+                        <div class="card-body" style="display: block;">
                             <form action="<?php echo $URL; ?>/app/controllers/usuarios/create.php" method="post">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="nombres">Nombres completos</label>
-                                            <input type="text" name="nombres" id="nombres" class="form-control" required>
+                                            <input type="text" name="nombres" id="nombres" class="form-control" 
+                                                   value="<?php echo sanear($form_data['nombres'] ?? ''); ?>" required>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="email">Email</label>
-                                            <input type="email" name="email" id="email" class="form-control" required>
+                                            <label for="usuario">Usuario (para iniciar sesión)</label>
+                                            <input type="text" name="usuario" id="usuario" class="form-control" 
+                                                   value="<?php echo sanear($form_data['usuario'] ?? ''); ?>" required>
+                                            <small class="form-text text-muted">Solo letras, números y guiones bajos. Sin espacios.</small>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="email">Email (para contacto)</label>
+                                            <input type="email" name="email" id="email" class="form-control" 
+                                                   value="<?php echo sanear($form_data['email'] ?? ''); ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="rol">Rol del usuario</label>
                                             <select name="rol" id="rol" class="form-control" required>
                                                 <option value="">Seleccione un rol...</option>
                                                 <?php foreach ($roles_disponibles as $rol_dato): ?>
-                                                    <option value="<?php echo htmlspecialchars($rol_dato['id_rol']); ?>">
-                                                        <?php echo htmlspecialchars($rol_dato['rol']); ?>
+                                                    <option value="<?php echo sanear($rol_dato['id_rol']); ?>"
+                                                            <?php if (($form_data['rol'] ?? '') == $rol_dato['id_rol']) echo 'selected'; ?>>
+                                                        <?php echo sanear($rol_dato['rol']); ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
@@ -93,7 +129,7 @@ include('../layout/parte1.php');
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="form-group">
+                                <div class="form-group text-right">
                                     <a href="<?php echo $URL; ?>/usuarios/" class="btn btn-secondary">Cancelar</a>
                                     <button type="submit" class="btn btn-primary">Guardar Usuario</button>
                                 </div>
@@ -112,7 +148,7 @@ include('../layout/parte1.php');
 <!-- /.content-wrapper -->
 
 <?php 
-// Incluir mensajes y parte final del layout
-include('../layout/mensajes.php'); 
-include('../layout/parte2.php'); 
+// 8. Incluir mensajes (si los hay) y la parte final del layout
+include __DIR__ . '/../layout/mensajes.php'; 
+include __DIR__ . '/../layout/parte2.php'; 
 ?>
