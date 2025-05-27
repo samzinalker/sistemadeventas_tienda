@@ -40,8 +40,8 @@ if (!function_exists('sanear_vista')) {
 <body class="hold-transition register-page">
 <div class="register-box">
     <center>
-        <img src="https://img.freepik.com/vector-premium/ilustracion-costo-vida-degradado_52683-139098.jpg?w=996"
-             alt="" width="200px">
+        <img src="../public/images/logo1.jpg"
+             alt="" width="180px" height="120px">
     </center>
     <br>
     <div class="card card-outline card-primary">
@@ -68,7 +68,7 @@ if (!function_exists('sanear_vista')) {
                value="<?php echo sanear_vista($form_data['usuario'] ?? ''); ?>" required>
         <div class="input-group-append">
             <div class="input-group-text">
-                <span class="fas fa-at"></span>
+                
             </div>
         </div>
         <small class="form-text text-muted">Solo letras, números y guiones bajos. Sin espacios.</small>
@@ -102,7 +102,7 @@ if (!function_exists('sanear_vista')) {
                 <div class="row">
                     <div class="col-8">
                         <div class="icheck-primary">
-                            {/* Para el checkbox, sería más complejo repoblar, usualmente no se hace o se deja como está */}
+                            
                             <input type="checkbox" id="agreeTerms" name="terms" value="agree" required>
                             <label for="agreeTerms">
                                 Acepto los <a href="#">términos</a>
