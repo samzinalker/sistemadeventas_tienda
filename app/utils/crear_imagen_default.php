@@ -1,7 +1,8 @@
 <?php
 // Script alternativo que no requiere la extensión GD
 
-$directorio = $_SERVER['DOCUMENT_ROOT'] . '/sistemadeventas/public/images/perfiles/';
+$baseDir = realpath(dirname(dirname(__DIR__))); // Asegura una ruta absoluta
+$directorio = $baseDir . '/public/images/perfiles/';
 $destino = $directorio . 'user_default.png';
 
 // Verificar si existe el directorio, si no, crearlo
