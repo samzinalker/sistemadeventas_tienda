@@ -1,4 +1,4 @@
-<?php
+ <?php
 // Asegúrate de que los errores de PHP no se muestren directamente en producción,
 // pero para desarrollo, tenerlos visibles puede ayudar a diagnosticar problemas
 // como el que estamos viendo. Sin embargo, un echo directo como el del catch es problemático para AJAX.
