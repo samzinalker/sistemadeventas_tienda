@@ -9,6 +9,8 @@ include ('app/controllers/categorias/listado_de_categoria.php');
 include ('app/controllers/almacen/listado_de_productos.php');
 include ('app/controllers/proveedores/listado_de_proveedores.php');
 include ('app/controllers/compras/listado_de_compras.php');
+include ('app/controllers/clientes/listado_de_clientes.php'); 
+include ('app/controllers/ventas/listado_de_ventas.php');
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -184,6 +186,55 @@ include ('app/controllers/compras/listado_de_compras.php');
                         </a>
                     </div>
                 </div>
+
+
+
+                            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <?php
+                        $contador_de_clientes = 0;
+                        foreach ($clientes_datos as $cliente_dato){
+                            $contador_de_clientes = $contador_de_clientes + 1;
+                        }
+                        ?>
+                        <h3><?php echo $contador_de_clientes;?></h3>
+                        <p>Clientes Registrados</p>
+                    </div>
+                    <a href="<?php echo $URL;?>/clientes">
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </a>
+                    <a href="<?php echo $URL;?>/clientes" class="small-box-footer">
+                        Más detalle <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- NUEVO: Cuadro para Ventas -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <?php
+                        $contador_de_ventas = 0;
+                        foreach ($ventas_datos as $venta_dato){
+                            $contador_de_ventas = $contador_de_ventas + 1;
+                        }
+                        ?>
+                        <h3><?php echo $contador_de_ventas;?></h3>
+                        <p>Ventas Registradas</p>
+                    </div>
+                    <a href="<?php echo $URL;?>/ventas">
+                        <div class="icon">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                    </a>
+                    <a href="<?php echo $URL;?>/ventas" class="small-box-footer">
+                        Más detalle <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                </div>
+            </div>
 
 
 
