@@ -81,8 +81,16 @@ include '../layout/mensajes.php';
                                 <div class="card-tools">
                                      <a href="<?php echo $URL; ?>/ventas/create.php" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Nueva Venta</a>
                                      <a href="<?php echo $URL; ?>/ventas/" class="btn btn-sm btn-secondary"><i class="fas fa-list"></i> Listado de Ventas</a>
-                                     <!-- Podrías añadir un botón de Imprimir/PDF aquí -->
-                                     <button onclick="window.print();" class="btn btn-sm btn-info"><i class="fas fa-print"></i> Imprimir</button>
+                                     <!-- Botón para imprimir PDF -->
+                                     <a href="<?php echo $URL; ?>/app/controllers/ventas/imprimir_venta_pdf.php?id=<?php echo $id_venta_get; ?>" 
+                                        target="_blank" 
+                                        class="btn btn-sm btn-info">
+                                        <i class="fas fa-file-pdf"></i> Generar PDF
+                                     </a>
+                                     <!-- Mantener el botón de impresión tradicional como alternativa -->
+                                     <button onclick="window.print();" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-print"></i> Imprimir Página
+                                     </button>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -174,12 +182,7 @@ include '../layout/mensajes.php';
                                                     <td class="text-right">$<?php echo htmlspecialchars(number_format(floatval($venta_info['subtotal_general']), 2)); ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <th>IVA Total (<?php 
-                                                        // Calcular un % promedio de IVA si es necesario, o simplemente mostrar el monto.
-                                                        // Si todos los items tienen el mismo IVA, se podría mostrar ese %.
-                                                        // Por ahora, solo el monto.
-                                                        // echo ($venta_info['subtotal_general'] > 0) ? number_format(($venta_info['monto_iva_general'] / $venta_info['subtotal_general']) * 100, 2) : '0.00'; echo "%";
-                                                    ?>):</th>
+                                                    <th>IVA Total:</th>
                                                     <td class="text-right">$<?php echo htmlspecialchars(number_format(floatval($venta_info['monto_iva_general']), 2)); ?></td>
                                                 </tr>
                                                 <?php if (floatval($venta_info['descuento_general']) > 0): ?>
@@ -214,8 +217,20 @@ include '../layout/mensajes.php';
 </div>
 
 <?php include '../layout/parte2.php'; ?>
+
 <script>
-    // No se necesita JavaScript específico para esta página de visualización básica,
-    // a menos que quieras añadir interacciones como modales, etc.
-    // La funcionalidad de impresión es básica del navegador.
+// Agregar funcionalidad adicional si es necesaria
+$(document).ready(function() {
+    // Mostrar tooltip en los botones
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Agregar confirmación antes de generar PDF (opcional)
+    $('a[href*="imprimir_venta_pdf.php"]').on('click', function(e) {
+        // Opcional: mostrar loading spinner
+        $(this).find('i').removeClass('fa-file-pdf').addClass('fa-spinner fa-spin');
+        setTimeout(() => {
+            $(this).find('i').removeClass('fa-spinner fa-spin').addClass('fa-file-pdf');
+        }, 2000);
+    });
+});
 </script>

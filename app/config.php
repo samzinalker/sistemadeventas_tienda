@@ -3,10 +3,10 @@
 // pero para desarrollo, tenerlos visibles puede ayudar a diagnosticar problemas
 
 
-if (!defined('SERVIDOR')) define('SERVIDOR','sql101.infinityfree.com');
-if (!defined('USUARIO')) define('USUARIO','if0_39104723');
-if (!defined('PASSWORD')) define('PASSWORD','E81nnp7wVq');
-if (!defined('BD')) define('BD','if0_39104723_sistemaventa');
+if (!defined('SERVIDOR')) define('SERVIDOR','localhost');
+if (!defined('USUARIO')) define('USUARIO','root');
+if (!defined('PASSWORD')) define('PASSWORD',''); // Contraseña vacía para root es común en XAMPP/WAMP por defecto
+if (!defined('BD')) define('BD','sistemadeventas');
 
 $servidor = "mysql:dbname=".BD.";host=".SERVIDOR;
 
@@ -27,7 +27,7 @@ try {
 }
 
 // URL base para tu proyecto en InfinityFree
-$URL = "http://sistemaventauerc.infinityfreeapp.com";
+$URL = "http://localhost/sistemadeventas";
 
 date_default_timezone_set('America/Guayaquil');
 $fechaHora = date('Y-m-d H:i:s');
