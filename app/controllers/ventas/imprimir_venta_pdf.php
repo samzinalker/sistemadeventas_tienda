@@ -68,31 +68,35 @@ class MYPDF extends TCPDF {
         // Título principal
         $this->SetFont('helvetica', 'B', 20);
         $this->SetTextColor(33, 37, 41); // Color bootstrap dark
-        $this->Cell(0, 15, 'COMPROBANTE DE VENTA', 0, false, 'C', 0, '', 0, false, 'M', 'M');
-        $this->Ln(20);
+        $this->Cell(0, 10, 'COMPROBANTE DE VENTA', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+        $this->Ln(15); // Reducido de 20 a 15
         
         // Línea decorativa
         $this->SetDrawColor(0, 123, 255); // Color bootstrap primary
         $this->SetLineWidth(0.8);
         $this->Line(15, $this->GetY(), 195, $this->GetY());
-        $this->Ln(5);
+        $this->Ln(3); // Reducido de 5 a 3
     }
     
     // Pie de página
     public function Footer() {
-        $this->SetY(-25);
+        $this->SetY(-15); // Reducido de -25 a -15
         
         // Línea decorativa
         $this->SetDrawColor(0, 123, 255);
         $this->SetLineWidth(0.5);
         $this->Line(15, $this->GetY(), 195, $this->GetY());
-        $this->Ln(3);
+        $this->Ln(2); // Reducido de 3 a 2
         
         // Información del pie
-        $this->SetFont('helvetica', 'I', 8);
+        $this->SetFont('helvetica', 'I', 7); // Reducido de 8 a 7
         $this->SetTextColor(128, 128, 128);
-        $this->Cell(0, 5, 'Documento generado el ' . date('d/m/Y H:i:s'), 0, false, 'L', 0, '', 0, false, 'T', 'M');
-        $this->Cell(0, 5, 'Página ' . $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), 0, false, 'R', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 4, 'Documento generado el ' . date('d/m/Y H:i:s'), 0, false, 'L', 0, '', 0, false, 'T', 'M');
+        $this->Cell(0, 4, 'Página ' . $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), 0, false, 'R', 0, '', 0, false, 'T', 'M');
+        
+        // Agregar mensaje de agradecimiento en el pie de página
+        $this->Ln(3);
+        $this->Cell(0, 4, 'Gracias por su compra. Este documento es una representación impresa de su comprobante de venta.', 0, false, 'C');
     }
 }
 
@@ -106,11 +110,11 @@ $pdf->SetTitle('Factura de Venta #' . $venta_info['codigo_venta_referencia']);
 $pdf->SetSubject('Comprobante de Venta');
 $pdf->SetKeywords('Venta, Factura, PDF');
 
-// Configurar márgenes
-$pdf->SetMargins(15, 35, 15);
+// Configurar márgenes - Reducidos para ahorrar espacio
+$pdf->SetMargins(15, 30, 15); // Reducido el margen superior de 35 a 30
 $pdf->SetHeaderMargin(5);
-$pdf->SetFooterMargin(15);
-$pdf->SetAutoPageBreak(TRUE, 25);
+$pdf->SetFooterMargin(10); // Reducido de 15 a 10
+$pdf->SetAutoPageBreak(TRUE, 15); // Reducido de 25 a 15
 
 // Establecer modo de visualización
 $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -119,219 +123,259 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 $pdf->AddPage();
 
 // === INFORMACIÓN DE LA EMPRESA/USUARIO ===
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('helvetica', 'B', 11); // Reducido de 12 a 11
 $pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(0, 8, 'DATOS DEL VENDEDOR', 0, 1, 'L');
+$pdf->Cell(0, 6, 'DATOS DEL VENDEDOR', 0, 1, 'L'); // Reducido de 8 a 6
 
-$pdf->SetFont('helvetica', '', 10);
-$pdf->SetTextColor(73, 80, 87);
-$pdf->Cell(40, 6, 'Vendedor:', 0, 0, 'L');
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(0, 6, $venta_info['nombre_vendedor'], 0, 1, 'L');
+// Vendedor (usando HTML)
+$vendedor_html = '<table cellspacing="0" cellpadding="1" border="0">
+    <tr>
+        <td width="20%" style="font-weight: normal; color: #495057;">Vendedor:</td>
+        <td width="80%" style="font-weight: bold; color: #212529;">'.$venta_info['nombre_vendedor'].'</td>
+    </tr>';
 
 if (!empty($usuario_info['email'])) {
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->SetTextColor(73, 80, 87);
-    $pdf->Cell(40, 6, 'Email:', 0, 0, 'L');
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->SetTextColor(33, 37, 41);
-    $pdf->Cell(0, 6, $usuario_info['email'], 0, 1, 'L');
+    $vendedor_html .= '<tr>
+        <td width="20%" style="font-weight: normal; color: #495057;">Email:</td>
+        <td width="80%" style="font-weight: normal; color: #212529;">'.$usuario_info['email'].'</td>
+    </tr>';
 }
 
-$pdf->Ln(5);
+$vendedor_html .= '</table>';
+
+$pdf->writeHTML($vendedor_html, true, false, true, false, '');
+$pdf->Ln(2); // Reducido de 5 a 2
 
 // === INFORMACIÓN DE LA VENTA Y CLIENTE ===
-// Crear tabla de información general
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('helvetica', 'B', 11); // Reducido de 12 a 11
 $pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(0, 8, 'INFORMACIÓN DE LA VENTA', 0, 1, 'L');
+$pdf->Cell(0, 6, 'INFORMACIÓN DE LA VENTA', 0, 1, 'L'); // Reducido de 8 a 6
 
-// Fondo para la información principal
-$pdf->SetFillColor(248, 249, 250); // Color de fondo claro
-$pdf->SetDrawColor(222, 226, 230); // Color del borde
-$pdf->SetLineWidth(0.2);
+// Preparar los datos para usar en el HTML
+$fecha_formateada = date("d/m/Y", strtotime($venta_info['fecha_venta']));
+$tipo_comprobante = !empty($venta_info['tipo_comprobante']) ? strtoupper($venta_info['tipo_comprobante']) : '';
+$nro_comprobante = !empty($venta_info['nro_comprobante_fisico']) ? $venta_info['nro_comprobante_fisico'] : '';
 
-// Información de la venta (lado izquierdo)
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(95, 8, 'DATOS DE LA VENTA', 1, 0, 'C', true);
-
-// Información del cliente (lado derecho)
-$pdf->Cell(95, 8, 'DATOS DEL CLIENTE', 1, 1, 'C', true);
-
-// Contenido de la venta
-$pdf->SetFont('helvetica', '', 9);
-$pdf->SetTextColor(73, 80, 87);
-
-// Lado izquierdo - Datos de venta
-$x_left = $pdf->GetX();
-$y_start = $pdf->GetY();
-
-$pdf->Cell(95, 6, 'Número de Venta: ' . $venta_info['codigo_venta_referencia'], 'LR', 1, 'L');
-$pdf->Cell(95, 6, 'Fecha: ' . date("d/m/Y", strtotime($venta_info['fecha_venta'])), 'LR', 1, 'L');
-
-if (!empty($venta_info['tipo_comprobante'])) {
-    $pdf->Cell(95, 6, 'Tipo Comprobante: ' . strtoupper($venta_info['tipo_comprobante']), 'LR', 1, 'L');
-}
-
-if (!empty($venta_info['nro_comprobante_fisico'])) {
-    $pdf->Cell(95, 6, 'Nro. Comprobante: ' . $venta_info['nro_comprobante_fisico'], 'LR', 1, 'L');
-}
-
-// Estado con color
-$pdf->SetFont('helvetica', 'B', 9);
+// Determinar el color del estado
+$color_estado = '';
 switch (strtolower($venta_info['estado_venta'])) {
     case 'pagada':
-        $pdf->SetTextColor(40, 167, 69); // Verde
+        $color_estado = 'color: #28a745;'; // Verde
         break;
     case 'pendiente':
-        $pdf->SetTextColor(255, 193, 7); // Amarillo
+        $color_estado = 'color: #ffc107;'; // Amarillo
         break;
     case 'anulada':
-        $pdf->SetTextColor(220, 53, 69); // Rojo
+        $color_estado = 'color: #dc3545;'; // Rojo
         break;
     case 'entregada':
-        $pdf->SetTextColor(23, 162, 184); // Azul
+        $color_estado = 'color: #17a2b8;'; // Azul
         break;
     default:
-        $pdf->SetTextColor(108, 117, 125); // Gris
-}
-$pdf->Cell(95, 6, 'Estado: ' . strtoupper($venta_info['estado_venta']), 'LRB', 1, 'L');
-
-// Lado derecho - Datos del cliente
-$y_end = $pdf->GetY();
-$pdf->SetXY($x_left + 95, $y_start);
-
-$pdf->SetFont('helvetica', '', 9);
-$pdf->SetTextColor(73, 80, 87);
-
-$pdf->Cell(95, 6, 'Cliente: ' . $venta_info['nombre_cliente'], 'LR', 1, 'L');
-
-if ($cliente_info && !empty($cliente_info['nit_ci_cliente'])) {
-    $tipo_doc = strtoupper($cliente_info['tipo_documento'] ?? 'DOCUMENTO');
-    $pdf->Cell(95, 6, $tipo_doc . ': ' . $cliente_info['nit_ci_cliente'], 'LR', 1, 'L');
+        $color_estado = 'color: #6c757d;'; // Gris
 }
 
-if ($cliente_info && !empty($cliente_info['celular_cliente'])) {
-    $pdf->Cell(95, 6, 'Celular: ' . $cliente_info['celular_cliente'], 'LR', 1, 'L');
+// Preparar los datos del cliente
+$tipo_doc = isset($cliente_info['tipo_documento']) ? strtoupper($cliente_info['tipo_documento']) : 'DOCUMENTO';
+$nit_ci = isset($cliente_info['nit_ci_cliente']) ? $cliente_info['nit_ci_cliente'] : '';
+$celular = isset($cliente_info['celular_cliente']) ? $cliente_info['celular_cliente'] : '';
+$email = isset($cliente_info['email_cliente']) ? $cliente_info['email_cliente'] : '';
+$direccion = isset($cliente_info['direccion']) ? $cliente_info['direccion'] : '';
+if (strlen($direccion) > 35) {
+    $direccion = substr($direccion, 0, 35) . '...';
 }
 
-if ($cliente_info && !empty($cliente_info['email_cliente'])) {
-    $pdf->Cell(95, 6, 'Email: ' . $cliente_info['email_cliente'], 'LR', 1, 'L');
+// Generar HTML para la tabla de información - Padding reducido
+$info_html = '
+<table cellspacing="0" cellpadding="3" border="1" style="border-color: #dee2e6;">
+    <tr bgcolor="#f8f9fa" style="font-weight: bold; color: #212529;">
+        <td align="center" width="50%">DATOS DE LA VENTA</td>
+        <td align="center" width="50%">DATOS DEL CLIENTE</td>
+    </tr>
+    <tr>
+        <td>
+            <table cellspacing="0" cellpadding="1" border="0">
+                <tr>
+                    <td width="40%" style="font-weight: bold; color: #495057;">Número de Venta:</td>
+                    <td width="60%" style="color: #212529;">'.$venta_info['codigo_venta_referencia'].'</td>
+                </tr>
+                <tr>
+                    <td width="40%" style="font-weight: bold; color: #495057;">Fecha:</td>
+                    <td width="60%" style="color: #212529;">'.$fecha_formateada.'</td>
+                </tr>';
+                
+if (!empty($tipo_comprobante)) {
+    $info_html .= '
+                <tr>
+                    <td width="40%" style="font-weight: bold; color: #495057;">Tipo Comprobante:</td>
+                    <td width="60%" style="color: #212529;">'.$tipo_comprobante.'</td>
+                </tr>';
 }
 
-if ($cliente_info && !empty($cliente_info['direccion'])) {
-    $pdf->Cell(95, 6, 'Dirección: ' . substr($cliente_info['direccion'], 0, 35) . (strlen($cliente_info['direccion']) > 35 ? '...' : ''), 'LRB', 1, 'L');
-} else {
-    $pdf->Cell(95, 6, '', 'LRB', 1, 'L');
+if (!empty($nro_comprobante)) {
+    $info_html .= '
+                <tr>
+                    <td width="40%" style="font-weight: bold; color: #495057;">Nro. Comprobante:</td>
+                    <td width="60%" style="color: #212529;">'.$nro_comprobante.'</td>
+                </tr>';
 }
 
-// Ajustar posición para continuar
-$pdf->SetY(max($y_end, $pdf->GetY()));
+$info_html .= '
+                <tr>
+                    <td width="40%" style="font-weight: bold; color: #495057;">Estado:</td>
+                    <td width="60%" style="font-weight: bold; '.$color_estado.'">'.strtoupper($venta_info['estado_venta']).'</td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table cellspacing="0" cellpadding="1" border="0">
+                <tr>
+                    <td width="30%" style="font-weight: bold; color: #495057;">Cliente:</td>
+                    <td width="70%" style="color: #212529;">'.$venta_info['nombre_cliente'].'</td>
+                </tr>';
 
-$pdf->Ln(8);
+if (!empty($nit_ci)) {
+    $info_html .= '
+                <tr>
+                    <td width="30%" style="font-weight: bold; color: #495057;">'.$tipo_doc.':</td>
+                    <td width="70%" style="color: #212529;">'.$nit_ci.'</td>
+                </tr>';
+}
+
+if (!empty($celular)) {
+    $info_html .= '
+                <tr>
+                    <td width="30%" style="font-weight: bold; color: #495057;">Celular:</td>
+                    <td width="70%" style="color: #212529;">'.$celular.'</td>
+                </tr>';
+}
+
+if (!empty($email)) {
+    $info_html .= '
+                <tr>
+                    <td width="30%" style="font-weight: bold; color: #495057;">Email:</td>
+                    <td width="70%" style="color: #212529;">'.$email.'</td>
+                </tr>';
+}
+
+if (!empty($direccion)) {
+    $info_html .= '
+                <tr>
+                    <td width="30%" style="font-weight: bold; color: #495057;">Dirección:</td>
+                    <td width="70%" style="color: #212529;">'.$direccion.'</td>
+                </tr>';
+}
+
+$info_html .= '
+            </table>
+        </td>
+    </tr>
+</table>';
+
+$pdf->writeHTML($info_html, true, false, true, false, '');
+$pdf->Ln(3); // Reducido de 8 a 3
 
 // === OBSERVACIONES ===
 if (!empty($venta_info['observaciones'])) {
     $pdf->SetFont('helvetica', 'B', 10);
     $pdf->SetTextColor(33, 37, 41);
-    $pdf->Cell(0, 6, 'OBSERVACIONES:', 0, 1, 'L');
+    $pdf->Cell(0, 5, 'OBSERVACIONES:', 0, 1, 'L'); // Reducido de 6 a 5
     
-    $pdf->SetFont('helvetica', '', 9);
-    $pdf->SetTextColor(73, 80, 87);
-    $pdf->MultiCell(0, 5, $venta_info['observaciones'], 1, 'L', false, 1, '', '', true, 0, false, true, 20, 'T');
-    $pdf->Ln(5);
+    $obs_html = '<table cellspacing="0" cellpadding="3" border="1" style="border-color: #dee2e6;">
+        <tr>
+            <td style="color: #495057;">'.$venta_info['observaciones'].'</td>
+        </tr>
+    </table>';
+    
+    $pdf->writeHTML($obs_html, true, false, true, false, '');
+    $pdf->Ln(2); // Reducido de 5 a 2
 }
 
 // === DETALLE DE PRODUCTOS ===
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('helvetica', 'B', 11); // Reducido de 12 a 11
 $pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(0, 8, 'DETALLE DE PRODUCTOS', 0, 1, 'L');
+$pdf->Cell(0, 6, 'DETALLE DE PRODUCTOS', 0, 1, 'L'); // Reducido de 8 a 6
 
-// Cabecera de la tabla de productos
-$pdf->SetFillColor(0, 123, 255); // Azul bootstrap primary
-$pdf->SetTextColor(255, 255, 255); // Texto blanco
-$pdf->SetDrawColor(0, 123, 255);
-$pdf->SetLineWidth(0.3);
-$pdf->SetFont('helvetica', 'B', 8);
-
-// Anchos de columnas
-$w = array(20, 65, 20, 25, 15, 25, 25);
-
-$pdf->Cell($w[0], 8, 'Código', 1, 0, 'C', true);
-$pdf->Cell($w[1], 8, 'Producto', 1, 0, 'C', true);
-$pdf->Cell($w[2], 8, 'Cantidad', 1, 0, 'C', true);
-$pdf->Cell($w[3], 8, 'P. Unit.', 1, 0, 'C', true);
-$pdf->Cell($w[4], 8, '% IVA', 1, 0, 'C', true);
-$pdf->Cell($w[5], 8, 'Subtotal', 1, 0, 'C', true);
-$pdf->Cell($w[6], 8, 'Total', 1, 1, 'C', true);
-
-// Contenido de la tabla
-$pdf->SetFillColor(248, 249, 250);
-$pdf->SetTextColor(33, 37, 41);
-$pdf->SetFont('helvetica', '', 8);
+// Tabla de productos en HTML - Padding reducido
+$productos_html = '
+<table cellspacing="0" cellpadding="3" border="1" style="border-color: #007bff;">
+    <tr bgcolor="#007bff" style="color: #ffffff; font-weight: bold;">
+        <td width="10%" align="center">Código</td>
+        <td width="35%" align="center">Producto</td>
+        <td width="10%" align="center">Cantidad</td>
+        <td width="12%" align="center">P. Unit.</td>
+        <td width="8%" align="center">% IVA</td>
+        <td width="12%" align="center">Subtotal</td>
+        <td width="13%" align="center">Total</td>
+    </tr>';
 
 $fill = false;
 foreach ($detalles_venta as $detalle) {
-    $pdf->Cell($w[0], 6, $detalle['codigo_producto'], 1, 0, 'C', $fill);
-    
     // Truncar nombre del producto si es muy largo
     $nombre_producto = strlen($detalle['nombre_producto']) > 30 ? 
-                      substr($detalle['nombre_producto'], 0, 30) . '...' : 
-                      $detalle['nombre_producto'];
-    $pdf->Cell($w[1], 6, $nombre_producto, 1, 0, 'L', $fill);
+                  substr($detalle['nombre_producto'], 0, 30) . '...' : 
+                  $detalle['nombre_producto'];
     
-    $pdf->Cell($w[2], 6, number_format(floatval($detalle['cantidad']), 2), 1, 0, 'C', $fill);
-    $pdf->Cell($w[3], 6, '$' . number_format(floatval($detalle['precio_venta_unitario']), 2), 1, 0, 'R', $fill);
-    $pdf->Cell($w[4], 6, number_format(floatval($detalle['porcentaje_iva_item']), 1) . '%', 1, 0, 'C', $fill);
-    $pdf->Cell($w[5], 6, '$' . number_format(floatval($detalle['subtotal_item']), 2), 1, 0, 'R', $fill);
-    $pdf->Cell($w[6], 6, '$' . number_format(floatval($detalle['total_item']), 2), 1, 1, 'R', $fill);
+    $bg_color = $fill ? ' bgcolor="#f8f9fa"' : '';
+    
+    $productos_html .= '
+    <tr'.$bg_color.'>
+        <td align="center">'.$detalle['codigo_producto'].'</td>
+        <td>'.$nombre_producto.'</td>
+        <td align="center">'.number_format(floatval($detalle['cantidad']), 2).'</td>
+        <td align="right">$'.number_format(floatval($detalle['precio_venta_unitario']), 2).'</td>
+        <td align="center">'.number_format(floatval($detalle['porcentaje_iva_item']), 1).'%</td>
+        <td align="right">$'.number_format(floatval($detalle['subtotal_item']), 2).'</td>
+        <td align="right">$'.number_format(floatval($detalle['total_item']), 2).'</td>
+    </tr>';
     
     $fill = !$fill;
 }
 
-$pdf->Ln(5);
+$productos_html .= '</table>';
+
+$pdf->writeHTML($productos_html, true, false, true, false, '');
+$pdf->Ln(3); // Reducido de 5 a 3
 
 // === RESUMEN FINANCIERO ===
-$pdf->SetFont('helvetica', 'B', 12);
+$pdf->SetFont('helvetica', 'B', 11); // Reducido de 12 a 11
 $pdf->SetTextColor(33, 37, 41);
-$pdf->Cell(0, 8, 'RESUMEN FINANCIERO', 0, 1, 'L');
+$pdf->Cell(0, 6, 'RESUMEN FINANCIERO', 0, 1, 'L'); // Reducido de 8 a 6
 
-// Tabla de totales
-$pdf->SetXY(120, $pdf->GetY());
-$pdf->SetFont('helvetica', 'B', 10);
-$pdf->SetFillColor(248, 249, 250);
-$pdf->SetDrawColor(222, 226, 230);
+// Calcular los valores
+$subtotal = number_format(floatval($venta_info['subtotal_general']), 2);
+$iva = number_format(floatval($venta_info['monto_iva_general']), 2);
+$descuento = number_format(floatval($venta_info['descuento_general']), 2);
+$total = number_format(floatval($venta_info['total_general']), 2);
 
-$pdf->Cell(45, 6, 'Subtotal General:', 1, 0, 'L', true);
-$pdf->Cell(25, 6, '$' . number_format(floatval($venta_info['subtotal_general']), 2), 1, 1, 'R', true);
-
-$pdf->SetXY(120, $pdf->GetY());
-$pdf->Cell(45, 6, 'IVA Total:', 1, 0, 'L', true);
-$pdf->Cell(25, 6, '$' . number_format(floatval($venta_info['monto_iva_general']), 2), 1, 1, 'R', true);
+// Tabla de resumen financiero en HTML - Padding reducido
+$resumen_html = '
+<table cellspacing="0" cellpadding="3" border="0" align="right">
+    <tr>
+        <td width="120" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6; font-weight: bold; color: #212529;">Subtotal General:</td>
+        <td width="80" align="right" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6;">$'.$subtotal.'</td>
+    </tr>
+    <tr>
+        <td width="120" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6; font-weight: bold; color: #212529;">IVA Total:</td>
+        <td width="80" align="right" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6;">$'.$iva.'</td>
+    </tr>';
 
 if (floatval($venta_info['descuento_general']) > 0) {
-    $pdf->SetXY(120, $pdf->GetY());
-    $pdf->SetTextColor(220, 53, 69); // Rojo para descuentos
-    $pdf->Cell(45, 6, 'Descuento General:', 1, 0, 'L', true);
-    $pdf->Cell(25, 6, '-$' . number_format(floatval($venta_info['descuento_general']), 2), 1, 1, 'R', true);
-    $pdf->SetTextColor(33, 37, 41); // Volver al color normal
+    $resumen_html .= '
+    <tr>
+        <td width="120" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;">Descuento General:</td>
+        <td width="80" align="right" bgcolor="#f8f9fa" style="border: 1px solid #dee2e6; color: #dc3545;">-$'.$descuento.'</td>
+    </tr>';
 }
 
-$pdf->SetXY(120, $pdf->GetY());
-$pdf->SetFont('helvetica', 'B', 12);
-$pdf->SetFillColor(40, 167, 69); // Verde para total
-$pdf->SetTextColor(255, 255, 255); // Texto blanco
-$pdf->Cell(45, 8, 'TOTAL GENERAL:', 1, 0, 'L', true);
-$pdf->Cell(25, 8, '$' . number_format(floatval($venta_info['total_general']), 2), 1, 1, 'R', true);
+$resumen_html .= '
+    <tr>
+        <td width="120" bgcolor="#28a745" style="border: 1px solid #28a745; font-weight: bold; color: #ffffff; font-size: 11pt;">TOTAL GENERAL:</td>
+        <td width="80" align="right" bgcolor="#28a745" style="border: 1px solid #28a745; color: #ffffff; font-size: 11pt;">$'.$total.'</td>
+    </tr>
+</table>';
 
-$pdf->Ln(10);
-
-// === INFORMACIÓN ADICIONAL ===
-$pdf->SetFont('helvetica', 'I', 8);
-$pdf->SetTextColor(108, 117, 125);
-$pdf->Cell(0, 5, 'Gracias por su compra. Este documento es una representación impresa de su comprobante de venta.', 0, 1, 'C');
+$pdf->writeHTML($resumen_html, true, false, true, false, '');
 
 // Generar el PDF
 $filename = 'Venta_' . $venta_info['codigo_venta_referencia'] . '_' . date('Y-m-d') . '.pdf';
