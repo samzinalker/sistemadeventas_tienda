@@ -118,7 +118,7 @@ include __DIR__ . '/../layout/parte1.php';
                                         <div class="form-group">
                                             <label for="password_user">Contraseña</label>
                                             <input type="password" name="password_user" id="password_user" class="form-control" required>
-                                            <small class="form-text text-muted">La contraseña debe tener al menos 6 caracteres.</small>
+                                            <small class="form-text text-muted">La contraseña debe tener al menos 4 caracteres.</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">

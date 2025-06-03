@@ -41,7 +41,7 @@ function redirigir(string $url_relativa): void {
  *               Si es exitoso, $hash no es null y $error_mensaje es null.
  *               Si hay error, $hash es null y $error_mensaje contiene el error.
  */
-function procesarPassword(string $password, string $password_repeat, int $minLength = 6): array {
+function procesarPassword(string $password, string $password_repeat, int $minLength = 4): array {
     if (!Validator::isValidPasswordLength($password, $minLength)) {
         return [null, "La contraseña debe tener al menos {$minLength} caracteres."];
     }
