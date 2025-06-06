@@ -111,18 +111,19 @@ include '../layout/mensajes.php';
                         <!-- Table row -->
                         <div class="row mt-4">
                             <div class="col-12 table-responsive">
-                                <table class="table table-striped table-sm">
+                                <!-- TABLA MEJORADA CON ALINEACIÓN CORREGIDA -->
+                                <table class="table table-striped table-bordered table-sm">
                                     <thead class="thead-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Cód. Prod.</th>
-                                        <th>Producto</th>
-                                        <th>Cant.</th>
-                                        <th>Precio U. ($)</th>
-                                        <th>IVA %</th>
-                                        <th>Subtotal ($)</th>
-                                        <th>Monto IVA ($)</th>
-                                        <th>Total Ítem ($)</th>
+                                    <tr class="text-center">
+                                        <th width="5%" class="text-center">#</th>
+                                        <th width="10%" class="text-center">Cód. Prod.</th>
+                                        <th width="30%" class="text-center">Producto</th>
+                                        <th width="8%" class="text-center">Cant.</th>
+                                        <th width="10%" class="text-center">Precio U. ($)</th>
+                                        <th width="7%" class="text-center">IVA %</th>
+                                        <th width="10%" class="text-center">Subtotal ($)</th>
+                                        <th width="10%" class="text-center">Monto IVA ($)</th>
+                                        <th width="10%" class="text-center">Total Ítem ($)</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -133,8 +134,8 @@ include '../layout/mensajes.php';
                                             $contador_items++;
                                     ?>
                                         <tr>
-                                            <td><?php echo $contador_items; ?></td>
-                                            <td><?php echo htmlspecialchars($item['codigo_producto']); ?></td>
+                                            <td class="text-center"><?php echo $contador_items; ?></td>
+                                            <td class="text-center"><?php echo htmlspecialchars($item['codigo_producto']); ?></td>
                                             <td><?php echo htmlspecialchars($item['nombre_producto']); ?></td>
                                             <td class="text-center"><?php echo htmlspecialchars(number_format((float)$item['cantidad'], 2, '.', ',')); ?></td>
                                             <td class="text-right"><?php echo htmlspecialchars(number_format((float)$item['precio_compra_unitario'], 2, '.', ',')); ?></td>
@@ -163,18 +164,19 @@ include '../layout/mensajes.php';
                             <!-- /.col -->
                             <div class="col-6">
                                 <p class="lead">Resumen de la Compra:</p>
+                                <!-- TABLA DE RESUMEN MEJORADA -->
                                 <div class="table-responsive">
-                                    <table class="table">
+                                    <table class="table table-bordered">
                                         <tr>
-                                            <th style="width:50%">Subtotal General:</th>
+                                            <th style="width:50%" class="text-right">Subtotal General:</th>
                                             <td class="text-right">$<?php echo htmlspecialchars(number_format((float)$compra_detalle_completo['subtotal_general'], 2, '.', ',')); ?></td>
                                         </tr>
                                         <tr>
-                                            <th>IVA General:</th>
+                                            <th class="text-right">IVA General:</th>
                                             <td class="text-right">$<?php echo htmlspecialchars(number_format((float)$compra_detalle_completo['monto_iva_general'], 2, '.', ',')); ?></td>
                                         </tr>
                                         <tr>
-                                            <th>Total Compra:</th>
+                                            <th class="text-right">Total Compra:</th>
                                             <td class="text-right"><strong>$<?php echo htmlspecialchars(number_format((float)$compra_detalle_completo['total_general'], 2, '.', ',')); ?></strong></td>
                                         </tr>
                                     </table>
@@ -190,13 +192,6 @@ include '../layout/mensajes.php';
                                 <a href="<?php echo $URL; ?>/compras/" class="btn btn-primary float-right" style="margin-right: 5px;">
                                     <i class="fas fa-arrow-left"></i> Volver al Listado
                                 </a>
-                                <!--
-                                <button type="button" class="btn btn-success float-right"><i class="far fa-credit-card"></i> Submit Payment
-                                </button>
-                                <button type="button" class="btn btn-primary float-right" style="margin-right: 5px;">
-                                    <i class="fas fa-download"></i> Generate PDF
-                                </button>
-                                -->
                             </div>
                         </div>
                     </div><!-- /.invoice -->

@@ -341,9 +341,10 @@ class CompraModel {
      * Obtiene los datos completos de una compra específica, incluyendo sus detalles (ítems)
      * y la información del proveedor.
      * Verifica que la compra pertenezca al usuario especificado.
-     * @param int $id_compra
-     * @param int $id_usuario
-     * @return array|false Los datos de la compra con sus detalles, o false si no se encuentra o no pertenece al usuario.
+     * 
+     * @param int $id_compra ID de la compra a buscar
+     * @param int $id_usuario ID del usuario para verificación
+     * @return array|false Los datos de la compra con sus detalles, o false si no se encuentra o no pertenece al usuario
      */
     public function getCompraConDetallesPorId(int $id_compra, int $id_usuario) {
         // 1. Obtener la cabecera de la compra y datos del proveedor
@@ -384,11 +385,12 @@ class CompraModel {
         $query_detalles->execute();
         $compra_detalles = $query_detalles->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. Combinar cabecera y detalles
-        return [
-            'cabecera' => $compra_cabecera,
-            'detalles' => $compra_detalles
-        ];
+        // 3. SOLUCIÓN: Devolver directamente los datos de cabecera y añadir detalles como propiedad
+        // Esto arregla los errores "Undefined array key" en compras/show.php
+        $resultado = $compra_cabecera; // Copiar todos los campos de la cabecera
+        $resultado['detalles'] = $compra_detalles; // Agregar los detalles como array
+
+        return $resultado;
     }
 }
 ?>
