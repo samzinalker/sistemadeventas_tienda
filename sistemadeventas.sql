@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-05-2025 a las 11:01:40
+-- Tiempo de generación: 11-06-2025 a las 19:30:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -51,13 +51,13 @@ CREATE TABLE `tb_almacen` (
 --
 
 INSERT INTO `tb_almacen` (`id_producto`, `codigo`, `nombre`, `descripcion`, `stock`, `stock_minimo`, `stock_maximo`, `precio_compra`, `precio_venta`, `iva_predeterminado`, `fecha_ingreso`, `imagen`, `id_usuario`, `id_categoria`, `fyh_creacion`, `fyh_actualizacion`) VALUES
-(1, 'P-00001', 'pepsi', '1 litro', 111, 11, 120, 0.50, 1.00, 0.00, '2025-04-19', '2025-04-22-02-46-39__pepsi.png', 1, 12, '2025-04-22 14:46:39', '2025-05-23 13:53:19'),
-(18, 'P-00003', '22', '22', 3, 22, 222, 22.00, 22.00, 12.00, '2025-05-23', NULL, 1, 13, '2025-05-23 14:01:24', '2025-05-23 17:17:47'),
-(19, 'P-00004', 'fasfasasfasfasfasfasfasfas', 'sfsfsfsfsf', 2, 33, 333, 33.00, 33.00, 33.00, '2025-05-23', NULL, 1, 13, '2025-05-23 14:04:06', '2025-05-23 17:51:29'),
-(24, 'P-00005', '999', '999', 1, 9, 999, 9.00, 99.00, 9.00, '2025-05-23', 'default_product.png', 1, 13, '2025-05-23 15:22:33', '2025-05-23 15:22:33'),
-(25, 'P-00006', '000', '000', 1, 9, 9, 9.00, 9.00, 9.00, '2025-05-23', 'default_product.png', 1, 13, '2025-05-23 15:28:11', '2025-05-23 15:28:11'),
+(1, 'P-00001', 'pepsi', '1 litro', 110, 11, 120, 0.50, 1.00, 0.00, '2025-04-19', '2025-04-22-02-46-39__pepsi.png', 1, 12, '2025-04-22 14:46:39', '2025-06-02 02:02:25'),
+(18, 'P-00003', '22', '22', 63, 22, 222, 22.00, 22.00, 12.00, '2025-05-23', NULL, 1, 13, '2025-05-23 14:01:24', '2025-06-06 00:52:25'),
+(19, 'P-00004', 'fasfasasfasfasfasfasfasfas', 'sfsfsfsfsf', 53, 33, 333, 33.00, 33.00, 33.00, '2025-05-23', NULL, 1, 13, '2025-05-23 14:04:06', '2025-06-02 03:00:20'),
+(24, 'P-00005', '999', '999', 51, 9, 999, 9.00, 99.00, 9.00, '2025-05-23', 'default_product.png', 1, 13, '2025-05-23 15:22:33', '2025-06-02 03:00:20'),
+(25, 'P-00006', '000', '000', 11, 9, 9, 9.00, 9.00, 9.00, '2025-05-23', 'default_product.png', 1, 13, '2025-05-23 15:28:11', '2025-06-06 00:52:25'),
 (27, 'P-00001', 'sffs', 'sfsfsfsf', 1, 11, 11, 11.00, 111.00, 0.00, '2025-05-27', 'P-00001_1748372087.png', 19, 22, '2025-05-27 13:54:47', '2025-05-27 14:12:42'),
-(28, 'P-00001', 'cables', 'cable hdmiv2', 35, 20, 200, 100.00, 120.00, 0.00, '2025-05-28', 'P-00001_1748419713.png', 21, 24, '2025-05-28 03:08:33', '2025-05-28 03:16:30');
+(28, 'P-00001', 'cables', 'cable hdmiv2', 105, 20, 200, 100.00, 120.00, 0.00, '2025-05-28', 'P-00001_1748419713.png', 21, 24, '2025-05-28 03:08:33', '2025-05-28 04:11:13');
 
 -- --------------------------------------------------------
 
@@ -161,15 +161,15 @@ INSERT INTO `tb_clientes` (`id_cliente`, `id_usuario`, `nombre_cliente`, `tipo_d
 
 CREATE TABLE `tb_compras` (
   `id_compra` int(11) NOT NULL,
-  `nro_compra` int(11) NOT NULL COMMENT 'Número secuencial interno de la compra para el usuario',
-  `codigo_compra_referencia` varchar(50) DEFAULT NULL COMMENT 'Código de referencia interno formateado, ej: C-00001',
+  `nro_compra` int(11) NOT NULL,
+  `codigo_compra_referencia` varchar(50) DEFAULT NULL,
   `fecha_compra` date NOT NULL,
   `id_proveedor` int(11) NOT NULL,
-  `comprobante` varchar(255) DEFAULT NULL COMMENT 'Nro de Factura/Boleta del proveedor',
+  `comprobante` varchar(255) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
-  `subtotal_general` decimal(10,2) DEFAULT 0.00 COMMENT 'Subtotal general de la compra (suma de subtotales de todos los items)',
-  `monto_iva_general` decimal(10,2) DEFAULT 0.00 COMMENT 'Monto total del IVA de la compra (suma de IVA de todos los items)',
-  `total_general` decimal(10,2) DEFAULT 0.00 COMMENT 'Total final de la compra (subtotal_general + monto_iva_general)',
+  `subtotal_general` decimal(10,2) DEFAULT 0.00,
+  `monto_iva_general` decimal(10,2) DEFAULT 0.00,
+  `total_general` decimal(10,2) DEFAULT 0.00,
   `fyh_creacion` datetime NOT NULL,
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -186,7 +186,9 @@ INSERT INTO `tb_compras` (`id_compra`, `nro_compra`, `codigo_compra_referencia`,
 (10, 7, 'C-00007', '2025-05-23', 19, NULL, 1, 31.00, 3.45, 34.45, '2025-05-23 15:28:11', '2025-05-23 17:32:41'),
 (12, 8, 'C-00008', '2025-05-23', 12, NULL, 1, 33.00, 10.89, 43.89, '2025-05-23 17:51:29', '2025-05-23 17:51:29'),
 (13, 1, 'C-00001', '2025-05-27', 20, NULL, 19, 11.00, 1.32, 12.32, '2025-05-27 13:55:34', '2025-05-27 13:55:34'),
-(14, 1, 'C-00001', '2025-05-28', 22, NULL, 21, 500.00, 60.00, 560.00, '2025-05-28 03:10:30', '2025-05-28 03:10:30');
+(14, 1, 'C-00001', '2025-05-28', 22, NULL, 21, 500.00, 60.00, 560.00, '2025-05-28 03:10:30', '2025-05-28 03:10:30'),
+(15, 9, 'C-00009', '2025-06-06', 12, '222', 1, 155.00, 18.60, 173.60, '2025-06-06 00:52:25', '2025-06-06 00:52:25'),
+(16, 10, 'C-00010', '2025-06-06', 12, '222', 1, 155.00, 18.60, 173.60, '2025-06-06 00:52:25', '2025-06-06 00:52:25');
 
 -- --------------------------------------------------------
 
@@ -196,14 +198,14 @@ INSERT INTO `tb_compras` (`id_compra`, `nro_compra`, `codigo_compra_referencia`,
 
 CREATE TABLE `tb_detalle_compras` (
   `id_detalle_compra` int(11) NOT NULL,
-  `id_compra` int(11) NOT NULL COMMENT 'FK a tb_compras.id_compra',
-  `id_producto` int(11) NOT NULL COMMENT 'FK a tb_almacen.id_producto',
-  `cantidad` decimal(10,2) NOT NULL COMMENT 'Cantidad comprada, puede ser decimal',
+  `id_compra` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` decimal(10,2) NOT NULL,
   `precio_compra_unitario` decimal(10,2) NOT NULL,
-  `porcentaje_iva_item` decimal(5,2) NOT NULL DEFAULT 0.00 COMMENT 'Porcentaje de IVA aplicado a este item específico',
-  `subtotal_item` decimal(10,2) NOT NULL COMMENT 'cantidad * precio_compra_unitario',
-  `monto_iva_item` decimal(10,2) NOT NULL COMMENT 'subtotal_item * (porcentaje_iva_item / 100)',
-  `total_item` decimal(10,2) NOT NULL COMMENT 'subtotal_item + monto_iva_item',
+  `porcentaje_iva_item` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `subtotal_item` decimal(10,2) NOT NULL,
+  `monto_iva_item` decimal(10,2) NOT NULL,
+  `total_item` decimal(10,2) NOT NULL,
   `fyh_creacion` datetime NOT NULL,
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
@@ -221,7 +223,11 @@ INSERT INTO `tb_detalle_compras` (`id_detalle_compra`, `id_compra`, `id_producto
 (12, 10, 18, 1.00, 22.00, 12.00, 22.00, 2.64, 24.64, '2025-05-23 17:17:47', '2025-05-23 17:32:41'),
 (13, 12, 19, 1.00, 33.00, 33.00, 33.00, 10.89, 43.89, '2025-05-23 17:51:29', '2025-05-23 17:51:29'),
 (14, 13, 27, 1.00, 11.00, 12.00, 11.00, 1.32, 12.32, '2025-05-27 13:55:34', '2025-05-27 13:55:34'),
-(15, 14, 28, 5.00, 100.00, 12.00, 500.00, 60.00, 560.00, '2025-05-28 03:10:30', '2025-05-28 03:10:30');
+(15, 14, 28, 5.00, 100.00, 12.00, 500.00, 60.00, 560.00, '2025-05-28 03:10:30', '2025-05-28 03:10:30'),
+(16, 15, 18, 5.00, 22.00, 12.00, 110.00, 13.20, 123.20, '2025-06-06 00:52:25', '2025-06-06 00:52:25'),
+(17, 15, 25, 5.00, 9.00, 12.00, 45.00, 5.40, 50.40, '2025-06-06 00:52:25', '2025-06-06 00:52:25'),
+(18, 16, 18, 5.00, 22.00, 12.00, 110.00, 13.20, 123.20, '2025-06-06 00:52:25', '2025-06-06 00:52:25'),
+(19, 16, 25, 5.00, 9.00, 12.00, 45.00, 5.40, 50.40, '2025-06-06 00:52:25', '2025-06-06 00:52:25');
 
 -- --------------------------------------------------------
 
@@ -250,7 +256,14 @@ CREATE TABLE `tb_detalle_ventas` (
 
 INSERT INTO `tb_detalle_ventas` (`id_detalle_venta`, `id_venta`, `id_producto`, `cantidad`, `precio_venta_unitario`, `porcentaje_iva_item`, `monto_iva_item`, `descuento_item`, `subtotal_item`, `total_item`, `fyh_creacion`, `fyh_actualizacion`) VALUES
 (2, 1, 27, 1.00, 111.00, 12.00, 13.32, 0.00, 111.00, 124.32, '2025-05-27 14:12:42', '2025-05-27 14:12:42'),
-(3, 2, 28, 70.00, 12.00, 12.00, 100.80, 0.00, 840.00, 940.80, '2025-05-28 03:16:30', '2025-05-28 03:16:30');
+(3, 2, 28, 70.00, 12.00, 12.00, 100.80, 0.00, 840.00, 940.80, '2025-05-28 03:16:30', '2025-05-28 03:16:30'),
+(4, 3, 1, 5.00, 5.00, 12.00, 3.00, 0.00, 25.00, 28.00, '2025-05-28 04:26:51', '2025-05-28 04:26:51'),
+(5, 4, 1, 1.00, 1.00, 15.00, 0.15, 0.00, 1.00, 1.15, '2025-06-02 02:02:25', '2025-06-02 02:02:25'),
+(6, 4, 18, 2.00, 22.00, 12.00, 5.28, 0.00, 44.00, 49.28, '2025-06-02 02:02:25', '2025-06-02 02:02:25'),
+(7, 4, 24, 1.00, 99.00, 9.00, 8.91, 0.00, 99.00, 107.91, '2025-06-02 02:02:25', '2025-06-02 02:02:25'),
+(8, 5, 18, 2.00, 22.00, 12.00, 5.28, 0.00, 44.00, 49.28, '2025-06-02 03:00:20', '2025-06-02 03:00:20'),
+(9, 5, 19, 2.00, 33.00, 33.00, 21.78, 0.00, 66.00, 87.78, '2025-06-02 03:00:20', '2025-06-02 03:00:20'),
+(10, 5, 24, 4.00, 99.00, 9.00, 35.64, 0.00, 396.00, 431.64, '2025-06-02 03:00:20', '2025-06-02 03:00:20');
 
 -- --------------------------------------------------------
 
@@ -266,6 +279,14 @@ CREATE TABLE `tb_historial_ventas` (
   `detalles` text DEFAULT NULL,
   `fyh_registro` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
+
+--
+-- Volcado de datos para la tabla `tb_historial_ventas`
+--
+
+INSERT INTO `tb_historial_ventas` (`id_historial`, `id_venta`, `id_usuario`, `accion`, `detalles`, `fyh_registro`) VALUES
+(1, 2, 21, 'ANULACION', 'fsfsffs', '2025-05-28 04:11:13'),
+(2, 3, 1, 'ANULACION', 'fssfsf', '2025-05-28 04:27:18');
 
 -- --------------------------------------------------------
 
@@ -393,17 +414,18 @@ CREATE TABLE `tb_usuarios` (
 --
 
 INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `usuario`, `imagen_perfil`, `estado`, `password_user`, `token`, `id_rol`, `fyh_creacion`, `fyh_actualizacion`, `fecha_eliminacion`, `eliminado_por`) VALUES
-(1, 'marcelo mamanis', 'marcelo@gmail.com', 'marcelo', '2025-05-11-14-59-30_682101a228f7c.PNG', 'activo', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-05-28 02:46:24', NULL, NULL),
-(10, 'administrador', 'admin@gmail.com', 'admin', 'user_default.png', 'activo', '$2y$10$LOP8dOv1tmWBnuZOrxmnw.TK6358ZDbFSgo6FwjuOtm.JVYxd8YGG', '', 1, '2025-05-03 06:55:54', '0000-00-00 00:00:00', NULL, NULL),
+(1, 'marcelo mamanis', 'marcelo@gmail.com', 'marcelo', '2025-05-11-14-59-30_682101a228f7c.PNG', 'activo', '$2y$10$75JF2CgxfIl0D2FvA2n7Ce0lJogqlHHmV9I38Z2SHytN7iElNtSxm', '', 1, '2025-04-14 21:07:42', '2025-06-11 12:28:22', NULL, NULL),
 (12, 'venderw', 'vender@gmail.com', 'vender', 'user_default.png', 'activo', '$2y$10$EBfd4aY2yFbbWpkPSAC1XO4PKFeWTK9r9WKa/WB5iRTD5fRGlRNJi', '', 7, '2025-05-04 06:19:20', '2025-05-11 14:41:07', NULL, NULL),
 (13, 'xd 22', '1@gmail.com', '1', 'user_default.png', 'activo', '$2y$10$uzWGvuEd0xTk3.jnYza22.FMIzgIxgsPYuGzl7oHngZDxtE6mrr4S', '', 1, '2025-05-08 21:57:46', '2025-05-11 15:04:05', NULL, NULL),
 (14, '2', '2@gmail.com', '2', 'user_default.png', 'activo', '$2y$10$8NahENpQCkCI565YSxAffOcfuyB5gfzrtt5UkHyhvx0YfBLrWkXt6', '', 7, '2025-05-10 17:32:16', '2025-05-10 17:32:22', NULL, NULL),
 (16, 'xxxx', 'xxxx@xxx.com', 'xxxx', 'user_default.png', 'activo', '$2y$10$wBQtOi/0pGcyvOX4icMlZ.5VklvZOS0/5gwFvnAcPSMJHfoZiGGGi', '', 1, '2025-05-24 15:22:28', '2025-05-24 15:22:50', NULL, NULL),
 (17, 'eee', 'eeee@gmail.com', 'eeee', 'user_default.png', 'activo', '$2y$10$8cpQ748aUYawDVj7LQisieFsNAgsMmpZZF9T2lnsm87Pv.CuJlKwG', '', 7, '2025-05-25 08:40:53', '2025-05-25 08:40:53', NULL, NULL),
-(18, 'bbb', 'bbb@bbb.com', 'bbbb', 'user_default.png', 'activo', '$2y$10$t1P2TX8vg4t9.Ifp04QUGer8HauZ4iOBoQu/HpuOdDW8HfUN/1iHK', '', 7, '2025-05-27 13:53:26', '2025-05-27 13:53:26', NULL, NULL),
 (19, '222222', 'donpancho2312@gmail.com', 'marcelo1', 'user_19_1748372670.png', 'activo', '$2y$10$/iGORLMJ4BG8iss3hMpehOQE5E2vlCgnm4wY35AOOE7p/vunzoISG', '', 7, '2025-05-27 13:54:04', '2025-05-27 14:04:30', NULL, NULL),
 (20, 'sfsffsfsfs', 'sa@ff.com', 'nnnn', 'user_default.png', 'activo', '$2y$10$LGL5zQdiXsgCZxcFzOIyfu1SvWlaVKciqJzQzau1oN5g59Laa2IRG', '', 7, '2025-05-27 18:00:42', '2025-05-27 18:01:16', NULL, NULL),
-(21, 'Marceloo Mamanii', '1ffff@gmail.com', 'ffff', 'user_default.png', 'activo', '$2y$10$ej7Nhb5PJFZ3ltASi17..ervXrQ8DWS28Z5zAWDNRnpxp5WtsEXii', '', 7, '2025-05-28 03:04:50', '2025-05-28 03:04:56', NULL, NULL);
+(21, 'Marceloo Mamanii', '1ffff@gmail.com', 'ffff', 'user_default.png', 'activo', '$2y$10$ej7Nhb5PJFZ3ltASi17..ervXrQ8DWS28Z5zAWDNRnpxp5WtsEXii', '', 7, '2025-05-28 03:04:50', '2025-05-28 03:04:56', NULL, NULL),
+(22, 'sssss', 'mamanis@gmail.com', 'ssss', 'user_default.png', 'activo', '$2y$10$XNJqUBC2i3l.rqTOiXz60epa.emGrinzl4SEnMlw6k1MWgBUOOaGS', '', 7, '2025-05-28 09:04:14', '2025-05-28 09:04:20', NULL, NULL),
+(23, 'Marceloo Mamaniiss', 'marcelo2@gmail.com', 'marcelo2', 'user_default.png', 'activo', '$2y$10$RwmVSBN.qeCixXJS/swh6elTJArsPmmLJ8TqsEGTmyrJydBpX9Bdi', '', 7, '2025-06-01 22:25:42', '2025-06-01 22:25:47', NULL, NULL),
+(24, 'admin', 'admin@gmail.com', 'admin', 'user_default.png', 'activo', '$2y$10$VHzNgyCdoDrP0T19AjV48.aDvRQ2HYHJiTItu2uWtl7xG1qW/re.O', '', 1, '2025-06-03 01:46:12', '2025-06-04 03:15:36', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -413,13 +435,13 @@ INSERT INTO `tb_usuarios` (`id_usuario`, `nombres`, `email`, `usuario`, `imagen_
 
 CREATE TABLE `tb_ventas` (
   `id_venta` int(11) NOT NULL,
-  `id_usuario` int(11) NOT NULL COMMENT 'Usuario que registra la venta (vendedor)',
-  `id_cliente` int(11) NOT NULL COMMENT 'Cliente al que se realiza la venta',
-  `nro_venta_secuencial` int(11) NOT NULL COMMENT 'Número secuencial único por usuario/sistema',
-  `codigo_venta_referencia` varchar(50) NOT NULL COMMENT 'Código visible para el usuario (ej. V-00001)',
+  `id_usuario` int(11) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `nro_venta_secuencial` int(11) NOT NULL,
+  `codigo_venta_referencia` varchar(50) NOT NULL,
   `fecha_venta` date NOT NULL,
-  `tipo_comprobante` varchar(100) DEFAULT NULL COMMENT 'Ej: Factura, Nota de Venta, Ticket',
-  `nro_comprobante_fisico` varchar(100) DEFAULT NULL COMMENT 'Número del documento físico si aplica',
+  `tipo_comprobante` varchar(100) DEFAULT NULL,
+  `nro_comprobante_fisico` varchar(100) DEFAULT NULL,
   `subtotal_general` decimal(10,2) NOT NULL DEFAULT 0.00,
   `monto_iva_general` decimal(10,2) NOT NULL DEFAULT 0.00,
   `descuento_general` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -436,7 +458,10 @@ CREATE TABLE `tb_ventas` (
 
 INSERT INTO `tb_ventas` (`id_venta`, `id_usuario`, `id_cliente`, `nro_venta_secuencial`, `codigo_venta_referencia`, `fecha_venta`, `tipo_comprobante`, `nro_comprobante_fisico`, `subtotal_general`, `monto_iva_general`, `descuento_general`, `total_general`, `estado_venta`, `observaciones`, `fyh_creacion`, `fyh_actualizacion`) VALUES
 (1, 19, 13, 1, 'V-00001', '2025-05-27', 'NOTA DE VENTA', '', 111.00, 13.32, 0.00, 124.32, 'PAGADA', '', '2025-05-27 13:56:15', '2025-05-27 14:12:43'),
-(2, 21, 14, 1, 'V-00001', '2025-05-28', 'NOTA DE VENTA', NULL, 840.00, 100.80, 0.00, 940.80, 'PENDIENTE', NULL, '2025-05-28 03:16:30', '2025-05-28 03:16:30');
+(2, 21, 14, 1, 'V-00001', '2025-05-28', 'NOTA DE VENTA', NULL, 840.00, 100.80, 0.00, 940.80, 'ANULADA', NULL, '2025-05-28 03:16:30', '2025-05-28 04:11:13'),
+(3, 1, 1, 1, 'V-00001', '2025-05-28', 'NOTA DE VENTA', NULL, 25.00, 3.00, 0.00, 28.00, 'ANULADA', NULL, '2025-05-28 04:26:51', '2025-05-28 04:27:18'),
+(4, 1, 9, 2, 'V-00002', '2025-06-02', 'NOTA DE VENTA', NULL, 144.00, 14.34, 0.00, 158.34, 'PAGADA', NULL, '2025-06-02 02:02:25', '2025-06-02 02:02:25'),
+(5, 1, 5, 3, 'V-00003', '2025-06-02', 'NOTA DE VENTA', NULL, 506.00, 62.70, 0.00, 568.70, 'PAGADA', NULL, '2025-06-02 03:00:20', '2025-06-02 03:00:20');
 
 --
 -- Índices para tablas volcadas
@@ -575,25 +600,25 @@ ALTER TABLE `tb_clientes`
 -- AUTO_INCREMENT de la tabla `tb_compras`
 --
 ALTER TABLE `tb_compras`
-  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_detalle_compras`
 --
 ALTER TABLE `tb_detalle_compras`
-  MODIFY `id_detalle_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_detalle_compra` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_detalle_ventas`
 --
 ALTER TABLE `tb_detalle_ventas`
-  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_historial_ventas`
 --
 ALTER TABLE `tb_historial_ventas`
-  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_proveedores`
@@ -617,13 +642,13 @@ ALTER TABLE `tb_roles`
 -- AUTO_INCREMENT de la tabla `tb_usuarios`
 --
 ALTER TABLE `tb_usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `tb_ventas`
 --
 ALTER TABLE `tb_ventas`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Restricciones para tablas volcadas
