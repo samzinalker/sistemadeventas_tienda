@@ -1,6 +1,6 @@
 <?php
 /**
- * Verifica si una categoría está siendo utilizada en productos
+ * Verifica si una categoría está siendo utilizada en producto
  * @param PDO $pdo Conexión a la base de datos
  * @param int $id_categoria ID de la categoría a verificar
  * @return bool true si está en uso, false si no está en uso
